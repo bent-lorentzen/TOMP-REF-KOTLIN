@@ -1,5 +1,3 @@
-package org.tomp.api.model;
+package org.tomp.api.model
 
-public class MaasProvider extends MaasOperator {
-
-}
+class MaasProvider : MaasOperator()

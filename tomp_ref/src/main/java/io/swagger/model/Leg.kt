@@ -1,586 +1,412 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.Asset;
-import io.swagger.model.AssetType;
-import io.swagger.model.Fare;
-import io.swagger.model.GeojsonLine;
-import io.swagger.model.LegState;
-import io.swagger.model.Place;
-import io.swagger.model.Suboperator;
-import io.swagger.model.Token;
-import io.swagger.model.TokenArray;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.List;
-import org.threeten.bp.OffsetDateTime;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import org.threeten.bp.OffsetDateTime
+import java.util.Objects
+import javax.annotation.Generated
+import javax.validation.Valid
 
 /**
  * A planned (segment of) a booked trip using one asset type
  */
 @Schema(description = "A planned (segment of) a booked trip using one asset type")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-10T11:36:21.130Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2021-12-10T11:36:21.130Z[GMT]")
+open class Leg {
+    /**
+     * The unique identifier (TO) of this leg
+     * @return id
+     */
+    @JvmField
+    @get:Schema(description = "The unique identifier (TO) of this leg")
+    @JsonProperty("id")
+    var id: String? = null
 
+    /**
+     * Get from
+     * @return from
+     */
+    @JvmField
+    @get:Schema(required = true, description = "")
+    @JsonProperty("from")
+    var from: Place? = null
 
-public class Leg   {
-  @JsonProperty("id")
-  private String id = null;
+    /**
+     * Get to
+     * @return to
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("to")
+    var to: Place? = null
 
-  @JsonProperty("from")
-  private Place from = null;
+    /**
+     * The departure time of this leg
+     * @return departureTime
+     */
+    @JvmField
+    @get:Schema(description = "The departure time of this leg")
+    @JsonProperty("departureTime")
+    var departureTime: OffsetDateTime? = null
 
-  @JsonProperty("to")
-  private Place to = null;
+    /**
+     * The intended arrival time at the to place
+     * @return arrivalTime
+     */
+    @JvmField
+    @get:Schema(description = "The intended arrival time at the to place")
+    @JsonProperty("arrivalTime")
+    var arrivalTime: OffsetDateTime? = null
 
-  @JsonProperty("departureTime")
-  private OffsetDateTime departureTime = null;
+    @JsonProperty("travelerReferenceNumbers")
+    private var travelerReferenceNumbers: @Valid MutableList<String>? = null
 
-  @JsonProperty("arrivalTime")
-  private OffsetDateTime arrivalTime = null;
+    /**
+     * Get assetType
+     * @return assetType
+     */
+    @JvmField
+    @get:Schema(required = true, description = "")
+    @JsonProperty("assetType")
+    var assetType: AssetType? = null
 
-  @JsonProperty("travelerReferenceNumbers")
-  @Valid
-  private List<String> travelerReferenceNumbers = null;
+    /**
+     * The order of the leg in the booking. There can be multiple legs with the same sequence (different user or parallel usage (eg. parking lot and a bike)).
+     * @return legSequenceNumber
+     */
+    @get:Schema(description = "The order of the leg in the booking. There can be multiple legs with the same sequence (different user or parallel usage (eg. parking lot and a bike)).")
+    @JsonProperty("legSequenceNumber")
+    var legSequenceNumber: Int? = null
 
-  @JsonProperty("assetType")
-  private AssetType assetType = null;
+    /**
+     * Get asset
+     * @return asset
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("asset")
+    var asset: Asset? = null
 
-  @JsonProperty("legSequenceNumber")
-  private Integer legSequenceNumber = null;
+    /**
+     * Get pricing
+     * @return pricing
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("pricing")
+    var pricing: Fare? = null
 
-  @JsonProperty("asset")
-  private Asset asset = null;
+    /**
+     * Get suboperator
+     * @return suboperator
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("suboperator")
+    var suboperator: Suboperator? = null
 
-  @JsonProperty("pricing")
-  private Fare pricing = null;
+    @JsonProperty("conditions")
+    private var conditions: @Valid MutableList<OneOflegConditionsItems>? = null
 
-  @JsonProperty("suboperator")
-  private Suboperator suboperator = null;
+    /**
+     * Get state
+     * @return state
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("state")
+    var state: LegState? = null
 
-  @JsonProperty("conditions")
-  @Valid
-  private List<OneOflegConditionsItems> conditions = null;
+    /**
+     * A duration of some time (relative to a time) in milliseconds
+     * minimum: 0
+     * maximum: 2147483647
+     * @return departureDelay
+     */
+    @get:Schema(example = "11112", description = "A duration of some time (relative to a time) in milliseconds")
+    @JsonProperty("departureDelay")
+    var departureDelay: Int? = null
 
-  @JsonProperty("state")
-  private LegState state = null;
+    /**
+     * A duration of some time (relative to a time) in milliseconds
+     * minimum: 0
+     * maximum: 2147483647
+     * @return arrivalDelay
+     */
+    @get:Schema(example = "11112", description = "A duration of some time (relative to a time) in milliseconds")
+    @JsonProperty("arrivalDelay")
+    var arrivalDelay: Int? = null
 
-  @JsonProperty("departureDelay")
-  private Integer departureDelay = null;
+    /**
+     * The estimated distance travelled in the leg (in meters)
+     * minimum: 0
+     * @return distance
+     */
+    @JvmField
+    @get:Schema(example = "7250", description = "The estimated distance travelled in the leg (in meters)")
+    @JsonProperty("distance")
+    var distance: Int? = null
 
-  @JsonProperty("arrivalDelay")
-  private Integer arrivalDelay = null;
+    @JsonProperty("progressGeometry")
+    private var progressGeometry = GeojsonLine()
 
-  @JsonProperty("distance")
-  private Integer distance = null;
+    /**
+     * Get ticket
+     * @return ticket
+     */
+    @get:Schema(description = "")
+    @JsonProperty("ticket")
+    var ticket: Token? = null
 
-  @JsonProperty("progressGeometry")
-  private GeojsonLine progressGeometry = new GeojsonLine();
+    /**
+     * Get assetAccessData
+     * @return assetAccessData
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("assetAccessData")
+    var assetAccessData: Token? = null
 
-  @JsonProperty("ticket")
-  private Token ticket = null;
-
-  @JsonProperty("assetAccessData")
-  private Token assetAccessData = null;
-
-  @JsonProperty("allAssetAccessData")
-  private TokenArray allAssetAccessData = new TokenArray();
-
-  public Leg id(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * The unique identifier (TO) of this leg
-   * @return id
-   **/
-  @Schema(description = "The unique identifier (TO) of this leg")
-  
-    public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public Leg from(Place from) {
-    this.from = from;
-    return this;
-  }
-
-  /**
-   * Get from
-   * @return from
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    @Valid
-    public Place getFrom() {
-    return from;
-  }
-
-  public void setFrom(Place from) {
-    this.from = from;
-  }
-
-  public Leg to(Place to) {
-    this.to = to;
-    return this;
-  }
-
-  /**
-   * Get to
-   * @return to
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public Place getTo() {
-    return to;
-  }
-
-  public void setTo(Place to) {
-    this.to = to;
-  }
-
-  public Leg departureTime(OffsetDateTime departureTime) {
-    this.departureTime = departureTime;
-    return this;
-  }
-
-  /**
-   * The departure time of this leg
-   * @return departureTime
-   **/
-  @Schema(description = "The departure time of this leg")
-  
-    @Valid
-    public OffsetDateTime getDepartureTime() {
-    return departureTime;
-  }
-
-  public void setDepartureTime(OffsetDateTime departureTime) {
-    this.departureTime = departureTime;
-  }
-
-  public Leg arrivalTime(OffsetDateTime arrivalTime) {
-    this.arrivalTime = arrivalTime;
-    return this;
-  }
-
-  /**
-   * The intended arrival time at the to place
-   * @return arrivalTime
-   **/
-  @Schema(description = "The intended arrival time at the to place")
-  
-    @Valid
-    public OffsetDateTime getArrivalTime() {
-    return arrivalTime;
-  }
-
-  public void setArrivalTime(OffsetDateTime arrivalTime) {
-    this.arrivalTime = arrivalTime;
-  }
-
-  public Leg travelerReferenceNumbers(List<String> travelerReferenceNumbers) {
-    this.travelerReferenceNumbers = travelerReferenceNumbers;
-    return this;
-  }
-
-  public Leg addTravelerReferenceNumbersItem(String travelerReferenceNumbersItem) {
-    if (this.travelerReferenceNumbers == null) {
-      this.travelerReferenceNumbers = new ArrayList<String>();
+    @JsonProperty("allAssetAccessData")
+    private var allAssetAccessData = TokenArray()
+    fun id(id: String?): Leg {
+        this.id = id
+        return this
     }
-    this.travelerReferenceNumbers.add(travelerReferenceNumbersItem);
-    return this;
-  }
 
-  /**
-   * reference to the travelers field of the request. If missing, it is refering to the first (if any). it is an array to facilitate multiple users on one leg (e.g. using a car). If multiple access informations are needed, please create a leg per used asset.
-   * @return travelerReferenceNumbers
-   **/
-  @Schema(description = "reference to the travelers field of the request. If missing, it is refering to the first (if any). it is an array to facilitate multiple users on one leg (e.g. using a car). If multiple access informations are needed, please create a leg per used asset.")
-  
-    public List<String> getTravelerReferenceNumbers() {
-    return travelerReferenceNumbers;
-  }
-
-  public void setTravelerReferenceNumbers(List<String> travelerReferenceNumbers) {
-    this.travelerReferenceNumbers = travelerReferenceNumbers;
-  }
-
-  public Leg assetType(AssetType assetType) {
-    this.assetType = assetType;
-    return this;
-  }
-
-  /**
-   * Get assetType
-   * @return assetType
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    @Valid
-    public AssetType getAssetType() {
-    return assetType;
-  }
-
-  public void setAssetType(AssetType assetType) {
-    this.assetType = assetType;
-  }
-
-  public Leg legSequenceNumber(Integer legSequenceNumber) {
-    this.legSequenceNumber = legSequenceNumber;
-    return this;
-  }
-
-  /**
-   * The order of the leg in the booking. There can be multiple legs with the same sequence (different user or parallel usage (eg. parking lot and a bike)).
-   * @return legSequenceNumber
-   **/
-  @Schema(description = "The order of the leg in the booking. There can be multiple legs with the same sequence (different user or parallel usage (eg. parking lot and a bike)).")
-  
-    public Integer getLegSequenceNumber() {
-    return legSequenceNumber;
-  }
-
-  public void setLegSequenceNumber(Integer legSequenceNumber) {
-    this.legSequenceNumber = legSequenceNumber;
-  }
-
-  public Leg asset(Asset asset) {
-    this.asset = asset;
-    return this;
-  }
-
-  /**
-   * Get asset
-   * @return asset
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public Asset getAsset() {
-    return asset;
-  }
-
-  public void setAsset(Asset asset) {
-    this.asset = asset;
-  }
-
-  public Leg pricing(Fare pricing) {
-    this.pricing = pricing;
-    return this;
-  }
-
-  /**
-   * Get pricing
-   * @return pricing
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public Fare getPricing() {
-    return pricing;
-  }
-
-  public void setPricing(Fare pricing) {
-    this.pricing = pricing;
-  }
-
-  public Leg suboperator(Suboperator suboperator) {
-    this.suboperator = suboperator;
-    return this;
-  }
-
-  /**
-   * Get suboperator
-   * @return suboperator
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public Suboperator getSuboperator() {
-    return suboperator;
-  }
-
-  public void setSuboperator(Suboperator suboperator) {
-    this.suboperator = suboperator;
-  }
-
-  public Leg conditions(List<OneOflegConditionsItems> conditions) {
-    this.conditions = conditions;
-    return this;
-  }
-
-  public Leg addConditionsItem(OneOflegConditionsItems conditionsItem) {
-    if (this.conditions == null) {
-      this.conditions = new ArrayList<OneOflegConditionsItems>();
+    fun from(from: Place?): Leg {
+        this.from = from
+        return this
     }
-    this.conditions.add(conditionsItem);
-    return this;
-  }
 
-  /**
-   * The conditions that apply to this leg, there may be more conditions in a parent booking and planning object (if this is returned as part of those)
-   * @return conditions
-   **/
-  @Schema(description = "The conditions that apply to this leg, there may be more conditions in a parent booking and planning object (if this is returned as part of those)")
-  
-    public List<OneOflegConditionsItems> getConditions() {
-    return conditions;
-  }
-
-  public void setConditions(List<OneOflegConditionsItems> conditions) {
-    this.conditions = conditions;
-  }
-
-  public Leg state(LegState state) {
-    this.state = state;
-    return this;
-  }
-
-  /**
-   * Get state
-   * @return state
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public LegState getState() {
-    return state;
-  }
-
-  public void setState(LegState state) {
-    this.state = state;
-  }
-
-  public Leg departureDelay(Integer departureDelay) {
-    this.departureDelay = departureDelay;
-    return this;
-  }
-
-  /**
-   * A duration of some time (relative to a time) in milliseconds
-   * minimum: 0
-   * maximum: 2147483647
-   * @return departureDelay
-   **/
-  @Schema(example = "11112", description = "A duration of some time (relative to a time) in milliseconds")
-  
-  @Min(0) @Max(2147483647)   public Integer getDepartureDelay() {
-    return departureDelay;
-  }
-
-  public void setDepartureDelay(Integer departureDelay) {
-    this.departureDelay = departureDelay;
-  }
-
-  public Leg arrivalDelay(Integer arrivalDelay) {
-    this.arrivalDelay = arrivalDelay;
-    return this;
-  }
-
-  /**
-   * A duration of some time (relative to a time) in milliseconds
-   * minimum: 0
-   * maximum: 2147483647
-   * @return arrivalDelay
-   **/
-  @Schema(example = "11112", description = "A duration of some time (relative to a time) in milliseconds")
-  
-  @Min(0) @Max(2147483647)   public Integer getArrivalDelay() {
-    return arrivalDelay;
-  }
-
-  public void setArrivalDelay(Integer arrivalDelay) {
-    this.arrivalDelay = arrivalDelay;
-  }
-
-  public Leg distance(Integer distance) {
-    this.distance = distance;
-    return this;
-  }
-
-  /**
-   * The estimated distance travelled in the leg (in meters)
-   * minimum: 0
-   * @return distance
-   **/
-  @Schema(example = "7250", description = "The estimated distance travelled in the leg (in meters)")
-  
-  @Min(0)  public Integer getDistance() {
-    return distance;
-  }
-
-  public void setDistance(Integer distance) {
-    this.distance = distance;
-  }
-
-  public Leg progressGeometry(GeojsonLine progressGeometry) {
-    this.progressGeometry = progressGeometry;
-    return this;
-  }
-
-  /**
-   * An array  of WGS84 coordinate pairs
-   * @return progressGeometry
-   **/
-  @Schema(example = "[[6.169639,52.253279],[6.05623,52.63473]]", description = "An array  of WGS84 coordinate pairs")
-  
-    @Valid
-    public GeojsonLine getProgressGeometry() {
-    return progressGeometry;
-  }
-
-  public void setProgressGeometry(GeojsonLine progressGeometry) {
-    this.progressGeometry = progressGeometry;
-  }
-
-  public Leg ticket(Token ticket) {
-    this.ticket = ticket;
-    return this;
-  }
-
-  /**
-   * Get ticket
-   * @return ticket
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public Token getTicket() {
-    return ticket;
-  }
-
-  public void setTicket(Token ticket) {
-    this.ticket = ticket;
-  }
-
-  public Leg assetAccessData(Token assetAccessData) {
-    this.assetAccessData = assetAccessData;
-    return this;
-  }
-
-  /**
-   * Get assetAccessData
-   * @return assetAccessData
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public Token getAssetAccessData() {
-    return assetAccessData;
-  }
-
-  public void setAssetAccessData(Token assetAccessData) {
-    this.assetAccessData = assetAccessData;
-  }
-
-  public Leg allAssetAccessData(TokenArray allAssetAccessData) {
-    this.allAssetAccessData = allAssetAccessData;
-    return this;
-  }
-
-  /**
-   * Get allAssetAccessData
-   * @return allAssetAccessData
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public TokenArray getAllAssetAccessData() {
-    return allAssetAccessData;
-  }
-
-  public void setAllAssetAccessData(TokenArray allAssetAccessData) {
-    this.allAssetAccessData = allAssetAccessData;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    fun to(to: Place?): Leg {
+        this.to = to
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun departureTime(departureTime: OffsetDateTime?): Leg {
+        this.departureTime = departureTime
+        return this
     }
-    Leg leg = (Leg) o;
-    return Objects.equals(this.id, leg.id) &&
-        Objects.equals(this.from, leg.from) &&
-        Objects.equals(this.to, leg.to) &&
-        Objects.equals(this.departureTime, leg.departureTime) &&
-        Objects.equals(this.arrivalTime, leg.arrivalTime) &&
-        Objects.equals(this.travelerReferenceNumbers, leg.travelerReferenceNumbers) &&
-        Objects.equals(this.assetType, leg.assetType) &&
-        Objects.equals(this.legSequenceNumber, leg.legSequenceNumber) &&
-        Objects.equals(this.asset, leg.asset) &&
-        Objects.equals(this.pricing, leg.pricing) &&
-        Objects.equals(this.suboperator, leg.suboperator) &&
-        Objects.equals(this.conditions, leg.conditions) &&
-        Objects.equals(this.state, leg.state) &&
-        Objects.equals(this.departureDelay, leg.departureDelay) &&
-        Objects.equals(this.arrivalDelay, leg.arrivalDelay) &&
-        Objects.equals(this.distance, leg.distance) &&
-        Objects.equals(this.progressGeometry, leg.progressGeometry) &&
-        Objects.equals(this.ticket, leg.ticket) &&
-        Objects.equals(this.assetAccessData, leg.assetAccessData) &&
-        Objects.equals(this.allAssetAccessData, leg.allAssetAccessData);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, from, to, departureTime, arrivalTime, travelerReferenceNumbers, assetType, legSequenceNumber, asset, pricing, suboperator, conditions, state, departureDelay, arrivalDelay, distance, progressGeometry, ticket, assetAccessData, allAssetAccessData);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Leg {\n");
-    
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    from: ").append(toIndentedString(from)).append("\n");
-    sb.append("    to: ").append(toIndentedString(to)).append("\n");
-    sb.append("    departureTime: ").append(toIndentedString(departureTime)).append("\n");
-    sb.append("    arrivalTime: ").append(toIndentedString(arrivalTime)).append("\n");
-    sb.append("    travelerReferenceNumbers: ").append(toIndentedString(travelerReferenceNumbers)).append("\n");
-    sb.append("    assetType: ").append(toIndentedString(assetType)).append("\n");
-    sb.append("    legSequenceNumber: ").append(toIndentedString(legSequenceNumber)).append("\n");
-    sb.append("    asset: ").append(toIndentedString(asset)).append("\n");
-    sb.append("    pricing: ").append(toIndentedString(pricing)).append("\n");
-    sb.append("    suboperator: ").append(toIndentedString(suboperator)).append("\n");
-    sb.append("    conditions: ").append(toIndentedString(conditions)).append("\n");
-    sb.append("    state: ").append(toIndentedString(state)).append("\n");
-    sb.append("    departureDelay: ").append(toIndentedString(departureDelay)).append("\n");
-    sb.append("    arrivalDelay: ").append(toIndentedString(arrivalDelay)).append("\n");
-    sb.append("    distance: ").append(toIndentedString(distance)).append("\n");
-    sb.append("    progressGeometry: ").append(toIndentedString(progressGeometry)).append("\n");
-    sb.append("    ticket: ").append(toIndentedString(ticket)).append("\n");
-    sb.append("    assetAccessData: ").append(toIndentedString(assetAccessData)).append("\n");
-    sb.append("    allAssetAccessData: ").append(toIndentedString(allAssetAccessData)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun arrivalTime(arrivalTime: OffsetDateTime?): Leg {
+        this.arrivalTime = arrivalTime
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun travelerReferenceNumbers(travelerReferenceNumbers: List<String>?): Leg {
+        this.travelerReferenceNumbers = travelerReferenceNumbers
+        return this
+    }
+
+    fun addTravelerReferenceNumbersItem(travelerReferenceNumbersItem: String): Leg {
+        if (travelerReferenceNumbers == null) {
+            travelerReferenceNumbers = ArrayList()
+        }
+        travelerReferenceNumbers!!.add(travelerReferenceNumbersItem)
+        return this
+    }
+
+    /**
+     * reference to the travelers field of the request. If missing, it is refering to the first (if any). it is an array to facilitate multiple users on one leg (e.g. using a car). If multiple access informations are needed, please create a leg per used asset.
+     * @return travelerReferenceNumbers
+     */
+    @Schema(description = "reference to the travelers field of the request. If missing, it is refering to the first (if any). it is an array to facilitate multiple users on one leg (e.g. using a car). If multiple access informations are needed, please create a leg per used asset.")
+    fun getTravelerReferenceNumbers(): List<String>? {
+        return travelerReferenceNumbers
+    }
+
+    fun setTravelerReferenceNumbers(travelerReferenceNumbers: List<String>?) {
+        this.travelerReferenceNumbers = travelerReferenceNumbers
+    }
+
+    fun assetType(assetType: AssetType?): Leg {
+        this.assetType = assetType
+        return this
+    }
+
+    fun legSequenceNumber(legSequenceNumber: Int?): Leg {
+        this.legSequenceNumber = legSequenceNumber
+        return this
+    }
+
+    fun asset(asset: Asset?): Leg {
+        this.asset = asset
+        return this
+    }
+
+    fun pricing(pricing: Fare?): Leg {
+        this.pricing = pricing
+        return this
+    }
+
+    fun suboperator(suboperator: Suboperator?): Leg {
+        this.suboperator = suboperator
+        return this
+    }
+
+    fun conditions(conditions: List<OneOflegConditionsItems>?): Leg {
+        this.conditions = conditions
+        return this
+    }
+
+    fun addConditionsItem(conditionsItem: OneOflegConditionsItems): Leg {
+        if (conditions == null) {
+            conditions = ArrayList()
+        }
+        conditions!!.add(conditionsItem)
+        return this
+    }
+
+    /**
+     * The conditions that apply to this leg, there may be more conditions in a parent booking and planning object (if this is returned as part of those)
+     * @return conditions
+     */
+    @Schema(description = "The conditions that apply to this leg, there may be more conditions in a parent booking and planning object (if this is returned as part of those)")
+    fun getConditions(): List<OneOflegConditionsItems>? {
+        return conditions
+    }
+
+    fun setConditions(conditions: List<OneOflegConditionsItems>?) {
+        this.conditions = conditions
+    }
+
+    fun state(state: LegState?): Leg {
+        this.state = state
+        return this
+    }
+
+    fun departureDelay(departureDelay: Int?): Leg {
+        this.departureDelay = departureDelay
+        return this
+    }
+
+    fun arrivalDelay(arrivalDelay: Int?): Leg {
+        this.arrivalDelay = arrivalDelay
+        return this
+    }
+
+    fun distance(distance: Int?): Leg {
+        this.distance = distance
+        return this
+    }
+
+    fun progressGeometry(progressGeometry: GeojsonLine): Leg {
+        this.progressGeometry = progressGeometry
+        return this
+    }
+
+    /**
+     * An array  of WGS84 coordinate pairs
+     * @return progressGeometry
+     */
+    @Schema(example = "[[6.169639,52.253279],[6.05623,52.63473]]", description = "An array  of WGS84 coordinate pairs")
+    fun getProgressGeometry(): @Valid GeojsonLine? {
+        return progressGeometry
+    }
+
+    fun setProgressGeometry(progressGeometry: GeojsonLine) {
+        this.progressGeometry = progressGeometry
+    }
+
+    fun ticket(ticket: Token?): Leg {
+        this.ticket = ticket
+        return this
+    }
+
+    fun assetAccessData(assetAccessData: Token?): Leg {
+        this.assetAccessData = assetAccessData
+        return this
+    }
+
+    fun allAssetAccessData(allAssetAccessData: TokenArray): Leg {
+        this.allAssetAccessData = allAssetAccessData
+        return this
+    }
+
+    /**
+     * Get allAssetAccessData
+     * @return allAssetAccessData
+     */
+    @Schema(description = "")
+    fun getAllAssetAccessData(): @Valid TokenArray? {
+        return allAssetAccessData
+    }
+
+    fun setAllAssetAccessData(allAssetAccessData: TokenArray) {
+        this.allAssetAccessData = allAssetAccessData
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val leg = o as Leg
+        return id == leg.id && from == leg.from && to == leg.to && departureTime == leg.departureTime && arrivalTime == leg.arrivalTime && travelerReferenceNumbers == leg.travelerReferenceNumbers && assetType == leg.assetType && legSequenceNumber == leg.legSequenceNumber && asset == leg.asset && pricing == leg.pricing && suboperator == leg.suboperator && conditions == leg.conditions && state == leg.state && departureDelay == leg.departureDelay && arrivalDelay == leg.arrivalDelay && distance == leg.distance && progressGeometry == leg.progressGeometry && ticket == leg.ticket && assetAccessData == leg.assetAccessData && allAssetAccessData == leg.allAssetAccessData
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(
+            id,
+            from,
+            to,
+            departureTime,
+            arrivalTime,
+            travelerReferenceNumbers,
+            assetType,
+            legSequenceNumber,
+            asset,
+            pricing,
+            suboperator,
+            conditions,
+            state,
+            departureDelay,
+            arrivalDelay,
+            distance,
+            progressGeometry,
+            ticket,
+            assetAccessData,
+            allAssetAccessData
+        )
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class Leg {\n")
+        sb.append("    id: ").append(toIndentedString(id)).append("\n")
+        sb.append("    from: ").append(toIndentedString(from)).append("\n")
+        sb.append("    to: ").append(toIndentedString(to)).append("\n")
+        sb.append("    departureTime: ").append(toIndentedString(departureTime)).append("\n")
+        sb.append("    arrivalTime: ").append(toIndentedString(arrivalTime)).append("\n")
+        sb.append("    travelerReferenceNumbers: ").append(toIndentedString(travelerReferenceNumbers)).append("\n")
+        sb.append("    assetType: ").append(toIndentedString(assetType)).append("\n")
+        sb.append("    legSequenceNumber: ").append(toIndentedString(legSequenceNumber)).append("\n")
+        sb.append("    asset: ").append(toIndentedString(asset)).append("\n")
+        sb.append("    pricing: ").append(toIndentedString(pricing)).append("\n")
+        sb.append("    suboperator: ").append(toIndentedString(suboperator)).append("\n")
+        sb.append("    conditions: ").append(toIndentedString(conditions)).append("\n")
+        sb.append("    state: ").append(toIndentedString(state)).append("\n")
+        sb.append("    departureDelay: ").append(toIndentedString(departureDelay)).append("\n")
+        sb.append("    arrivalDelay: ").append(toIndentedString(arrivalDelay)).append("\n")
+        sb.append("    distance: ").append(toIndentedString(distance)).append("\n")
+        sb.append("    progressGeometry: ").append(toIndentedString(progressGeometry)).append("\n")
+        sb.append("    ticket: ").append(toIndentedString(ticket)).append("\n")
+        sb.append("    assetAccessData: ").append(toIndentedString(assetAccessData)).append("\n")
+        sb.append("    allAssetAccessData: ").append(toIndentedString(allAssetAccessData)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

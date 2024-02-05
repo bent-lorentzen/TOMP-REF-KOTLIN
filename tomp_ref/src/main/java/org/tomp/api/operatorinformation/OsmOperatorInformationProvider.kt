@@ -1,133 +1,115 @@
-package org.tomp.api.operatorinformation;
+package org.tomp.api.operatorinformation
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.locationtech.jts.geom.Envelope;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.configuration.OverpassConfiguration;
-import org.tomp.api.providers.assets.AssetProvider;
-import org.tomp.api.providers.regions.RegionProvider;
-import org.tomp.api.utils.ExternalFileService;
-import org.tomp.api.utils.GeoUtil;
-import org.tomp.api.utils.OSMUtil;
-
-import io.swagger.model.AssetType;
-import io.swagger.model.EndpointImplementation;
-import io.swagger.model.GeojsonPolygon;
-import io.swagger.model.Place;
-import io.swagger.model.StationInformation;
-import io.swagger.model.SystemCalendar;
-import io.swagger.model.SystemHours;
-import io.swagger.model.SystemInformation;
-import io.swagger.model.SystemPricingPlan;
-import io.swagger.model.SystemRegion;
+import io.swagger.model.AssetType
+import io.swagger.model.EndpointImplementation
+import io.swagger.model.StationInformation
+import io.swagger.model.SystemCalendar
+import io.swagger.model.SystemHours
+import io.swagger.model.SystemInformation
+import io.swagger.model.SystemPricingPlan
+import io.swagger.model.SystemRegion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Component
+import org.springframework.web.server.ResponseStatusException
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.configuration.OverpassConfiguration
+import org.tomp.api.providers.assets.AssetProvider
+import org.tomp.api.providers.regions.RegionProvider
+import org.tomp.api.utils.ExternalFileService
+import org.tomp.api.utils.GeoUtil
+import org.tomp.api.utils.OSMUtil
+import java.util.Arrays
+import javax.annotation.PostConstruct
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "overpass", matchIfMissing = false)
-public class OsmOperatorInformationProvider implements OperatorInformationProvider {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "overpass", matchIfMissing = false)
+class OsmOperatorInformationProvider : OperatorInformationProvider {
+    @Autowired
+    var fileService: ExternalFileService? = null
 
-	@Autowired
-	ExternalFileService fileService;
+    @Autowired
+    var configuration: ExternalConfiguration? = null
 
-	@Autowired
-	ExternalConfiguration configuration;
+    @Autowired
+    var overpassConfiguration: OverpassConfiguration? = null
 
-	@Autowired
-	OverpassConfiguration overpassConfiguration;
+    @Autowired(required = false)
+    var assetProvider: AssetProvider? = null
 
-	@Autowired(required = false)
-	AssetProvider assetProvider;
+    @Autowired(required = false)
+    var operatorInformationProvider: OperatorInformationProvider? = null
 
-	@Autowired(required = false)
-	OperatorInformationProvider operatorInformationProvider;
+    @Autowired(required = false)
+    var regionProvider: RegionProvider? = null
+    var stations: MutableList<StationInformation?>? = null
+    @PostConstruct
+    fun postConstruct() {
+        getStations("en")
+    }
 
-	@Autowired(required = false)
-	RegionProvider regionProvider;
+    override fun getAvailableAssetTypes(acceptLanguage: String?): List<AssetType?>? {
+        return if (assetProvider != null) {
+            assetProvider.getAssetTypes()
+        } else ArrayList()
+    }
 
-	List<StationInformation> stations = null;
+    override fun getOperatorInformation(acceptLanguage: String?): SystemInformation? {
+        if (operatorInformationProvider != null) {
+            return operatorInformationProvider!!.getOperatorInformation(acceptLanguage)
+        }
+        throw ResponseStatusException(HttpStatus.NOT_IMPLEMENTED)
+    }
 
-	@PostConstruct
-	public void postConstruct() {
-		getStations("en");
-	}
+    override fun getStations(acceptLanguage: String?): List<StationInformation?>? {
+        if (stations == null) {
+            stations = ArrayList()
+            val area = fileService.getArea()
+            val boundingBox = GeoUtil.getBoundingBox(GeoUtil.toPolygon(area))
+            val bb = doubleArrayOf(
+                boundingBox!!.minY, boundingBox.minX, boundingBox.maxY,
+                boundingBox.maxX
+            )
+            try {
+                val overpassObjects = OSMUtil.getOverpassObjects(overpassConfiguration.getQl(), bb)
+                for (p in overpassObjects!!) {
+                    val e = StationInformation()
+                    e.coordinates = p!!.coordinates
+                    e.stationId = p.stationId
+                    stations.add(e)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return stations
+    }
 
-	@Override
-	public List<AssetType> getAvailableAssetTypes(String acceptLanguage) {
-		if (assetProvider != null) {
-			return assetProvider.getAssetTypes();
-		}
-		return new ArrayList<>();
-	}
+    override fun getRegions(acceptLanguage: String?): MutableList<SystemRegion?>? {
+        if (regionProvider != null) {
+            return regionProvider!!.getRegions(acceptLanguage)
+        }
+        val region = SystemRegion()
+        region.regionId = configuration.getMaasId()
+        region.name = configuration.getAppName()
+        region.setServiceArea(fileService.getArea())
+        return Arrays.asList(region)
+    }
 
-	@Override
-	public SystemInformation getOperatorInformation(String acceptLanguage) {
-		if (operatorInformationProvider != null) {
-			return operatorInformationProvider.getOperatorInformation(acceptLanguage);
-		}
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
-	}
+    override fun getPricingPlans(acceptLanguage: String?): List<SystemPricingPlan> {
+        throw ResponseStatusException(HttpStatus.NOT_IMPLEMENTED)
+    }
 
-	@Override
-	public List<StationInformation> getStations(String acceptLanguage) {
-		if (stations == null) {
-			stations = new ArrayList<>();
-			GeojsonPolygon area = fileService.getArea();
-			Envelope boundingBox = GeoUtil.getBoundingBox(GeoUtil.toPolygon(area));
-			double[] bb = new double[] { boundingBox.getMinY(), boundingBox.getMinX(), boundingBox.getMaxY(),
-					boundingBox.getMaxX() };
-			try {
-				List<Place> overpassObjects = OSMUtil.getOverpassObjects(overpassConfiguration.getQl(), bb);
-				for (Place p : overpassObjects) {
-					StationInformation e = new StationInformation();
-					e.setCoordinates(p.getCoordinates());
-					e.setStationId(p.getStationId());
-					stations.add(e);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return stations;
-	}
+    override fun getHours(acceptLanguage: String?): List<SystemHours> {
+        throw ResponseStatusException(HttpStatus.NOT_IMPLEMENTED)
+    }
 
-	@Override
-	public List<SystemRegion> getRegions(String acceptLanguage) {
-		if (regionProvider != null) {
-			return regionProvider.getRegions(acceptLanguage);
-		}
-		SystemRegion region = new SystemRegion();
-		region.setRegionId(configuration.getMaasId());
-		region.setName(configuration.getAppName());
-		region.setServiceArea(fileService.getArea());
-		return Arrays.asList(region);
-	}
+    override fun getCalendar(acceptLanguage: String?): List<SystemCalendar> {
+        throw ResponseStatusException(HttpStatus.NOT_IMPLEMENTED)
+    }
 
-	@Override
-	public List<SystemPricingPlan> getPricingPlans(String acceptLanguage) {
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
-	}
-
-	@Override
-	public List<SystemHours> getHours(String acceptLanguage) {
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
-	}
-
-	@Override
-	public List<SystemCalendar> getCalendar(String acceptLanguage) {
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
-	}
-
-	@Override
-	public List<EndpointImplementation> getMeta(String acceptLanguage) {
-		return fileService.getEndPoints();
-	}
+    override fun getMeta(acceptLanguage: String?): List<EndpointImplementation?>? {
+        return fileService.getEndPoints()
+    }
 }

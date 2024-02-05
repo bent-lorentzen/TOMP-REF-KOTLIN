@@ -1,95 +1,84 @@
-package org.tomp.api.operatorinformation;
+package org.tomp.api.operatorinformation
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.repository.RegionContainer;
-import org.tomp.api.utils.ExternalFileService;
-import org.tomp.api.utils.ObjectFromFileProvider;
-
-import io.swagger.model.AssetType;
-import io.swagger.model.EndpointImplementation;
-import io.swagger.model.StationInformation;
-import io.swagger.model.SystemCalendar;
-import io.swagger.model.SystemHours;
-import io.swagger.model.SystemInformation;
-import io.swagger.model.SystemPricingPlan;
-import io.swagger.model.SystemRegion;
+import io.swagger.model.AssetType
+import io.swagger.model.EndpointImplementation
+import io.swagger.model.StationInformation
+import io.swagger.model.SystemCalendar
+import io.swagger.model.SystemHours
+import io.swagger.model.SystemInformation
+import io.swagger.model.SystemPricingPlan
+import io.swagger.model.SystemRegion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.repository.RegionContainer
+import org.tomp.api.utils.ExternalFileService
+import org.tomp.api.utils.ObjectFromFileProvider
+import java.util.Collections
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "generic", matchIfMissing = true)
-public class GenericOperatorInformationProvider implements OperatorInformationProvider, RegionContainer {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "generic", matchIfMissing = true)
+class GenericOperatorInformationProvider : OperatorInformationProvider, RegionContainer {
+    @Autowired
+    var configuration: ExternalConfiguration? = null
 
-	@Autowired
-	ExternalConfiguration configuration;
-	@Autowired
-	ExternalFileService fileService;
+    @Autowired
+    var fileService: ExternalFileService? = null
+    override fun getAvailableAssetTypes(acceptLanguage: String?): List<AssetType?>? {
+        val provider = ObjectFromFileProvider<Array<AssetType>>()
+        val list = ArrayList<AssetType?>()
+        Collections.addAll(list, *provider.getObject(acceptLanguage, Array<AssetType>::class.java, configuration.getAssetFile()))
+        return list
+    }
 
-	@Override
-	public List<AssetType> getAvailableAssetTypes(String acceptLanguage) {
-		ObjectFromFileProvider<AssetType[]> provider = new ObjectFromFileProvider<>();
-		ArrayList<AssetType> list = new ArrayList<>();
-		Collections.addAll(list, provider.getObject(acceptLanguage, AssetType[].class, configuration.getAssetFile()));
-		return list;
-	}
+    override fun getOperatorInformation(acceptLanguage: String?): SystemInformation? {
+        val provider = ObjectFromFileProvider<SystemInformation>()
+        return provider.getObject(acceptLanguage, SystemInformation::class.java, configuration.getSystemInformationFile())
+    }
 
-	@Override
-	public SystemInformation getOperatorInformation(String acceptLanguage) {
-		ObjectFromFileProvider<SystemInformation> provider = new ObjectFromFileProvider<>();
-		return provider.getObject(acceptLanguage, SystemInformation.class, configuration.getSystemInformationFile());
-	}
+    override fun getStations(acceptLanguage: String?): List<StationInformation?>? {
+        val provider = ObjectFromFileProvider<Array<StationInformation>>()
+        val stationArray = provider.getObject(
+            acceptLanguage, Array<StationInformation>::class.java,
+            configuration.getStationsFile()
+        )!!
+        val stations: MutableList<StationInformation?> = ArrayList()
+        for (i in stationArray.indices) {
+            stations.add(stationArray[i])
+        }
+        return stations
+    }
 
-	@Override
-	public List<StationInformation> getStations(String acceptLanguage) {
-		ObjectFromFileProvider<StationInformation[]> provider = new ObjectFromFileProvider<>();
-		StationInformation[] stationArray = provider.getObject(acceptLanguage, StationInformation[].class,
-				configuration.getStationsFile());
-		List<StationInformation> stations = new ArrayList<>();
-		for (int i = 0; i < stationArray.length; i++) {
-			stations.add(stationArray[i]);
-		}
-		return stations;
-	}
+    override fun getRegions(acceptLanguage: String?): MutableList<SystemRegion?>? {
+        val provider = ObjectFromFileProvider<Array<SystemRegion>>()
+        val regionArray = provider.getObject(
+            acceptLanguage, Array<SystemRegion>::class.java,
+            configuration.getRegionsFile()
+        )!!
+        val regions: MutableList<SystemRegion?> = ArrayList()
+        for (i in regionArray.indices) {
+            regions.add(regionArray[i])
+        }
+        return regions
+    }
 
-	@Override
-	public List<SystemRegion> getRegions(String acceptLanguage) {
-		ObjectFromFileProvider<SystemRegion[]> provider = new ObjectFromFileProvider<>();
-		SystemRegion[] regionArray = provider.getObject(acceptLanguage, SystemRegion[].class,
-				configuration.getRegionsFile());
-		List<SystemRegion> regions = new ArrayList<>();
-		for (int i = 0; i < regionArray.length; i++) {
-			regions.add(regionArray[i]);
-		}
-		return regions;
-	}
+    override fun getPricingPlans(acceptLanguage: String?): List<SystemPricingPlan> {
+        return ArrayList()
+    }
 
-	@Override
-	public List<SystemPricingPlan> getPricingPlans(String acceptLanguage) {
-		return new ArrayList<>();
-	}
+    override fun getHours(acceptLanguage: String?): List<SystemHours> {
+        return ArrayList()
+    }
 
-	@Override
-	public List<SystemHours> getHours(String acceptLanguage) {
-		return new ArrayList<>();
-	}
+    override fun getCalendar(acceptLanguage: String?): List<SystemCalendar> {
+        return ArrayList()
+    }
 
-	@Override
-	public List<SystemCalendar> getCalendar(String acceptLanguage) {
-		return new ArrayList<>();
-	}
+    override fun getMeta(acceptLanguage: String?): List<EndpointImplementation?>? {
+        return fileService.getEndPoints()
+    }
 
-	@Override
-	public List<EndpointImplementation> getMeta(String acceptLanguage) {
-		return fileService.getEndPoints();
-	}
-
-	@Override
-	public List<SystemRegion> getRegions() {
-		return getRegions("");
-	}
+    override val regions: MutableList<SystemRegion?>?
+        get() = getRegions("")
 }

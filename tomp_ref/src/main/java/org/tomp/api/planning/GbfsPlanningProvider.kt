@@ -1,99 +1,78 @@
-package org.tomp.api.planning;
+package org.tomp.api.planning
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.providers.assets.AssetProvider;
-import org.tomp.api.providers.fares.FareProvider;
-import org.tomp.api.repository.GbfsRepository;
-
-import io.swagger.model.AssetClass;
-import io.swagger.model.AssetType;
-import io.swagger.model.Booking;
-import io.swagger.model.Fare;
-import io.swagger.model.Leg;
-import io.swagger.model.Place;
-import io.swagger.model.PlanningRequest;
+import io.swagger.model.AssetClass
+import io.swagger.model.AssetType
+import io.swagger.model.Booking
+import io.swagger.model.Fare
+import io.swagger.model.Leg
+import io.swagger.model.Place
+import io.swagger.model.PlanningRequest
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.providers.assets.AssetProvider
+import org.tomp.api.providers.fares.FareProvider
+import org.tomp.api.repository.GbfsRepository
+import javax.validation.Valid
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.planning", havingValue = "gbfs", matchIfMissing = false)
-public class GbfsPlanningProvider extends BasePlanningProvider {
+@ConditionalOnProperty(value = ["tomp.providers.planning"], havingValue = "gbfs", matchIfMissing = false)
+class GbfsPlanningProvider : BasePlanningProvider() {
+    @Autowired
+    var fareProvider: FareProvider? = null
 
-	@Autowired
-	FareProvider fareProvider;
+    @Autowired
+    var assetProvider: AssetProvider? = null
 
-	@Autowired
-	AssetProvider assetProvider;
+    @Autowired
+    var gbfsRepository: GbfsRepository? = null
+    override fun getResults(body: @Valid PlanningRequest?, acceptLanguage: String?, bookingIntent: Boolean): ArrayList<Booking>? {
+        val assets = gbfsRepository!!.getNearestAssets(body!!.from, body.radius)
+        val bookingList = ArrayList<Booking>()
+        for (assetType in assets!!) {
+            val booking = Booking()
+            val leg = Leg()
+            leg.assetType = assetType
+            leg.from = from
+            leg.to = to
+            leg.departureTime = startTime
+            leg.arrivalTime = endTime
+            leg.pricing = fare
+            leg.setConditions(getConditionsForLeg(leg, acceptLanguage))
+            var assetLocation = getAssetLocation(assetType)
+            if (assetLocation == null) {
+                assetLocation = body.from
+            }
+            booking.addLegsItem(leg)
+            val byFoot = Leg()
+            val asset = AssetType()
+            asset.assetClass = AssetClass.FOOT
+            byFoot.assetType = asset
+            byFoot.from = from
+            byFoot.to = assetLocation
+            byFoot.departureTime = body.departureTime
+            byFoot.arrivalTime = body.arrivalTime!!.plusMinutes(5)
+            booking.addLegsItem(byFoot)
+            val byBike = Leg()
+            byBike.assetType = assetType
+            byBike.from = assetLocation
+            byBike.to = to
+            byBike.departureTime = body.departureTime!!.plusMinutes(5)
+            byBike.arrivalTime = body.arrivalTime
+            booking.addLegsItem(byBike)
+            bookingList.add(booking)
+        }
+        return bookingList
+    }
 
-	@Autowired
-	GbfsRepository gbfsRepository;
+    private fun getAssetLocation(assetType: AssetType?): Place? {
+        return if (assetType != null && !assetType.getAssets()!!.isEmpty() && assetType.getAssets()!![0].overriddenProperties!!.location != null) {
+            assetType.getAssets()!![0].overriddenProperties!!.location
+        } else null
+    }
 
-	@Override
-	protected ArrayList<Booking> getResults(@Valid PlanningRequest body, String acceptLanguage, boolean bookingIntent) {
-		List<AssetType> assets = gbfsRepository.getNearestAssets(body.getFrom(), body.getRadius());
-		ArrayList<Booking> bookingList = new ArrayList<>();
-
-		for (AssetType assetType : assets) {
-			Booking booking = new Booking();
-			Leg leg = new Leg();
-			leg.setAssetType(assetType);
-			leg.setFrom(from);
-			leg.setTo(to);
-			leg.setDepartureTime(getStartTime());
-			leg.setArrivalTime(getEndTime());
-			leg.setPricing(getFare());
-			leg.setConditions(getConditionsForLeg(leg, acceptLanguage));
-
-			Place assetLocation = getAssetLocation(assetType);
-			if (assetLocation == null) {
-				assetLocation = body.getFrom();
-			}
-			booking.addLegsItem(leg);
-
-			Leg byFoot = new Leg();
-			AssetType asset = new AssetType();
-			asset.setAssetClass(AssetClass.FOOT);
-			byFoot.setAssetType(asset);
-			byFoot.setFrom(from);
-			byFoot.setTo(assetLocation);
-			byFoot.setDepartureTime(body.getDepartureTime());
-			byFoot.setArrivalTime(body.getArrivalTime().plusMinutes(5));
-			booking.addLegsItem(byFoot);
-
-			Leg byBike = new Leg();
-			byBike.setAssetType(assetType);
-			byBike.setFrom(assetLocation);
-			byBike.setTo(to);
-			byBike.setDepartureTime(body.getDepartureTime().plusMinutes(5));
-			byBike.setArrivalTime(body.getArrivalTime());
-			booking.addLegsItem(byBike);
-
-			bookingList.add(booking);
-		}
-		return bookingList;
-	}
-
-	private Place getAssetLocation(AssetType assetType) {
-		if (assetType != null && !assetType.getAssets().isEmpty()
-				&& assetType.getAssets().get(0).getOverriddenProperties().getLocation() != null) {
-			return assetType.getAssets().get(0).getOverriddenProperties().getLocation();
-		}
-		return null;
-	}
-
-	@Override
-	protected Fare getFare() {
-		return fareProvider.getFare();
-	}
-
-	@Override
-	protected AssetType getAssetType() {
-		return assetProvider.getTypeOfAsset();
-	}
-
+    protected override val fare: Fare?
+        protected get() = fareProvider.getFare()
+    protected override val assetType: AssetType?
+        protected get() = assetProvider.getTypeOfAsset()
 }

@@ -1,178 +1,124 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * AmountOfMoney
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+open class AmountOfMoney {
+    /**
+     * This should be in the base unit as defined by the ISO 4217 currency code with the appropriate number of decimal places and omitting the currency symbol. e.g. if the price is in US Dollars the price would be 9.95. This is inclusive VAT
+     * minimum: 0
+     * @return amount
+     */
+    @JvmField
+    @get:Schema(
+        example = "9.95",
+        description = "This should be in the base unit as defined by the ISO 4217 currency code with the appropriate number of decimal places and omitting the currency symbol. e.g. if the price is in US Dollars the price would be 9.95. This is inclusive VAT"
+    )
+    @JsonProperty("amount")
+    var amount: Float? = null
 
+    /**
+     * Get amountExVat
+     * minimum: 0
+     * @return amountExVat
+     */
+    @JvmField
+    @get:Schema(example = "8.95", description = "")
+    @JsonProperty("amountExVat")
+    var amountExVat: Float? = null
 
-public class AmountOfMoney   {
-  @JsonProperty("amount")
-  private Float amount = null;
+    /**
+     * ISO 4217 currency code
+     * @return currencyCode
+     */
+    @JvmField
+    @get:Schema(description = "ISO 4217 currency code")
+    @JsonProperty("currencyCode")
+    var currencyCode: String? = null
 
-  @JsonProperty("amountExVat")
-  private Float amountExVat = null;
+    /**
+     * value added tax rate (percentage of amount)
+     * minimum: 0
+     * @return vatRate
+     */
+    @JvmField
+    @get:Schema(example = "21", description = "value added tax rate (percentage of amount)")
+    @JsonProperty("vatRate")
+    var vatRate: Float? = null
 
-  @JsonProperty("currencyCode")
-  private String currencyCode = null;
-
-  @JsonProperty("vatRate")
-  private Float vatRate = null;
-
-  @JsonProperty("vatCountryCode")
-  private String vatCountryCode = null;
-
-  public AmountOfMoney amount(Float amount) {
-    this.amount = amount;
-    return this;
-  }
-
-  /**
-   * This should be in the base unit as defined by the ISO 4217 currency code with the appropriate number of decimal places and omitting the currency symbol. e.g. if the price is in US Dollars the price would be 9.95. This is inclusive VAT
-   * minimum: 0
-   * @return amount
-   **/
-  @Schema(example = "9.95", description = "This should be in the base unit as defined by the ISO 4217 currency code with the appropriate number of decimal places and omitting the currency symbol. e.g. if the price is in US Dollars the price would be 9.95. This is inclusive VAT")
-  
-  @DecimalMin("0")  public Float getAmount() {
-    return amount;
-  }
-
-  public void setAmount(Float amount) {
-    this.amount = amount;
-  }
-
-  public AmountOfMoney amountExVat(Float amountExVat) {
-    this.amountExVat = amountExVat;
-    return this;
-  }
-
-  /**
-   * Get amountExVat
-   * minimum: 0
-   * @return amountExVat
-   **/
-  @Schema(example = "8.95", description = "")
-  
-  @DecimalMin("0")  public Float getAmountExVat() {
-    return amountExVat;
-  }
-
-  public void setAmountExVat(Float amountExVat) {
-    this.amountExVat = amountExVat;
-  }
-
-  public AmountOfMoney currencyCode(String currencyCode) {
-    this.currencyCode = currencyCode;
-    return this;
-  }
-
-  /**
-   * ISO 4217 currency code
-   * @return currencyCode
-   **/
-  @Schema(description = "ISO 4217 currency code")
-  
-  @Size(min=3,max=3)   public String getCurrencyCode() {
-    return currencyCode;
-  }
-
-  public void setCurrencyCode(String currencyCode) {
-    this.currencyCode = currencyCode;
-  }
-
-  public AmountOfMoney vatRate(Float vatRate) {
-    this.vatRate = vatRate;
-    return this;
-  }
-
-  /**
-   * value added tax rate (percentage of amount)
-   * minimum: 0
-   * @return vatRate
-   **/
-  @Schema(example = "21", description = "value added tax rate (percentage of amount)")
-  
-  @DecimalMin("0")  public Float getVatRate() {
-    return vatRate;
-  }
-
-  public void setVatRate(Float vatRate) {
-    this.vatRate = vatRate;
-  }
-
-  public AmountOfMoney vatCountryCode(String vatCountryCode) {
-    this.vatCountryCode = vatCountryCode;
-    return this;
-  }
-
-  /**
-   * two-letter country codes according to ISO 3166-1
-   * @return vatCountryCode
-   **/
-  @Schema(example = "NL", description = "two-letter country codes according to ISO 3166-1")
-  
-  @Size(min=2,max=2)   public String getVatCountryCode() {
-    return vatCountryCode;
-  }
-
-  public void setVatCountryCode(String vatCountryCode) {
-    this.vatCountryCode = vatCountryCode;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * two-letter country codes according to ISO 3166-1
+     * @return vatCountryCode
+     */
+    @JvmField
+    @get:Schema(example = "NL", description = "two-letter country codes according to ISO 3166-1")
+    @JsonProperty("vatCountryCode")
+    var vatCountryCode: String? = null
+    fun amount(amount: Float?): AmountOfMoney {
+        this.amount = amount
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun amountExVat(amountExVat: Float?): AmountOfMoney {
+        this.amountExVat = amountExVat
+        return this
     }
-    AmountOfMoney amountOfMoney = (AmountOfMoney) o;
-    return Objects.equals(this.amount, amountOfMoney.amount) &&
-        Objects.equals(this.amountExVat, amountOfMoney.amountExVat) &&
-        Objects.equals(this.currencyCode, amountOfMoney.currencyCode) &&
-        Objects.equals(this.vatRate, amountOfMoney.vatRate) &&
-        Objects.equals(this.vatCountryCode, amountOfMoney.vatCountryCode);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(amount, amountExVat, currencyCode, vatRate, vatCountryCode);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class AmountOfMoney {\n");
-    
-    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
-    sb.append("    amountExVat: ").append(toIndentedString(amountExVat)).append("\n");
-    sb.append("    currencyCode: ").append(toIndentedString(currencyCode)).append("\n");
-    sb.append("    vatRate: ").append(toIndentedString(vatRate)).append("\n");
-    sb.append("    vatCountryCode: ").append(toIndentedString(vatCountryCode)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun currencyCode(currencyCode: String?): AmountOfMoney {
+        this.currencyCode = currencyCode
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun vatRate(vatRate: Float?): AmountOfMoney {
+        this.vatRate = vatRate
+        return this
+    }
+
+    fun vatCountryCode(vatCountryCode: String?): AmountOfMoney {
+        this.vatCountryCode = vatCountryCode
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val amountOfMoney = o as AmountOfMoney
+        return amount == amountOfMoney.amount && amountExVat == amountOfMoney.amountExVat && currencyCode == amountOfMoney.currencyCode && vatRate == amountOfMoney.vatRate && vatCountryCode == amountOfMoney.vatCountryCode
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(amount, amountExVat, currencyCode, vatRate, vatCountryCode)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class AmountOfMoney {\n")
+        sb.append("    amount: ").append(toIndentedString(amount)).append("\n")
+        sb.append("    amountExVat: ").append(toIndentedString(amountExVat)).append("\n")
+        sb.append("    currencyCode: ").append(toIndentedString(currencyCode)).append("\n")
+        sb.append("    vatRate: ").append(toIndentedString(vatRate)).append("\n")
+        sb.append("    vatCountryCode: ").append(toIndentedString(vatCountryCode)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

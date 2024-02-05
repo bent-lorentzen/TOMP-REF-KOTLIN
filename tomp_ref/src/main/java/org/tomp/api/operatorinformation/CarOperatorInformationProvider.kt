@@ -1,148 +1,128 @@
-package org.tomp.api.operatorinformation;
+package org.tomp.api.operatorinformation
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.providers.assets.AssetProvider;
-import org.tomp.api.utils.ExternalFileService;
-import org.tomp.api.utils.ObjectFromFileProvider;
-
-import io.swagger.model.AssetType;
-import io.swagger.model.Day;
-import io.swagger.model.EndpointImplementation;
-import io.swagger.model.Fare;
-import io.swagger.model.FarePart;
-import io.swagger.model.FarePart.TypeEnum;
-import io.swagger.model.FarePart.UnitTypeEnum;
-import io.swagger.model.StationInformation;
-import io.swagger.model.SystemCalendar;
-import io.swagger.model.SystemHours;
-import io.swagger.model.SystemInformation;
-import io.swagger.model.SystemPricingPlan;
-import io.swagger.model.SystemRegion;
+import io.swagger.model.AssetType
+import io.swagger.model.Day
+import io.swagger.model.EndpointImplementation
+import io.swagger.model.Fare
+import io.swagger.model.FarePart
+import io.swagger.model.FarePart.UnitTypeEnum
+import io.swagger.model.StationInformation
+import io.swagger.model.SystemCalendar
+import io.swagger.model.SystemHours
+import io.swagger.model.SystemInformation
+import io.swagger.model.SystemPricingPlan
+import io.swagger.model.SystemRegion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.providers.assets.AssetProvider
+import org.tomp.api.utils.ExternalFileService
+import org.tomp.api.utils.ObjectFromFileProvider
+import java.util.Arrays
+import java.util.Date
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "car", matchIfMissing = false)
-public class CarOperatorInformationProvider implements OperatorInformationProvider {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "car", matchIfMissing = false)
+class CarOperatorInformationProvider : OperatorInformationProvider {
+    @Autowired
+    var configuration: ExternalConfiguration? = null
 
-	@Autowired
-	ExternalConfiguration configuration;
+    @Autowired
+    var assetProvider: AssetProvider? = null
 
-	@Autowired
-	AssetProvider assetProvider;
+    @Autowired
+    var fileService: ExternalFileService? = null
+    override fun getAvailableAssetTypes(acceptLanguage: String?): List<AssetType?>? {
+        return assetProvider.getAssetTypes()
+    }
 
-	@Autowired
-	ExternalFileService fileService;
+    override fun getOperatorInformation(acceptLanguage: String?): SystemInformation? {
+        val info = SystemInformation()
+        info.systemId = "maas-car-3342"
+        info.email = "email@caroperator.org"
+        info.setLanguage(Arrays.asList(acceptLanguage))
+        info.name = "Car Operator"
+        return info
+    }
 
-	@Override
-	public List<AssetType> getAvailableAssetTypes(String acceptLanguage) {
-		return assetProvider.getAssetTypes();
-	}
+    override fun getStations(acceptLanguage: String?): List<StationInformation?>? {
+        return ArrayList()
+    }
 
-	@Override
-	public SystemInformation getOperatorInformation(String acceptLanguage) {
-		SystemInformation info = new SystemInformation();
-		info.setSystemId("maas-car-3342");
-		info.setEmail("email@caroperator.org");
-		info.setLanguage(Arrays.asList(acceptLanguage));
-		info.setName("Car Operator");
-		return info;
-	}
+    override fun getRegions(acceptLanguage: String?): MutableList<SystemRegion?>? {
+        val provider = ObjectFromFileProvider<Array<SystemRegion>>()
+        val regionArray = provider.getObject(
+            acceptLanguage, Array<SystemRegion>::class.java,
+            configuration.getRegionsFile()
+        )!!
+        val regions: MutableList<SystemRegion?> = ArrayList()
+        for (i in regionArray.indices) {
+            regions.add(regionArray[i])
+        }
+        return regions
+    }
 
-	@Override
-	public List<StationInformation> getStations(String acceptLanguage) {
-		return new ArrayList<>();
-	}
+    override fun getPricingPlans(acceptLanguage: String?): List<SystemPricingPlan> {
+        val membersOnly = SystemPricingPlan()
+        membersOnly.planId = "MO"
+        membersOnly.description = "Subscribed members can apply for this pricing plan"
+        membersOnly.setIsTaxable(true)
+        membersOnly.name = "Members only"
+        var fare = Fare()
+        var partsItem = FarePart()
+        partsItem.amount = 1.25.toFloat()
+        partsItem.currencyCode = "NL"
+        partsItem.unitType = UnitTypeEnum.KM
+        partsItem.type = FarePart.TypeEnum.FLEX
+        fare.addPartsItem(partsItem)
+        membersOnly.fare = fare
+        val nonMembers = SystemPricingPlan()
+        nonMembers.planId = "NM"
+        nonMembers.description = "Pricing plan for non-subscribers"
+        nonMembers.setIsTaxable(true)
+        nonMembers.name = "Non members"
+        fare = Fare()
+        partsItem = FarePart()
+        partsItem.amount = 1.55.toFloat()
+        partsItem.currencyCode = "NL"
+        partsItem.unitType = UnitTypeEnum.KM
+        partsItem.type = FarePart.TypeEnum.FLEX
+        fare.addPartsItem(partsItem)
+        partsItem = FarePart()
+        partsItem.amount = 10.toFloat()
+        partsItem.currencyCode = "NL"
+        partsItem.type = FarePart.TypeEnum.FIXED
+        fare.addPartsItem(partsItem)
+        nonMembers.fare = fare
+        return Arrays.asList(membersOnly, nonMembers)
+    }
 
-	@Override
-	public List<SystemRegion> getRegions(String acceptLanguage) {
-		ObjectFromFileProvider<SystemRegion[]> provider = new ObjectFromFileProvider<>();
-		SystemRegion[] regionArray = provider.getObject(acceptLanguage, SystemRegion[].class,
-				configuration.getRegionsFile());
-		List<SystemRegion> regions = new ArrayList<>();
-		for (int i = 0; i < regionArray.length; i++) {
-			regions.add(regionArray[i]);
-		}
-		return regions;
-	}
+    override fun getHours(acceptLanguage: String?): List<SystemHours> {
+        val weekHours = SystemHours()
+        weekHours.setDays(Arrays.asList(Day.MON, Day.TUE, Day.WED, Day.THU, Day.FRI))
+        weekHours.startTime = "08:00"
+        weekHours.endTime = "18:00"
+        val hours = SystemHours()
+        hours.setDays(Arrays.asList(Day.SAT))
+        hours.startTime = "10:00"
+        hours.endTime = "16:00"
+        return Arrays.asList(weekHours, hours)
+    }
 
-	@Override
-	public List<SystemPricingPlan> getPricingPlans(String acceptLanguage) {
-		SystemPricingPlan membersOnly = new SystemPricingPlan();
-		membersOnly.setPlanId("MO");
-		membersOnly.setDescription("Subscribed members can apply for this pricing plan");
-		membersOnly.setIsTaxable(true);
-		membersOnly.setName("Members only");
-		Fare fare = new Fare();
-		FarePart partsItem = new FarePart();
-		partsItem.setAmount((float) (1.25));
-		partsItem.setCurrencyCode("NL");
-		partsItem.setUnitType(UnitTypeEnum.KM);
-		partsItem.setType(TypeEnum.FLEX);
-		fare.addPartsItem(partsItem);
-		membersOnly.setFare(fare);
+    @Suppress("deprecation")
+    override fun getCalendar(acceptLanguage: String?): List<SystemCalendar> {
+        val c = SystemCalendar()
+        c.startYear = 2019
+        c.startMonth = 1
+        c.startDay = 1
+        c.endYear = Date().year
+        c.endMonth = 12
+        c.endDay = 31
+        return ArrayList()
+    }
 
-		SystemPricingPlan nonMembers = new SystemPricingPlan();
-		nonMembers.setPlanId("NM");
-		nonMembers.setDescription("Pricing plan for non-subscribers");
-		nonMembers.setIsTaxable(true);
-		nonMembers.setName("Non members");
-		fare = new Fare();
-		partsItem = new FarePart();
-		partsItem.setAmount((float) (1.55));
-		partsItem.setCurrencyCode("NL");
-		partsItem.setUnitType(UnitTypeEnum.KM);
-		partsItem.setType(TypeEnum.FLEX);
-		fare.addPartsItem(partsItem);
-
-		partsItem = new FarePart();
-		partsItem.setAmount((float) (10));
-		partsItem.setCurrencyCode("NL");
-		partsItem.setType(TypeEnum.FIXED);
-		fare.addPartsItem(partsItem);
-		nonMembers.setFare(fare);
-
-		return Arrays.asList(membersOnly, nonMembers);
-	}
-
-	@Override
-	public List<SystemHours> getHours(String acceptLanguage) {
-		SystemHours weekHours = new SystemHours();
-		weekHours.setDays(Arrays.asList(Day.MON, Day.TUE, Day.WED, Day.THU, Day.FRI));
-		weekHours.setStartTime("08:00");
-		weekHours.setEndTime("18:00");
-
-		SystemHours hours = new SystemHours();
-		hours.setDays(Arrays.asList(Day.SAT));
-		hours.setStartTime("10:00");
-		hours.setEndTime("16:00");
-
-		return Arrays.asList(weekHours, hours);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public List<SystemCalendar> getCalendar(String acceptLanguage) {
-		SystemCalendar c = new SystemCalendar();
-		c.setStartYear(2019);
-		c.setStartMonth(1);
-		c.setStartDay(1);
-
-		c.setEndYear(new Date().getYear());
-		c.setEndMonth(12);
-		c.setEndDay(31);
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<EndpointImplementation> getMeta(String acceptLanguage) {
-		return fileService.getEndPoints();
-	}
+    override fun getMeta(acceptLanguage: String?): List<EndpointImplementation?>? {
+        return fileService.getEndPoints()
+    }
 }

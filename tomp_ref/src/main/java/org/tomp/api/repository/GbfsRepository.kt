@@ -1,183 +1,158 @@
-package org.tomp.api.repository;
+package org.tomp.api.repository
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.utils.GeoUtil;
-
-import io.swagger.model.Asset;
-import io.swagger.model.AssetClass;
-import io.swagger.model.AssetProperties;
-import io.swagger.model.AssetType;
-import io.swagger.model.Coordinates;
-import io.swagger.model.Place;
-import io.swagger.model.StationInformation;
-import io.swagger.model.SystemCalendar;
-import io.swagger.model.SystemHours;
-import io.swagger.model.SystemInformation;
-import io.swagger.model.SystemRegion;
+import io.swagger.model.Asset
+import io.swagger.model.AssetClass
+import io.swagger.model.AssetProperties
+import io.swagger.model.AssetType
+import io.swagger.model.Coordinates
+import io.swagger.model.Place
+import io.swagger.model.StationInformation
+import io.swagger.model.SystemCalendar
+import io.swagger.model.SystemHours
+import io.swagger.model.SystemInformation
+import io.swagger.model.SystemRegion
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.utils.GeoUtil
+import java.util.Arrays
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "gbfs", matchIfMissing = false)
-public class GbfsRepository implements RegionContainer, StationContainer {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "gbfs", matchIfMissing = false)
+class GbfsRepository : RegionContainer, StationContainer {
+    private var operatorInformation: Map<String, String>? = null
+    private var languages: List<String>? = null
+    override val regions: MutableList<SystemRegion?> = ArrayList()
+    override val stations: MutableList<StationInformation?> = ArrayList()
+    val systemHours: MutableList<SystemHours?> = ArrayList()
+    val systemCalendar: MutableList<SystemCalendar?> = ArrayList()
+    private var bikesAtStations: ArrayList<HashMap<String?, Any>>? = null
+    private var freeBikes: ArrayList<HashMap<String?, Any>>? = null
+    fun getOperatorInformation(): SystemInformation {
+        val info = SystemInformation()
+        info.email = operatorInformation!!["email"]
+        info.setLanguage(languages)
+        info.name = operatorInformation!!["name"]
+        info.operator = operatorInformation!!["operator"]
+        info.phoneNumber = operatorInformation!!["phone_number"]
+        info.systemId = operatorInformation!!["system_id"]
+        return info
+    }
 
-	private Map<String, String> operatorInformation;
-	private List<String> languages;
-	private List<SystemRegion> regions = new ArrayList<>();
-	private List<StationInformation> stations = new ArrayList<>();
-	private List<SystemHours> systemHours = new ArrayList<>();
-	private List<SystemCalendar> systemCalendar = new ArrayList<>();
-	private ArrayList<HashMap<String, Object>> bikesAtStations;
-	private ArrayList<HashMap<String, Object>> freeBikes;
+    fun setOperatorInformation(operatorInformation: Map<String, String>?) {
+        this.operatorInformation = operatorInformation
+    }
 
-	public SystemInformation getOperatorInformation() {
-		SystemInformation info = new SystemInformation();
-		info.setEmail(operatorInformation.get("email"));
-		info.setLanguage(languages);
-		info.setName(operatorInformation.get("name"));
-		info.setOperator(operatorInformation.get("operator"));
-		info.setPhoneNumber(operatorInformation.get("phone_number"));
-		info.setSystemId(operatorInformation.get("system_id"));
-		return info;
-	}
+    fun setLanguages(languages: List<String>?) {
+        this.languages = languages
+    }
 
-	public void setOperatorInformation(Map<String, String> operatorInformation) {
-		this.operatorInformation = operatorInformation;
-	}
+    val assets: List<AssetType>
+        get() {
+            val assets: MutableList<AssetType> = ArrayList()
+            if (bikesAtStations != null) {
+                for (e in bikesAtStations!!) {
+                    val assetType = AssetType()
+                    val stationId = e["station_id"].toString()
+                    val assetsItem = Asset()
+                    assetType.addAssetsItem(assetsItem)
+                    copyStationValues(stationId, assetType)
+                    val sharedProperties = AssetProperties()
+                    assetType.sharedProperties = sharedProperties
+                    sharedProperties.name = "Station $stationId"
+                    assetType.assetClass = AssetClass.BICYCLE
+                    assetType.nrAvailable = e["num_bikes_available"].toString().toInt()
+                    assets.add(assetType)
+                }
+            }
+            if (freeBikes != null) {
+                val assetType = AssetType()
+                assetType.assetClass = AssetClass.BICYCLE
+                for (e in freeBikes!!) {
+                    val asset = Asset()
+                    val properties = AssetProperties()
+                    asset.overriddenProperties = properties
+                    properties.name = "Bike " + e["bike_id"]
+                    asset.id = e["bike_id"].toString()
+                    properties.location = toPlace(e["lat"]!!, e["lon"]!!)
+                    assetType.addAssetsItem(asset)
+                }
+                assets.add(assetType)
+            }
+            return assets
+        }
 
-	public void setLanguages(List<String> languages) {
-		this.languages = languages;
-	}
+    private fun copyStationValues(stationId: String, assetType: AssetType) {
+        for (station in stations) {
+            if (station!!.stationId == stationId) {
+                val place = Place()
+                place.coordinates = getCoordinates(stationId)
+                place.stationId = stationId
+                place.name = station.name
+                place.physicalAddress = station.physicalAddress
+                assetType.getAssets()!![0].overriddenProperties!!.location = place
+            }
+        }
+    }
 
-	public List<SystemRegion> getRegions() {
-		return regions;
-	}
+    private fun getCoordinates(stationId: String): Coordinates? {
+        for (station in stations) {
+            if (station!!.stationId == stationId) {
+                return station.coordinates
+            }
+        }
+        return null
+    }
 
-	public List<AssetType> getAssets() {
-		List<AssetType> assets = new ArrayList<>();
-		if (bikesAtStations != null) {
-			for (HashMap<String, Object> e : this.bikesAtStations) {
-				AssetType assetType = new AssetType();
-				String stationId = e.get("station_id").toString();
-				Asset assetsItem = new Asset();
-				assetType.addAssetsItem(assetsItem);
+    private fun toPlace(lat: Any, lng: Any): Place {
+        val p = Place()
+        val coordinates = Coordinates()
+        coordinates.lat = lat as Float
+        coordinates.lng = lng as Float
+        p.coordinates = coordinates
+        return p
+    }
 
-				copyStationValues(stationId, assetType);
+    fun setBikesAtStations(bikesAtStations: ArrayList<HashMap<String?, Any>>?) {
+        this.bikesAtStations = bikesAtStations
+    }
 
-				AssetProperties sharedProperties = new AssetProperties();
-				assetType.setSharedProperties(sharedProperties);
-				sharedProperties.setName("Station " + stationId);
-				assetType.setAssetClass(AssetClass.BICYCLE);
-				assetType.setNrAvailable(Integer.valueOf(e.get("num_bikes_available").toString()));
+    fun setFreeBikes(freeBikes: ArrayList<HashMap<String?, Any>>?) {
+        this.freeBikes = freeBikes
+    }
 
-				assets.add(assetType);
-			}
-		}
+    fun getNearestAssets(from: @NotNull @Valid Place?, radius: @Valid Int?): List<AssetType> {
+        val results: MutableList<AssetType> = ArrayList()
+        for (assetType in assets) {
+            if (assetType.nrAvailable == null) {
+                for (asset in assetType.getAssets()!!) {
+                    if (GeoUtil.isNearby(
+                            asset.overriddenProperties!!.location!!.coordinates,
+                            from!!.coordinates, radius!!.toDouble()
+                        )
+                    ) {
+                        val clone = clone(assetType)
+                        clone.setAssets(Arrays.asList(asset))
+                        results.add(clone)
+                    }
+                }
+            } else if (GeoUtil.isNearby(
+                    assetType.getAssets()!![0].overriddenProperties!!.location!!.coordinates,
+                    from!!.coordinates, radius!!.toDouble()
+                )
+            ) {
+                results.add(assetType)
+            }
+        }
+        return results
+    }
 
-		if (freeBikes != null) {
-			AssetType assetType = new AssetType();
-			assetType.setAssetClass(AssetClass.BICYCLE);
-
-			for (HashMap<String, Object> e : freeBikes) {
-				Asset asset = new Asset();
-				AssetProperties properties = new AssetProperties();
-				asset.setOverriddenProperties(properties);
-				properties.setName("Bike " + e.get("bike_id"));
-				asset.setId(e.get("bike_id").toString());
-				properties.setLocation(toPlace(e.get("lat"), e.get("lon")));
-				assetType.addAssetsItem(asset);
-			}
-			assets.add(assetType);
-		}
-		return assets;
-	}
-
-	private void copyStationValues(String stationId, AssetType assetType) {
-		for (StationInformation station : getStations()) {
-			if (station.getStationId().equals(stationId)) {
-				Place place = new Place();
-				place.setCoordinates(getCoordinates(stationId));
-				place.setStationId(stationId);
-				place.setName(station.getName());
-				place.setPhysicalAddress(station.getPhysicalAddress());
-				assetType.getAssets().get(0).getOverriddenProperties().setLocation(place);
-			}
-		}
-	}
-
-	private Coordinates getCoordinates(String stationId) {
-		for (StationInformation station : getStations()) {
-			if (station.getStationId().equals(stationId)) {
-				return station.getCoordinates();
-			}
-		}
-		return null;
-	}
-
-	private Place toPlace(Object lat, Object lng) {
-		Place p = new Place();
-		Coordinates coordinates = new Coordinates();
-		coordinates.setLat((float) lat);
-		coordinates.setLng((float) lng);
-		p.setCoordinates(coordinates);
-		return p;
-	}
-
-	public List<StationInformation> getStations() {
-		return stations;
-	}
-
-	public List<SystemHours> getSystemHours() {
-		return systemHours;
-	}
-
-	public List<SystemCalendar> getSystemCalendar() {
-		return systemCalendar;
-	}
-
-	public void setBikesAtStations(ArrayList<HashMap<String, Object>> bikesAtStations) {
-		this.bikesAtStations = bikesAtStations;
-	}
-
-	public void setFreeBikes(ArrayList<HashMap<String, Object>> freeBikes) {
-		this.freeBikes = freeBikes;
-	}
-
-	public List<AssetType> getNearestAssets(@NotNull @Valid Place from, @Valid Integer radius) {
-		List<AssetType> results = new ArrayList<>();
-		for (AssetType assetType : getAssets()) {
-			if (assetType.getNrAvailable() == null) {
-				for (Asset asset : assetType.getAssets()) {
-					if (GeoUtil.isNearby(asset.getOverriddenProperties().getLocation().getCoordinates(),
-							from.getCoordinates(), radius.doubleValue())) {
-						AssetType clone = clone(assetType);
-						clone.setAssets(Arrays.asList(asset));
-						results.add(clone);
-					}
-				}
-			} else if (GeoUtil.isNearby(
-					assetType.getAssets().get(0).getOverriddenProperties().getLocation().getCoordinates(),
-					from.getCoordinates(), radius.doubleValue())) {
-				results.add(assetType);
-			}
-		}
-		return results;
-	}
-
-	private AssetType clone(AssetType assetType) {
-		AssetType typeOfAsset = new AssetType();
-		AssetProperties sharedProperties = new AssetProperties();
-		sharedProperties.setName(assetType.getSharedProperties().getName());
-		typeOfAsset.setSharedProperties(sharedProperties);
-		return typeOfAsset;
-	}
+    private fun clone(assetType: AssetType): AssetType {
+        val typeOfAsset = AssetType()
+        val sharedProperties = AssetProperties()
+        sharedProperties.name = assetType.sharedProperties!!.name
+        typeOfAsset.sharedProperties = sharedProperties
+        return typeOfAsset
+    }
 }

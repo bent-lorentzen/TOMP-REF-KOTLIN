@@ -1,56 +1,27 @@
-package org.tomp.api.model.parking;
+package org.tomp.api.model.parking
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public class ParkingFacilityInformation {
-	@JsonProperty("description")
-	private String description;
-	@JsonProperty("identifier")
-	private String identifier;
-	@JsonProperty("name")
-	private String name;
-	@JsonProperty("specifications")
-	private Specification[] specification;
-	@JsonProperty("accessPoints")
-	private AccessPoints[] accessPoints;
+class ParkingFacilityInformation {
+    @JsonProperty("description")
+    var description: String? = null
 
-	public String getDescription() {
-		return description;
-	}
+    @JsonProperty("identifier")
+    var identifier: String? = null
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    @JsonProperty("name")
+    var name: String? = null
 
-	public String getIdentifier() {
-		return identifier;
-	}
+    @JsonProperty("specifications")
+    var specifications: Array<Specification>
 
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
+    @JsonProperty("accessPoints")
+    private var accessPoints: Array<AccessPoints>
+    fun getAccessPoints(): Array<AccessPoints>? {
+        return accessPoints
+    }
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Specification[] getSpecifications() {
-		return specification;
-	}
-
-	public void setSpecifications(Specification[] specification) {
-		this.specification = specification;
-	}
-
-	public AccessPoints[] getAccessPoints() {
-		return accessPoints;
-	}
-
-	public void setAccessPoints(AccessPoints[] accessPoints) {
-		this.accessPoints = accessPoints;
-	}
+    fun setAccessPoints(accessPoints: Array<AccessPoints>) {
+        this.accessPoints = accessPoints
+    }
 }

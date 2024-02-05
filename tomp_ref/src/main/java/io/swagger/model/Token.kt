@@ -1,193 +1,133 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.threeten.bp.OffsetDateTime;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import org.threeten.bp.OffsetDateTime
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * The validity token (such as booking ID, travel ticket etc.) that MaaS clients will display to show their right to travel, or use to access an asset
  */
 @Schema(description = "The validity token (such as booking ID, travel ticket etc.) that MaaS clients will display to show their right to travel, or use to access an asset")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-10T07:58:28.459Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2021-12-10T07:58:28.459Z[GMT]")
+class Token {
+    /**
+     * Get validFrom
+     * @return validFrom
+     */
+    @JvmField
+    @get:Schema(required = true, description = "")
+    @JsonProperty("validFrom")
+    var validFrom: OffsetDateTime? = null
 
+    /**
+     * Get validUntil
+     * @return validUntil
+     */
+    @JvmField
+    @get:Schema(required = true, description = "")
+    @JsonProperty("validUntil")
+    var validUntil: OffsetDateTime? = null
 
-public class Token   {
-  @JsonProperty("validFrom")
-  private OffsetDateTime validFrom = null;
+    /**
+     * The type of data held in this token, will later be an enum
+     */
+    enum class TokenTypeEnum(private val value: String) {
+        TOKENDEFAULT("tokenDefault"),
+        TOKENDEEPLINK("tokenDeeplink"),
+        TOKENEKEY("tokenEKey"),
+        TOKENQR("tokenQR");
 
-  @JsonProperty("validUntil")
-  private OffsetDateTime validUntil = null;
-
-  /**
-   * The type of data held in this token, will later be an enum
-   */
-  public enum TokenTypeEnum {
-    TOKENDEFAULT("tokenDefault"),
-    
-    TOKENDEEPLINK("tokenDeeplink"),
-    
-    TOKENEKEY("tokenEKey"),
-    
-    TOKENQR("tokenQR");
-
-    private String value;
-
-    TokenTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static TokenTypeEnum fromValue(String text) {
-      for (TokenTypeEnum b : TokenTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
+
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): TokenTypeEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-  }
-  @JsonProperty("tokenType")
-  private TokenTypeEnum tokenType = null;
 
-  @JsonProperty("tokenData")
-  private OneOftokenTokenData tokenData = null;
+    /**
+     * The type of data held in this token, will later be an enum
+     * @return tokenType
+     */
+    @get:Schema(required = true, description = "The type of data held in this token, will later be an enum")
+    @JsonProperty("tokenType")
+    var tokenType: TokenTypeEnum? = null
 
-  public Token validFrom(OffsetDateTime validFrom) {
-    this.validFrom = validFrom;
-    return this;
-  }
-
-  /**
-   * Get validFrom
-   * @return validFrom
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    @Valid
-    public OffsetDateTime getValidFrom() {
-    return validFrom;
-  }
-
-  public void setValidFrom(OffsetDateTime validFrom) {
-    this.validFrom = validFrom;
-  }
-
-  public Token validUntil(OffsetDateTime validUntil) {
-    this.validUntil = validUntil;
-    return this;
-  }
-
-  /**
-   * Get validUntil
-   * @return validUntil
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    @Valid
-    public OffsetDateTime getValidUntil() {
-    return validUntil;
-  }
-
-  public void setValidUntil(OffsetDateTime validUntil) {
-    this.validUntil = validUntil;
-  }
-
-  public Token tokenType(TokenTypeEnum tokenType) {
-    this.tokenType = tokenType;
-    return this;
-  }
-
-  /**
-   * The type of data held in this token, will later be an enum
-   * @return tokenType
-   **/
-  @Schema(required = true, description = "The type of data held in this token, will later be an enum")
-      @NotNull
-
-    public TokenTypeEnum getTokenType() {
-    return tokenType;
-  }
-
-  public void setTokenType(TokenTypeEnum tokenType) {
-    this.tokenType = tokenType;
-  }
-
-  public Token tokenData(OneOftokenTokenData tokenData) {
-    this.tokenData = tokenData;
-    return this;
-  }
-
-  /**
-   * Get tokenData
-   * @return tokenData
-   **/
-  @Schema(description = "")
-  
-    public OneOftokenTokenData getTokenData() {
-    return tokenData;
-  }
-
-  public void setTokenData(OneOftokenTokenData tokenData) {
-    this.tokenData = tokenData;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * Get tokenData
+     * @return tokenData
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("tokenData")
+    var tokenData: OneOftokenTokenData? = null
+    fun validFrom(validFrom: OffsetDateTime?): Token {
+        this.validFrom = validFrom
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun validUntil(validUntil: OffsetDateTime?): Token {
+        this.validUntil = validUntil
+        return this
     }
-    Token token = (Token) o;
-    return Objects.equals(this.validFrom, token.validFrom) &&
-        Objects.equals(this.validUntil, token.validUntil) &&
-        Objects.equals(this.tokenType, token.tokenType) &&
-        Objects.equals(this.tokenData, token.tokenData);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(validFrom, validUntil, tokenType, tokenData);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Token {\n");
-    
-    sb.append("    validFrom: ").append(toIndentedString(validFrom)).append("\n");
-    sb.append("    validUntil: ").append(toIndentedString(validUntil)).append("\n");
-    sb.append("    tokenType: ").append(toIndentedString(tokenType)).append("\n");
-    sb.append("    tokenData: ").append(toIndentedString(tokenData)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun tokenType(tokenType: TokenTypeEnum?): Token {
+        this.tokenType = tokenType
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun tokenData(tokenData: OneOftokenTokenData?): Token {
+        this.tokenData = tokenData
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val token = o as Token
+        return validFrom == token.validFrom && validUntil == token.validUntil && tokenType == token.tokenType && tokenData == token.tokenData
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(validFrom, validUntil, tokenType, tokenData)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class Token {\n")
+        sb.append("    validFrom: ").append(toIndentedString(validFrom)).append("\n")
+        sb.append("    validUntil: ").append(toIndentedString(validUntil)).append("\n")
+        sb.append("    tokenType: ").append(toIndentedString(tokenType)).append("\n")
+        sb.append("    tokenData: ").append(toIndentedString(tokenData)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

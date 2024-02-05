@@ -1,27 +1,18 @@
-package org.tomp.api.providers.conditions;
+package org.tomp.api.providers.conditions
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-
-import io.swagger.model.Condition;
-import io.swagger.model.Leg;
-import io.swagger.model.OneOflegConditionsItems;
+import io.swagger.model.Leg
+import io.swagger.model.OneOflegConditionsItems
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
 
 @Component
-@ConditionalOnProperty(value = "tomp.condition-file", havingValue = "empty", matchIfMissing = false)
-public class NoConditionProvider implements ConditionProvider {
-
-	@Autowired
-	protected ExternalConfiguration configuration;
-
-	@Override
-	public List<OneOflegConditionsItems> getApplyingConditions(String acceptLanguage, Leg result) {
-		return new ArrayList<>();
-	}
+@ConditionalOnProperty(value = ["tomp.condition-file"], havingValue = "empty", matchIfMissing = false)
+class NoConditionProvider : ConditionProvider {
+    @Autowired
+    protected var configuration: ExternalConfiguration? = null
+    override fun getApplyingConditions(acceptLanguage: String?, result: Leg?): List<OneOflegConditionsItems> {
+        return ArrayList()
+    }
 }

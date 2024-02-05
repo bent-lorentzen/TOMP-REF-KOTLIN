@@ -1,214 +1,155 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * Phone
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class Phone {
+    /**
+     * only one phone in this array can have a true in this property
+     * @return preferred
+     */
+    @get:Schema(description = "only one phone in this array can have a true in this property")
+    @JsonProperty("preferred")
+    var isPreferred: Boolean? = null
 
+    /**
+     * phone number. In case of international usage, always provide the country code.
+     * @return number
+     */
+    @get:Schema(
+        example = "+31-48934758 or +(0075)-834923384 or 020 1234 1234",
+        description = "phone number. In case of international usage, always provide the country code."
+    )
+    @JsonProperty("number")
+    var number: String? = null
 
-public class Phone   {
-  @JsonProperty("preferred")
-  private Boolean preferred = null;
+    /**
+     * Gets or Sets kind
+     */
+    enum class KindEnum(private val value: String) {
+        LANDLINE("LANDLINE"),
+        MOBILE("MOBILE");
 
-  @JsonProperty("number")
-  private String number = null;
-
-  /**
-   * Gets or Sets kind
-   */
-  public enum KindEnum {
-    LANDLINE("LANDLINE"),
-    
-    MOBILE("MOBILE");
-
-    private String value;
-
-    KindEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static KindEnum fromValue(String text) {
-      for (KindEnum b : KindEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
-    }
-  }
-  @JsonProperty("kind")
-  private KindEnum kind = null;
 
-  /**
-   * Gets or Sets type
-   */
-  public enum TypeEnum {
-    PRIVATE("PRIVATE"),
-    
-    BUSINESS("BUSINESS"),
-    
-    OTHER("OTHER");
-
-    private String value;
-
-    TypeEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static TypeEnum fromValue(String text) {
-      for (TypeEnum b : TypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): KindEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
         }
-      }
-      return null;
     }
-  }
-  @JsonProperty("type")
-  private TypeEnum type = null;
 
-  public Phone preferred(Boolean preferred) {
-    this.preferred = preferred;
-    return this;
-  }
+    /**
+     * Get kind
+     * @return kind
+     */
+    @get:Schema(description = "")
+    @JsonProperty("kind")
+    var kind: KindEnum? = null
 
-  /**
-   * only one phone in this array can have a true in this property
-   * @return preferred
-   **/
-  @Schema(description = "only one phone in this array can have a true in this property")
-  
-    public Boolean isPreferred() {
-    return preferred;
-  }
+    /**
+     * Gets or Sets type
+     */
+    enum class TypeEnum(private val value: String) {
+        PRIVATE("PRIVATE"),
+        BUSINESS("BUSINESS"),
+        OTHER("OTHER");
 
-  public void setPreferred(Boolean preferred) {
-    this.preferred = preferred;
-  }
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
+        }
 
-  public Phone number(String number) {
-    this.number = number;
-    return this;
-  }
-
-  /**
-   * phone number. In case of international usage, always provide the country code.
-   * @return number
-   **/
-  @Schema(example = "+31-48934758 or +(0075)-834923384 or 020 1234 1234", description = "phone number. In case of international usage, always provide the country code.")
-  
-  @Pattern(regexp="^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\.0-9]*$")   public String getNumber() {
-    return number;
-  }
-
-  public void setNumber(String number) {
-    this.number = number;
-  }
-
-  public Phone kind(KindEnum kind) {
-    this.kind = kind;
-    return this;
-  }
-
-  /**
-   * Get kind
-   * @return kind
-   **/
-  @Schema(description = "")
-  
-    public KindEnum getKind() {
-    return kind;
-  }
-
-  public void setKind(KindEnum kind) {
-    this.kind = kind;
-  }
-
-  public Phone type(TypeEnum type) {
-    this.type = type;
-    return this;
-  }
-
-  /**
-   * Get type
-   * @return type
-   **/
-  @Schema(description = "")
-  
-    public TypeEnum getType() {
-    return type;
-  }
-
-  public void setType(TypeEnum type) {
-    this.type = type;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): TypeEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    /**
+     * Get type
+     * @return type
+     */
+    @get:Schema(description = "")
+    @JsonProperty("type")
+    var type: TypeEnum? = null
+    fun preferred(preferred: Boolean?): Phone {
+        isPreferred = preferred
+        return this
     }
-    Phone phone = (Phone) o;
-    return Objects.equals(this.preferred, phone.preferred) &&
-        Objects.equals(this.number, phone.number) &&
-        Objects.equals(this.kind, phone.kind) &&
-        Objects.equals(this.type, phone.type);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(preferred, number, kind, type);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Phone {\n");
-    
-    sb.append("    preferred: ").append(toIndentedString(preferred)).append("\n");
-    sb.append("    number: ").append(toIndentedString(number)).append("\n");
-    sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun number(number: String?): Phone {
+        this.number = number
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun kind(kind: KindEnum?): Phone {
+        this.kind = kind
+        return this
+    }
+
+    fun type(type: TypeEnum?): Phone {
+        this.type = type
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val phone = o as Phone
+        return isPreferred == phone.isPreferred && number == phone.number && kind == phone.kind && type == phone.type
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(isPreferred, number, kind, type)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class Phone {\n")
+        sb.append("    preferred: ").append(toIndentedString(isPreferred)).append("\n")
+        sb.append("    number: ").append(toIndentedString(number)).append("\n")
+        sb.append("    kind: ").append(toIndentedString(kind)).append("\n")
+        sb.append("    type: ").append(toIndentedString(type)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

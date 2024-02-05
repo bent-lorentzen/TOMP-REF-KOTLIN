@@ -1,27 +1,21 @@
-package org.tomp.api.operatorinformation;
+package org.tomp.api.operatorinformation
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.utils.ExternalFileService;
-
-import io.swagger.model.EndpointImplementation;
+import io.swagger.model.EndpointImplementation
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.utils.ExternalFileService
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "router-meta", matchIfMissing = false)
-public class RouterWithoutMetaOperatorInformationProvider extends RouterOperatorInformationProvider {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "router-meta", matchIfMissing = false)
+class RouterWithoutMetaOperatorInformationProvider : RouterOperatorInformationProvider() {
+    @Autowired
+    var configuration: ExternalConfiguration? = null
 
-	@Autowired
-	ExternalConfiguration configuration;
-
-	@Autowired
-	ExternalFileService fileService;
-
-	@Override
-	public List<EndpointImplementation> getMeta(String acceptLanguage) {
-		return fileService.getEndPoints();
-	}
+    @Autowired
+    var fileService: ExternalFileService? = null
+    override fun getMeta(acceptLanguage: String?): List<EndpointImplementation?>? {
+        return fileService.getEndPoints()
+    }
 }

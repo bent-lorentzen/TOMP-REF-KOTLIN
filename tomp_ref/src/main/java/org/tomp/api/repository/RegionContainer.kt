@@ -1,9 +1,7 @@
-package org.tomp.api.repository;
+package org.tomp.api.repository
 
-import java.util.List;
+import io.swagger.model.SystemRegion
 
-import io.swagger.model.SystemRegion;
-
-public interface RegionContainer {
-	public List<SystemRegion> getRegions();
+interface RegionContainer {
+    val regions: MutableList<SystemRegion?>?
 }

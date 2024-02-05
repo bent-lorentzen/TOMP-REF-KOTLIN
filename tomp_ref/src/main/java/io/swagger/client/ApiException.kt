@@ -9,81 +9,75 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+package io.swagger.client
 
-package io.swagger.client;
+import javax.annotation.Generated
 
-import java.util.Map;
-import java.util.List;
-
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2020-03-24T12:09:05.155Z[GMT]")public class ApiException extends Exception {
-    private int code = 0;
-    private Map<String, List<String>> responseHeaders = null;
-    private String responseBody = null;
-
-    public ApiException() {}
-
-    public ApiException(Throwable throwable) {
-        super(throwable);
-    }
-
-    public ApiException(String message) {
-        super(message);
-    }
-
-    public ApiException(String message, Throwable throwable, int code, Map<String, List<String>> responseHeaders, String responseBody) {
-        super(message, throwable);
-        this.code = code;
-        this.responseHeaders = responseHeaders;
-        this.responseBody = responseBody;
-    }
-
-    public ApiException(String message, int code, Map<String, List<String>> responseHeaders, String responseBody) {
-        this(message, (Throwable) null, code, responseHeaders, responseBody);
-    }
-
-    public ApiException(String message, Throwable throwable, int code, Map<String, List<String>> responseHeaders) {
-        this(message, throwable, code, responseHeaders, null);
-    }
-
-    public ApiException(int code, Map<String, List<String>> responseHeaders, String responseBody) {
-        this((String) null, (Throwable) null, code, responseHeaders, responseBody);
-    }
-
-    public ApiException(int code, String message) {
-        super(message);
-        this.code = code;
-    }
-
-    public ApiException(int code, String message, Map<String, List<String>> responseHeaders, String responseBody) {
-        this(code, message);
-        this.responseHeaders = responseHeaders;
-        this.responseBody = responseBody;
-    }
-
+@Generated(value = ["io.swagger.codegen.v3.generators.java.JavaClientCodegen"], date = "2020-03-24T12:09:05.155Z[GMT]")
+class ApiException : Exception {
     /**
      * Get the HTTP status code.
      *
      * @return HTTP status code
      */
-    public int getCode() {
-        return code;
-    }
+    var code = 0
+        private set
 
     /**
      * Get the HTTP response headers.
      *
      * @return A map of list of string
      */
-    public Map<String, List<String>> getResponseHeaders() {
-        return responseHeaders;
-    }
+    var responseHeaders: Map<String, List<String>>? = null
+        private set
 
     /**
      * Get the HTTP response body.
      *
      * @return Response body in the form of string
      */
-    public String getResponseBody() {
-        return responseBody;
+    var responseBody: String? = null
+        private set
+
+    constructor()
+    constructor(throwable: Throwable?) : super(throwable)
+    constructor(message: String?) : super(message)
+
+    @JvmOverloads
+    constructor(
+        message: String?,
+        throwable: Throwable?,
+        code: Int,
+        responseHeaders: Map<String, List<String>>?,
+        responseBody: String? = null
+    ) : super(message, throwable) {
+        this.code = code
+        this.responseHeaders = responseHeaders
+        this.responseBody = responseBody
+    }
+
+    constructor(message: String?, code: Int, responseHeaders: Map<String, List<String>>?, responseBody: String?) : this(
+        message,
+        null as Throwable?,
+        code,
+        responseHeaders,
+        responseBody
+    )
+
+    constructor(code: Int, responseHeaders: Map<String, List<String>>?, responseBody: String?) : this(
+        null as String?,
+        null as Throwable?,
+        code,
+        responseHeaders,
+        responseBody
+    )
+
+    constructor(code: Int, message: String?) : super(message) {
+        this.code = code
+    }
+
+    constructor(code: Int, message: String?, responseHeaders: Map<String, List<String>>?, responseBody: String?) : this(code, message) {
+        this.responseHeaders = responseHeaders
+        this.responseBody = responseBody
     }
 }

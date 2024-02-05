@@ -1,156 +1,120 @@
-package org.tomp.api.booking;
+package org.tomp.api.booking
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-import org.tomp.api.model.MaasOperator;
-import org.tomp.api.repository.DefaultRepository;
-import org.tomp.api.utils.ClientUtil;
-import org.tomp.api.utils.GeoCoderUtil;
-
-import io.swagger.client.ApiException;
-import io.swagger.model.Address;
-import io.swagger.model.Booking;
-import io.swagger.model.BookingOperation;
-import io.swagger.model.BookingRequest;
-import io.swagger.model.BookingState;
-import io.swagger.model.Coordinates;
-import io.swagger.model.Place;
+import io.swagger.client.ApiException
+import io.swagger.model.Address
+import io.swagger.model.Booking
+import io.swagger.model.BookingOperation
+import io.swagger.model.BookingOperation.OperationEnum
+import io.swagger.model.BookingRequest
+import io.swagger.model.BookingState
+import io.swagger.model.Place
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Component
+import org.springframework.web.server.ResponseStatusException
+import org.tomp.api.model.MaasOperator
+import org.tomp.api.repository.DefaultRepository
+import org.tomp.api.utils.ClientUtil
+import org.tomp.api.utils.GeoCoderUtil
+import javax.servlet.http.HttpServletRequest
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.booking", havingValue = "generic", matchIfMissing = true)
-public class GenericBookingProvider implements BookingProvider {
+@ConditionalOnProperty(value = ["tomp.providers.booking"], havingValue = "generic", matchIfMissing = true)
+open class GenericBookingProvider : BookingProvider {
+    private val listeners: MutableList<String?> = ArrayList()
 
-	private static final Logger log = LoggerFactory.getLogger(GenericBookingProvider.class);
+    @Autowired
+    var clientUtil: ClientUtil? = null
 
-	private List<String> listeners = new ArrayList<>();
+    @Autowired
+    var geocoderUtil: GeoCoderUtil? = null
 
-	@Autowired
-	ClientUtil clientUtil;
+    @Autowired
+    var repository: DefaultRepository? = null
+    override fun addNewBooking(body: @Valid BookingRequest?, acceptLanguage: String?): Booking? {
+        log.info("POST bookings {}", body!!.id)
+        val id = body.id
+        validateId(id)
+        val booking = repository!!.getSavedOption(id)
+        booking!!.state = BookingState.PENDING
+        if (geocoderUtil!!.isActive) {
+            val from: @NotNull @Valid Place? = booking.from
+            val to: @Valid Place? = booking.to
+            var address = from!!.physicalAddress
+            if (address == null) {
+                address = Address()
+                val p = Place()
+                p.physicalAddress = address
+                booking.from = p
+            }
+            var coord = booking.from!!.coordinates
+            geocoderUtil!!.getPhysicalAddressByCoordinate(coord, address)
+            address = to!!.physicalAddress
+            if (address == null) {
+                address = Address()
+                val p = Place()
+                p.physicalAddress = address
+                booking.to = p
+            }
+            coord = booking.to!!.coordinates
+            geocoderUtil!!.getPhysicalAddressByCoordinate(coord, address)
+        }
+        repository!!.saveBooking(booking)
+        return booking
+    }
 
-	@Autowired
-	GeoCoderUtil geocoderUtil;
+    protected fun validateId(id: String?) {
+        if (repository!!.getSavedOption(id) == null) {
+            log.error("Did not provide this leg {}", id)
+            throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        }
+    }
 
-	@Autowired
-	DefaultRepository repository;
+    override fun addNewBookingEvent(body: BookingOperation?, acceptLanguage: String?, id: String): Booking? {
+        validateId(id)
+        log.info("POST bookings/{}/events {}", id, body!!.operation)
+        val booking = repository!!.getBooking(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        when (body.operation) {
+            OperationEnum.COMMIT -> booking.state = BookingState.CONFIRMED
+            OperationEnum.CANCEL -> booking.state = BookingState.CANCELLED
+            OperationEnum.DENY -> booking.state = BookingState.RELEASED
+            OperationEnum.EXPIRE -> booking.state = BookingState.EXPIRED
+        }
+        informListeners(body, id)
+        repository!!.saveBooking(booking)
+        return booking
+    }
 
-	@Override
-	public Booking addNewBooking(@Valid BookingRequest body, String acceptLanguage) {
-		log.info("POST bookings {}", body.getId());
+    private fun informListeners(body: BookingOperation?, id: String) {
+        if (listeners.contains(id)) {
+            val to = MaasOperator()
+            // to.setUrl(listener.getWebhook());
+            try {
+                clientUtil!!.post(to, "", body, Void::class.java)
+            } catch (e: ApiException) {
+                log.error(e.message)
+            }
+        }
+    }
 
-		String id = body.getId();
-		validateId(id);
+    override fun setRequest(request: HttpServletRequest?) {}
+    override fun getBooking(id: String?): Booking? {
+        return repository!!.getBooking(id)
+    }
 
-		Booking booking = repository.getSavedOption(id);
-		booking.setState(BookingState.PENDING);
+    override fun subscribeToBookings(acceptLanguage: String?, api: String?, apiVersion: String?, id: String?) {
+        listeners.add(id)
+    }
 
-		if (geocoderUtil.isActive()) {
-			@NotNull
-			@Valid
-			Place from = booking.getFrom();
-			@Valid
-			Place to = booking.getTo();
+    override fun unsubscribeToBookings(acceptLanguage: String?, api: String?, apiVersion: String?, id: String?) {
+        listeners.remove(id)
+    }
 
-			Address address = from.getPhysicalAddress();
-			if (address == null) {
-				address = new Address();
-				Place p = new Place();
-				p.setPhysicalAddress(address);
-				booking.setFrom(p);
-			}
-			Coordinates coord = booking.getFrom().getCoordinates();
-			geocoderUtil.getPhysicalAddressByCoordinate(coord, address);
-
-			address = to.getPhysicalAddress();
-			if (address == null) {
-				address = new Address();
-				Place p = new Place();
-				p.setPhysicalAddress(address);
-				booking.setTo(p);
-			}
-			coord = booking.getTo().getCoordinates();
-			geocoderUtil.getPhysicalAddressByCoordinate(coord, address);
-		}
-
-		repository.saveBooking(booking);
-		return booking;
-	}
-
-	protected void validateId(String id) {
-		if (repository.getSavedOption(id) == null) {
-			log.error("Did not provide this leg {}", id);
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@Override
-	public Booking addNewBookingEvent(BookingOperation body, String acceptLanguage, String id) {
-		validateId(id);
-		log.info("POST bookings/{}/events {}", id, body.getOperation());
-		Booking booking = repository.getBooking(id);
-		if (booking == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-
-		switch (body.getOperation()) {
-		case COMMIT:
-			booking.setState(BookingState.CONFIRMED);
-			break;
-		case CANCEL:
-			booking.setState(BookingState.CANCELLED);
-			break;
-		case DENY:
-			booking.setState(BookingState.RELEASED);
-			break;
-		case EXPIRE:
-			booking.setState(BookingState.EXPIRED);
-			break;
-		}
-
-		informListeners(body, id);
-		repository.saveBooking(booking);
-		return booking;
-	}
-
-	private void informListeners(BookingOperation body, String id) {
-		if (listeners.contains(id)) {
-			MaasOperator to = new MaasOperator();
-			// to.setUrl(listener.getWebhook());
-			try {
-				clientUtil.post(to, "", body, Void.class);
-			} catch (ApiException e) {
-				log.error(e.getMessage());
-			}
-		}
-	}
-
-	@Override
-	public void setRequest(HttpServletRequest request) {
-	}
-
-	@Override
-	public Booking getBooking(String id) {
-		return repository.getBooking(id);
-	}
-
-	@Override
-	public void subscribeToBookings(String acceptLanguage, String api, String apiVersion, String id) {
-		listeners.add(id);
-	}
-
-	@Override
-	public void unsubscribeToBookings(String acceptLanguage, String api, String apiVersion, String id) {
-		listeners.remove(id);
-	}
+    companion object {
+        private val log = LoggerFactory.getLogger(GenericBookingProvider::class.java)
+    }
 }

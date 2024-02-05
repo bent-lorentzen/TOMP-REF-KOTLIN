@@ -1,10 +1,6 @@
-package io.swagger.api;
+package io.swagger.api
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-24T15:10:42.894Z[GMT]")
-public class NotFoundException extends ApiException {
-    private int code;
-    public NotFoundException (int code, String msg) {
-        super(code, msg);
-        this.code = code;
-    }
-}
+import javax.annotation.Generated
+
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-03-24T15:10:42.894Z[GMT]")
+class NotFoundException(private val code: Int, msg: String?) : ApiException(code, msg)

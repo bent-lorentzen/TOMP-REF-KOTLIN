@@ -9,67 +9,51 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+package io.swagger.client
 
-package io.swagger.client;
+import com.squareup.okhttp.MediaType
+import com.squareup.okhttp.ResponseBody
+import okio.Buffer
+import okio.BufferedSource
+import okio.ForwardingSource
+import okio.Okio
+import okio.Source
+import java.io.IOException
 
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.ResponseBody;
-
-import java.io.IOException;
-
-import okio.Buffer;
-import okio.BufferedSource;
-import okio.ForwardingSource;
-import okio.Okio;
-import okio.Source;
-
-public class ProgressResponseBody extends ResponseBody {
-
-    public interface ProgressListener {
-        void update(long bytesRead, long contentLength, boolean done);
+class ProgressResponseBody(private val responseBody: ResponseBody, private val progressListener: ProgressListener) : ResponseBody() {
+    interface ProgressListener {
+        fun update(bytesRead: Long, contentLength: Long, done: Boolean)
     }
 
-    private final ResponseBody responseBody;
-    private final ProgressListener progressListener;
-    private BufferedSource bufferedSource;
-
-    public ProgressResponseBody(ResponseBody responseBody, ProgressListener progressListener) {
-        this.responseBody = responseBody;
-        this.progressListener = progressListener;
+    private var bufferedSource: BufferedSource? = null
+    override fun contentType(): MediaType {
+        return responseBody.contentType()
     }
 
-    @Override
-    public MediaType contentType() {
-        return responseBody.contentType();
+    @Throws(IOException::class)
+    override fun contentLength(): Long {
+        return responseBody.contentLength()
     }
 
-    @Override
-    public long contentLength() throws IOException {
-        return responseBody.contentLength();
-    }
-
-    @Override
-    public BufferedSource source() throws IOException {
+    @Throws(IOException::class)
+    override fun source(): BufferedSource {
         if (bufferedSource == null) {
-            bufferedSource = Okio.buffer(source(responseBody.source()));
+            bufferedSource = Okio.buffer(source(responseBody.source()))
         }
-        return bufferedSource;
+        return bufferedSource!!
     }
 
-    private Source source(Source source) {
-        return new ForwardingSource(source) {
-            long totalBytesRead = 0L;
-
-            @Override
-            public long read(Buffer sink, long byteCount) throws IOException {
-                long bytesRead = super.read(sink, byteCount);
+    private fun source(source: Source): Source {
+        return object : ForwardingSource(source) {
+            var totalBytesRead = 0L
+            @Throws(IOException::class)
+            override fun read(sink: Buffer, byteCount: Long): Long {
+                val bytesRead = super.read(sink, byteCount)
                 // read() returns the number of bytes read, or -1 if this source is exhausted.
-                totalBytesRead += bytesRead != -1 ? bytesRead : 0;
-                progressListener.update(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
-                return bytesRead;
+                totalBytesRead += if (bytesRead != -1L) bytesRead else 0
+                progressListener.update(totalBytesRead, responseBody.contentLength(), bytesRead == -1L)
+                return bytesRead
             }
-        };
+        }
     }
 }
-
-

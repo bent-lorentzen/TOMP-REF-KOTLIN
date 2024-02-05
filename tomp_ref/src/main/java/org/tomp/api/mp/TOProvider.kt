@@ -1,217 +1,184 @@
-package org.tomp.api.mp;
+package org.tomp.api.mp
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.model.LookupService;
-import org.tomp.api.model.MaasEnvironmentType;
-import org.tomp.api.model.MaasOperator;
-import org.tomp.api.model.Segment;
-import org.tomp.api.model.TransportOperator;
-import org.tomp.api.utils.ClientUtil;
-import org.tomp.api.utils.ExternalFileService;
-import org.tomp.api.utils.GeoUtil;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.swagger.client.ApiException;
-import io.swagger.model.AssetType;
-import io.swagger.model.Coordinates;
-import io.swagger.model.GeojsonLine;
-import io.swagger.model.GeojsonPoint;
-import io.swagger.model.GeojsonPolygon;
-import io.swagger.model.SystemInformation;
-import io.swagger.model.SystemRegion;
+import com.fasterxml.jackson.core.JsonProcessingException
+import io.swagger.client.ApiException
+import io.swagger.model.AssetType
+import io.swagger.model.Coordinates
+import io.swagger.model.GeojsonLine
+import io.swagger.model.GeojsonPoint
+import io.swagger.model.GeojsonPolygon
+import io.swagger.model.SystemInformation
+import io.swagger.model.SystemRegion
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.model.LookupService
+import org.tomp.api.model.MaasEnvironmentType
+import org.tomp.api.model.MaasOperator
+import org.tomp.api.model.Segment
+import org.tomp.api.model.TransportOperator
+import org.tomp.api.utils.ClientUtil
+import org.tomp.api.utils.ExternalFileService
+import org.tomp.api.utils.GeoUtil
+import java.util.Collections
+import javax.annotation.PostConstruct
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.planning", havingValue = "maasprovider", matchIfMissing = false)
-public class TOProvider {
+@ConditionalOnProperty(value = ["tomp.providers.planning"], havingValue = "maasprovider", matchIfMissing = false)
+class TOProvider @Autowired constructor(
+    private val clientUtil: ClientUtil,
+    private val lookupService: LookupService,
+    private val fileService: ExternalFileService
+) {
+    var cache: MutableList<TransportOperator> = ArrayList()
+    @PostConstruct
+    private fun populateTOs() {
+        getOperatorsInArea(fileService.getArea())
+    }
 
-	private static final Logger log = LoggerFactory.getLogger(TOProvider.class);
+    private fun getOperatorsInArea(area: GeojsonPolygon?) {
+        val data: Array<MaasOperator?>?
+        try {
+            data = lookupService.findOperators(area)
+            for (i in data.indices) {
+                if (data[i].getType() == MaasEnvironmentType.TO) {
+                    val operator = TransportOperator()
+                    operator.name = data[i].getName()
+                    operator.id = data[i].getId()
+                    operator.url = data[i].getUrl()
+                    populateTransportOperatorInfo(operator)
+                }
+            }
+        } catch (e: JsonProcessingException) {
+            log.error(e.message)
+        }
+    }
 
-	private ExternalFileService fileService;
-	private ClientUtil clientUtil;
-	private LookupService lookupService;
-	List<TransportOperator> cache = new ArrayList<>();
+    fun clearCache() {
+        cache.clear()
+    }
 
-	@Autowired
-	public TOProvider(ClientUtil clientUtil, LookupService lookupService, ExternalFileService fileService) {
-		this.clientUtil = clientUtil;
-		this.lookupService = lookupService;
-		this.fileService = fileService;
-	}
+    fun getTransportOperators(segment: Segment?): List<TransportOperator> {
+        if (cache.isEmpty()) {
+            populateTOs()
+        }
+        if (!segmentInCache(segment)) {
+            getOperatorsInArea(getBoundingBox(segment))
+        }
+        return cache
+    }
 
-	@PostConstruct
-	private void populateTOs() {
-		getOperatorsInArea(fileService.getArea());
-	}
+    fun getTransportOperator(id: String): TransportOperator? {
+        for (o in cache) {
+            if (o.id == id) return o
+        }
+        return null
+    }
 
-	private void getOperatorsInArea(GeojsonPolygon area) {
-		MaasOperator[] data;
-		try {
-			data = lookupService.findOperators(area);
-			for (int i = 0; i < data.length; i++) {
-				if (data[i].getType() == MaasEnvironmentType.TO) {
-					TransportOperator operator = new TransportOperator();
-					operator.setName(data[i].getName());
-					operator.setId(data[i].getId());
-					operator.setUrl(data[i].getUrl());
-					populateTransportOperatorInfo(operator);
-				}
-			}
-		} catch (JsonProcessingException e) {
-			log.error(e.getMessage());
-		}
-	}
+    private fun getBoundingBox(segment: Segment?): GeojsonPolygon {
+        val p = GeojsonPolygon()
+        var minLng = Double.MAX_VALUE
+        var minLat = Double.MAX_VALUE
+        var maxLng = Double.MIN_VALUE
+        var maxLat = Double.MIN_VALUE
+        var lat = segment!!.from!!.coordinates!!.lat!!.toDouble()
+        if (lat < minLat) minLat = lat
+        if (lat > maxLat) maxLat = lat
+        var lng = segment.from!!.coordinates!!.lng!!.toDouble()
+        if (lng < minLng) minLng = lng
+        if (lng > maxLng) maxLng = lng
+        lat = segment.to!!.coordinates!!.lat!!.toDouble()
+        if (lat < minLat) minLat = lat
+        if (lat > maxLat) maxLat = lat
+        lng = segment.to!!.coordinates!!.lng!!.toDouble()
+        if (lng < minLng) minLng = lng
+        if (lng > maxLng) maxLng = lng
+        val start = toCoordinates(minLng, minLat)
+        p.add(GeojsonLine())
+        p[0]!!.add(start)
+        p[0]!!.add(toCoordinates(minLng, maxLat))
+        p[0]!!.add(toCoordinates(maxLng, maxLat))
+        p[0]!!.add(toCoordinates(maxLng, minLat))
+        p[0]!!.add(start)
+        return p
+    }
 
-	public void clearCache() {
-		cache.clear();
-	}
+    private fun toCoordinates(minLng: Double, minLat: Double): GeojsonPoint {
+        val start = GeojsonPoint()
+        start.add(minLng.toFloat())
+        start.add(minLat.toFloat())
+        return start
+    }
 
-	public List<TransportOperator> getTransportOperators(Segment segment) {
-		if (cache.isEmpty()) {
-			populateTOs();
-		}
-		if (!segmentInCache(segment)) {
-			getOperatorsInArea(getBoundingBox(segment));
-		}
-		return cache;
-	}
+    private fun segmentInCache(segment: Segment?): Boolean {
+        if (segment != null) {
+            for (operator in cache) {
+                for (region in operator.regions) {
+                    if (isRegion(region, segment.from!!.coordinates)
+                        || isRegion(region, segment.to!!.coordinates)
+                    ) {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
+        return true
+    }
 
-	public TransportOperator getTransportOperator(String id) {
-		for (TransportOperator o : cache) {
-			if (o.getId().equals(id))
-				return o;
-		}
-		return null;
-	}
+    private fun isRegion(region: SystemRegion?, coord: Coordinates?): Boolean {
+        var minLng = Double.MAX_VALUE
+        var minLat = Double.MAX_VALUE
+        var maxLng = Double.MIN_VALUE
+        var maxLat = Double.MIN_VALUE
+        for (p in GeoUtil.getCoordinatesFromPolygon(region!!.getServiceArea())) {
+            val lat = p!!.lat!!.toDouble()
+            if (lat < minLat) minLat = lat
+            if (lat > maxLat) maxLat = lat
+            val lng = p.lng!!.toDouble()
+            if (lng < minLng) minLng = lng
+            if (lng > maxLng) maxLng = lng
+        }
+        return if (coord!!.lat!!.toDouble() < minLat || coord.lat!!.toDouble() > maxLat || coord.lng!!.toDouble() < minLng || coord.lng!!.toDouble() > maxLng) false else true
+    }
 
-	private GeojsonPolygon getBoundingBox(Segment segment) {
-		GeojsonPolygon p = new GeojsonPolygon();
-		double minLng = Double.MAX_VALUE;
-		double minLat = Double.MAX_VALUE;
-		double maxLng = Double.MIN_VALUE;
-		double maxLat = Double.MIN_VALUE;
+    private fun populateTransportOperatorInfo(operator: TransportOperator) {
+        try {
+            getSystemInformation(operator)
+            getAssetInformation(operator)
+            getRegionInformation(operator)
+            cache.add(operator)
+        } catch (e: Exception) {
+            log.error(e.message)
+        }
+        log.info("Fetch info of {}", operator.name)
+    }
 
-		double lat = segment.getFrom().getCoordinates().getLat().doubleValue();
-		if (lat < minLat)
-			minLat = lat;
-		if (lat > maxLat)
-			maxLat = lat;
-		double lng = segment.getFrom().getCoordinates().getLng().doubleValue();
-		if (lng < minLng)
-			minLng = lng;
-		if (lng > maxLng)
-			maxLng = lng;
-		lat = segment.getTo().getCoordinates().getLat().doubleValue();
-		if (lat < minLat)
-			minLat = lat;
-		if (lat > maxLat)
-			maxLat = lat;
-		lng = segment.getTo().getCoordinates().getLng().doubleValue();
-		if (lng < minLng)
-			minLng = lng;
-		if (lng > maxLng)
-			maxLng = lng;
+    @Throws(ApiException::class)
+    private fun getRegionInformation(operator: TransportOperator) {
+        val regions = clientUtil.get(operator, "/operator/regions", Array<SystemRegion>::class.java)
+        val list: List<SystemRegion> = ArrayList()
+        Collections.addAll(list, *regions)
+        operator.regions = list
+    }
 
-		GeojsonPoint start = toCoordinates(minLng, minLat);
-		p.add(new GeojsonLine());
-		p.get(0).add(start);
-		p.get(0).add(toCoordinates(minLng, maxLat));
-		p.get(0).add(toCoordinates(maxLng, maxLat));
-		p.get(0).add(toCoordinates(maxLng, minLat));
-		p.get(0).add(start);
+    @Throws(ApiException::class)
+    private fun getAssetInformation(to: TransportOperator) {
+        val assets = clientUtil.get(to, "/operator/available-assets", Array<AssetType>::class.java)
+        for (assetType in assets) {
+            to.assetClasses.add(assetType.assetClass)
+        }
+    }
 
-		return p;
-	}
+    @Throws(ApiException::class)
+    private fun getSystemInformation(to: TransportOperator) {
+        val info = clientUtil.get(to, "/operator/information", SystemInformation::class.java)
+        to.name = info!!.name
+        to.id = info.systemId
+    }
 
-	private GeojsonPoint toCoordinates(double minLng, double minLat) {
-		GeojsonPoint start = new GeojsonPoint();
-		start.add((float)(minLng));
-		start.add((float)(minLat));
-		return start;
-	}
-
-	private boolean segmentInCache(Segment segment) {
-		if (segment != null) {
-			for (TransportOperator operator : cache) {
-				for (SystemRegion region : operator.getRegions()) {
-					if (isRegion(region, segment.getFrom().getCoordinates())
-							|| isRegion(region, segment.getTo().getCoordinates())) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-		return true;
-	}
-
-	private boolean isRegion(SystemRegion region, Coordinates coord) {
-		double minLng = Double.MAX_VALUE;
-		double minLat = Double.MAX_VALUE;
-		double maxLng = Double.MIN_VALUE;
-		double maxLat = Double.MIN_VALUE;
-
-		for (Coordinates p : GeoUtil.getCoordinatesFromPolygon(region.getServiceArea())) {
-			double lat = p.getLat().doubleValue();
-			if (lat < minLat)
-				minLat = lat;
-			if (lat > maxLat)
-				maxLat = lat;
-			double lng = p.getLng().doubleValue();
-			if (lng < minLng)
-				minLng = lng;
-			if (lng > maxLng)
-				maxLng = lng;
-		}
-
-		if (coord.getLat().doubleValue() < minLat || coord.getLat().doubleValue() > maxLat
-				|| coord.getLng().doubleValue() < minLng || coord.getLng().doubleValue() > maxLng)
-			return false;
-
-		return true;
-	}
-
-	private void populateTransportOperatorInfo(TransportOperator operator) {
-		try {
-			getSystemInformation(operator);
-			getAssetInformation(operator);
-			getRegionInformation(operator);
-
-			cache.add(operator);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-		}
-		log.info("Fetch info of {}", operator.getName());
-	}
-
-	private void getRegionInformation(TransportOperator operator) throws ApiException {
-		SystemRegion[] regions = clientUtil.get(operator, "/operator/regions", SystemRegion[].class);
-		List<SystemRegion> list = new ArrayList<>();
-		Collections.addAll(list, regions);
-		operator.setRegions(list);
-	}
-
-	private void getAssetInformation(TransportOperator to) throws ApiException {
-		AssetType[] assets = clientUtil.get(to, "/operator/available-assets", AssetType[].class);
-		for (AssetType assetType : assets) {
-			to.getAssetClasses().add(assetType.getAssetClass());
-		}
-	}
-
-	private void getSystemInformation(TransportOperator to) throws ApiException {
-		SystemInformation info = clientUtil.get(to, "/operator/information", SystemInformation.class);
-		to.setName(info.getName());
-		to.setId(info.getSystemId());
-	}
+    companion object {
+        private val log = LoggerFactory.getLogger(TOProvider::class.java)
+    }
 }

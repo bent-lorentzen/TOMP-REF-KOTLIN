@@ -1,436 +1,297 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.model.AmountOfMoney;
-import io.swagger.model.BankAccount;
-import io.swagger.model.JournalCategory;
-import io.swagger.model.JournalState;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.threeten.bp.OffsetDateTime;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import org.threeten.bp.OffsetDateTime
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * JournalEntry
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-10T11:36:21.130Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2021-12-10T11:36:21.130Z[GMT]")
+class JournalEntry : AmountOfMoney() {
+    /**
+     * Get category
+     * @return category
+     */
+    @get:Schema(description = "")
+    @JsonProperty("category")
+    var category: JournalCategory? = null
 
+    /**
+     * id of the entry, leg id can be reused
+     * @return journalId
+     */
+    @JvmField
+    @get:Schema(description = "id of the entry, leg id can be reused")
+    @JsonProperty("journalId")
+    var journalId: String? = null
 
-public class JournalEntry extends AmountOfMoney  {
-  @JsonProperty("category")
-  private JournalCategory category = null;
+    /**
+     * sequence id of the entry, in combination with journalId unique from TO perspective.
+     * @return journalSequenceId
+     */
+    @JvmField
+    @get:Schema(description = "sequence id of the entry, in combination with journalId unique from TO perspective.")
+    @JsonProperty("journalSequenceId")
+    var journalSequenceId: String? = null
 
-  @JsonProperty("journalId")
-  private String journalId = null;
+    /**
+     * the number of the invoice. Should be filled in when invoiced.
+     * @return invoiceId
+     */
+    @get:Schema(description = "the number of the invoice. Should be filled in when invoiced.")
+    @JsonProperty("invoiceId")
+    var invoiceId: String? = null
 
-  @JsonProperty("journalSequenceId")
-  private String journalSequenceId = null;
+    /**
+     * Get invoiceDate
+     * @return invoiceDate
+     */
+    @get:Schema(description = "")
+    @JsonProperty("invoiceDate")
+    var invoiceDate: OffsetDateTime? = null
 
-  @JsonProperty("invoiceId")
-  private String invoiceId = null;
+    /**
+     * Get state
+     * @return state
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("state")
+    var state: JournalState? = null
 
-  @JsonProperty("invoiceDate")
-  private OffsetDateTime invoiceDate = null;
+    /**
+     * Get expirationDate
+     * @return expirationDate
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("expirationDate")
+    var expirationDate: OffsetDateTime? = null
 
-  @JsonProperty("state")
-  private JournalState state = null;
+    /**
+     * Get comment
+     * @return comment
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("comment")
+    var comment: String? = null
 
-  @JsonProperty("expirationDate")
-  private OffsetDateTime expirationDate = null;
+    /**
+     * the travelled distance. Only if applicable.
+     * minimum: 0
+     * @return distance
+     */
+    @JvmField
+    @get:Schema(description = "the travelled distance. Only if applicable.")
+    @JsonProperty("distance")
+    var distance: Float? = null
 
-  @JsonProperty("comment")
-  private String comment = null;
+    /**
+     * Gets or Sets distanceType
+     */
+    enum class DistanceTypeEnum(private val value: String) {
+        KM("KM"),
+        MILE("MILE");
 
-  @JsonProperty("distance")
-  private Float distance = null;
-
-  /**
-   * Gets or Sets distanceType
-   */
-  public enum DistanceTypeEnum {
-    KM("KM"),
-    
-    MILE("MILE");
-
-    private String value;
-
-    DistanceTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static DistanceTypeEnum fromValue(String text) {
-      for (DistanceTypeEnum b : DistanceTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
+
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): DistanceTypeEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-  }
-  @JsonProperty("distanceType")
-  private DistanceTypeEnum distanceType = null;
 
-  @JsonProperty("usedTime")
-  private Integer usedTime = null;
+    /**
+     * Get distanceType
+     * @return distanceType
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("distanceType")
+    var distanceType: DistanceTypeEnum? = null
 
-  @JsonProperty("rentalStartMileage")
-  private Float rentalStartMileage = null;
+    /**
+     * the time in seconds that the assed is used. Only if applicable.
+     * minimum: 0
+     * @return usedTime
+     */
+    @JvmField
+    @get:Schema(description = "the time in seconds that the assed is used. Only if applicable.")
+    @JsonProperty("usedTime")
+    var usedTime: Int? = null
 
-  @JsonProperty("bankAccount")
-  private BankAccount bankAccount = null;
+    /**
+     * the mileage at the start of the rental. 'DistanceType' field is also applicable here
+     * minimum: 0
+     * @return rentalStartMileage
+     */
+    @get:Schema(description = "the mileage at the start of the rental. 'DistanceType' field is also applicable here")
+    @JsonProperty("rentalStartMileage")
+    var rentalStartMileage: Float? = null
 
-  @JsonProperty("details")
-  private Object details = null;
+    /**
+     * Get bankAccount
+     * @return bankAccount
+     */
+    @get:Schema(description = "")
+    @JsonProperty("bankAccount")
+    var bankAccount: BankAccount? = null
 
-  public JournalEntry category(JournalCategory category) {
-    this.category = category;
-    return this;
-  }
-
-  /**
-   * Get category
-   * @return category
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public JournalCategory getCategory() {
-    return category;
-  }
-
-  public void setCategory(JournalCategory category) {
-    this.category = category;
-  }
-
-  public JournalEntry journalId(String journalId) {
-    this.journalId = journalId;
-    return this;
-  }
-
-  /**
-   * id of the entry, leg id can be reused
-   * @return journalId
-   **/
-  @Schema(description = "id of the entry, leg id can be reused")
-  
-    public String getJournalId() {
-    return journalId;
-  }
-
-  public void setJournalId(String journalId) {
-    this.journalId = journalId;
-  }
-
-  public JournalEntry journalSequenceId(String journalSequenceId) {
-    this.journalSequenceId = journalSequenceId;
-    return this;
-  }
-
-  /**
-   * sequence id of the entry, in combination with journalId unique from TO perspective.
-   * @return journalSequenceId
-   **/
-  @Schema(description = "sequence id of the entry, in combination with journalId unique from TO perspective.")
-  
-    public String getJournalSequenceId() {
-    return journalSequenceId;
-  }
-
-  public void setJournalSequenceId(String journalSequenceId) {
-    this.journalSequenceId = journalSequenceId;
-  }
-
-  public JournalEntry invoiceId(String invoiceId) {
-    this.invoiceId = invoiceId;
-    return this;
-  }
-
-  /**
-   * the number of the invoice. Should be filled in when invoiced.
-   * @return invoiceId
-   **/
-  @Schema(description = "the number of the invoice. Should be filled in when invoiced.")
-  
-    public String getInvoiceId() {
-    return invoiceId;
-  }
-
-  public void setInvoiceId(String invoiceId) {
-    this.invoiceId = invoiceId;
-  }
-
-  public JournalEntry invoiceDate(OffsetDateTime invoiceDate) {
-    this.invoiceDate = invoiceDate;
-    return this;
-  }
-
-  /**
-   * Get invoiceDate
-   * @return invoiceDate
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public OffsetDateTime getInvoiceDate() {
-    return invoiceDate;
-  }
-
-  public void setInvoiceDate(OffsetDateTime invoiceDate) {
-    this.invoiceDate = invoiceDate;
-  }
-
-  public JournalEntry state(JournalState state) {
-    this.state = state;
-    return this;
-  }
-
-  /**
-   * Get state
-   * @return state
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public JournalState getState() {
-    return state;
-  }
-
-  public void setState(JournalState state) {
-    this.state = state;
-  }
-
-  public JournalEntry expirationDate(OffsetDateTime expirationDate) {
-    this.expirationDate = expirationDate;
-    return this;
-  }
-
-  /**
-   * Get expirationDate
-   * @return expirationDate
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public OffsetDateTime getExpirationDate() {
-    return expirationDate;
-  }
-
-  public void setExpirationDate(OffsetDateTime expirationDate) {
-    this.expirationDate = expirationDate;
-  }
-
-  public JournalEntry comment(String comment) {
-    this.comment = comment;
-    return this;
-  }
-
-  /**
-   * Get comment
-   * @return comment
-   **/
-  @Schema(description = "")
-  
-    public String getComment() {
-    return comment;
-  }
-
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
-
-  public JournalEntry distance(Float distance) {
-    this.distance = distance;
-    return this;
-  }
-
-  /**
-   * the travelled distance. Only if applicable.
-   * minimum: 0
-   * @return distance
-   **/
-  @Schema(description = "the travelled distance. Only if applicable.")
-  
-  @DecimalMin("0")  public Float getDistance() {
-    return distance;
-  }
-
-  public void setDistance(Float distance) {
-    this.distance = distance;
-  }
-
-  public JournalEntry distanceType(DistanceTypeEnum distanceType) {
-    this.distanceType = distanceType;
-    return this;
-  }
-
-  /**
-   * Get distanceType
-   * @return distanceType
-   **/
-  @Schema(description = "")
-  
-    public DistanceTypeEnum getDistanceType() {
-    return distanceType;
-  }
-
-  public void setDistanceType(DistanceTypeEnum distanceType) {
-    this.distanceType = distanceType;
-  }
-
-  public JournalEntry usedTime(Integer usedTime) {
-    this.usedTime = usedTime;
-    return this;
-  }
-
-  /**
-   * the time in seconds that the assed is used. Only if applicable.
-   * minimum: 0
-   * @return usedTime
-   **/
-  @Schema(description = "the time in seconds that the assed is used. Only if applicable.")
-  
-  @Min(0)  public Integer getUsedTime() {
-    return usedTime;
-  }
-
-  public void setUsedTime(Integer usedTime) {
-    this.usedTime = usedTime;
-  }
-
-  public JournalEntry rentalStartMileage(Float rentalStartMileage) {
-    this.rentalStartMileage = rentalStartMileage;
-    return this;
-  }
-
-  /**
-   * the mileage at the start of the rental. 'DistanceType' field is also applicable here
-   * minimum: 0
-   * @return rentalStartMileage
-   **/
-  @Schema(description = "the mileage at the start of the rental. 'DistanceType' field is also applicable here")
-  
-  @DecimalMin("0")  public Float getRentalStartMileage() {
-    return rentalStartMileage;
-  }
-
-  public void setRentalStartMileage(Float rentalStartMileage) {
-    this.rentalStartMileage = rentalStartMileage;
-  }
-
-  public JournalEntry bankAccount(BankAccount bankAccount) {
-    this.bankAccount = bankAccount;
-    return this;
-  }
-
-  /**
-   * Get bankAccount
-   * @return bankAccount
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public BankAccount getBankAccount() {
-    return bankAccount;
-  }
-
-  public void setBankAccount(BankAccount bankAccount) {
-    this.bankAccount = bankAccount;
-  }
-
-  public JournalEntry details(Object details) {
-    this.details = details;
-    return this;
-  }
-
-  /**
-   * the specification of the amount; how is it composed.
-   * @return details
-   **/
-  @Schema(description = "the specification of the amount; how is it composed.")
-  
-    public Object getDetails() {
-    return details;
-  }
-
-  public void setDetails(Object details) {
-    this.details = details;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * the specification of the amount; how is it composed.
+     * @return details
+     */
+    @JvmField
+    @get:Schema(description = "the specification of the amount; how is it composed.")
+    @JsonProperty("details")
+    var details: Any? = null
+    fun category(category: JournalCategory?): JournalEntry {
+        this.category = category
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun journalId(journalId: String?): JournalEntry {
+        this.journalId = journalId
+        return this
     }
-    JournalEntry journalEntry = (JournalEntry) o;
-    return Objects.equals(this.category, journalEntry.category) &&
-        Objects.equals(this.journalId, journalEntry.journalId) &&
-        Objects.equals(this.journalSequenceId, journalEntry.journalSequenceId) &&
-        Objects.equals(this.invoiceId, journalEntry.invoiceId) &&
-        Objects.equals(this.invoiceDate, journalEntry.invoiceDate) &&
-        Objects.equals(this.state, journalEntry.state) &&
-        Objects.equals(this.expirationDate, journalEntry.expirationDate) &&
-        Objects.equals(this.comment, journalEntry.comment) &&
-        Objects.equals(this.distance, journalEntry.distance) &&
-        Objects.equals(this.distanceType, journalEntry.distanceType) &&
-        Objects.equals(this.usedTime, journalEntry.usedTime) &&
-        Objects.equals(this.rentalStartMileage, journalEntry.rentalStartMileage) &&
-        Objects.equals(this.bankAccount, journalEntry.bankAccount) &&
-        Objects.equals(this.details, journalEntry.details) &&
-        super.equals(o);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(category, journalId, journalSequenceId, invoiceId, invoiceDate, state, expirationDate, comment, distance, distanceType, usedTime, rentalStartMileage, bankAccount, details, super.hashCode());
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class JournalEntry {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-    sb.append("    category: ").append(toIndentedString(category)).append("\n");
-    sb.append("    journalId: ").append(toIndentedString(journalId)).append("\n");
-    sb.append("    journalSequenceId: ").append(toIndentedString(journalSequenceId)).append("\n");
-    sb.append("    invoiceId: ").append(toIndentedString(invoiceId)).append("\n");
-    sb.append("    invoiceDate: ").append(toIndentedString(invoiceDate)).append("\n");
-    sb.append("    state: ").append(toIndentedString(state)).append("\n");
-    sb.append("    expirationDate: ").append(toIndentedString(expirationDate)).append("\n");
-    sb.append("    comment: ").append(toIndentedString(comment)).append("\n");
-    sb.append("    distance: ").append(toIndentedString(distance)).append("\n");
-    sb.append("    distanceType: ").append(toIndentedString(distanceType)).append("\n");
-    sb.append("    usedTime: ").append(toIndentedString(usedTime)).append("\n");
-    sb.append("    rentalStartMileage: ").append(toIndentedString(rentalStartMileage)).append("\n");
-    sb.append("    bankAccount: ").append(toIndentedString(bankAccount)).append("\n");
-    sb.append("    details: ").append(toIndentedString(details)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun journalSequenceId(journalSequenceId: String?): JournalEntry {
+        this.journalSequenceId = journalSequenceId
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun invoiceId(invoiceId: String?): JournalEntry {
+        this.invoiceId = invoiceId
+        return this
+    }
+
+    fun invoiceDate(invoiceDate: OffsetDateTime?): JournalEntry {
+        this.invoiceDate = invoiceDate
+        return this
+    }
+
+    fun state(state: JournalState?): JournalEntry {
+        this.state = state
+        return this
+    }
+
+    fun expirationDate(expirationDate: OffsetDateTime?): JournalEntry {
+        this.expirationDate = expirationDate
+        return this
+    }
+
+    fun comment(comment: String?): JournalEntry {
+        this.comment = comment
+        return this
+    }
+
+    fun distance(distance: Float?): JournalEntry {
+        this.distance = distance
+        return this
+    }
+
+    fun distanceType(distanceType: DistanceTypeEnum?): JournalEntry {
+        this.distanceType = distanceType
+        return this
+    }
+
+    fun usedTime(usedTime: Int?): JournalEntry {
+        this.usedTime = usedTime
+        return this
+    }
+
+    fun rentalStartMileage(rentalStartMileage: Float?): JournalEntry {
+        this.rentalStartMileage = rentalStartMileage
+        return this
+    }
+
+    fun bankAccount(bankAccount: BankAccount?): JournalEntry {
+        this.bankAccount = bankAccount
+        return this
+    }
+
+    fun details(details: Any?): JournalEntry {
+        this.details = details
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val journalEntry = o as JournalEntry
+        return this.category == journalEntry.category && journalId == journalEntry.journalId && journalSequenceId == journalEntry.journalSequenceId && invoiceId == journalEntry.invoiceId && invoiceDate == journalEntry.invoiceDate && state == journalEntry.state && expirationDate == journalEntry.expirationDate && comment == journalEntry.comment && distance == journalEntry.distance && distanceType == journalEntry.distanceType && usedTime == journalEntry.usedTime && rentalStartMileage == journalEntry.rentalStartMileage && bankAccount == journalEntry.bankAccount && details == journalEntry.details &&
+                super.equals(o)
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(
+            category,
+            journalId,
+            journalSequenceId,
+            invoiceId,
+            invoiceDate,
+            state,
+            expirationDate,
+            comment,
+            distance,
+            distanceType,
+            usedTime,
+            rentalStartMileage,
+            bankAccount,
+            details,
+            super.hashCode()
+        )
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class JournalEntry {\n")
+        sb.append("    ").append(toIndentedString(super.toString())).append("\n")
+        sb.append("    category: ").append(toIndentedString(category)).append("\n")
+        sb.append("    journalId: ").append(toIndentedString(journalId)).append("\n")
+        sb.append("    journalSequenceId: ").append(toIndentedString(journalSequenceId)).append("\n")
+        sb.append("    invoiceId: ").append(toIndentedString(invoiceId)).append("\n")
+        sb.append("    invoiceDate: ").append(toIndentedString(invoiceDate)).append("\n")
+        sb.append("    state: ").append(toIndentedString(state)).append("\n")
+        sb.append("    expirationDate: ").append(toIndentedString(expirationDate)).append("\n")
+        sb.append("    comment: ").append(toIndentedString(comment)).append("\n")
+        sb.append("    distance: ").append(toIndentedString(distance)).append("\n")
+        sb.append("    distanceType: ").append(toIndentedString(distanceType)).append("\n")
+        sb.append("    usedTime: ").append(toIndentedString(usedTime)).append("\n")
+        sb.append("    rentalStartMileage: ").append(toIndentedString(rentalStartMileage)).append("\n")
+        sb.append("    bankAccount: ").append(toIndentedString(bankAccount)).append("\n")
+        sb.append("    details: ").append(toIndentedString(details)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

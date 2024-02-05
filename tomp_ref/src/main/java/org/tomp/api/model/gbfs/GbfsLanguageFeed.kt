@@ -1,17 +1,8 @@
-package org.tomp.api.model.gbfs;
+package org.tomp.api.model.gbfs
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public class GbfsLanguageFeed {
-
-	@JsonProperty("feeds")
-	private GbfsLink[] feeds;
-
-	public GbfsLink[] getFeeds() {
-		return feeds;
-	}
-
-	public void setFeeds(GbfsLink[] link) {
-		this.feeds = link;
-	}
+class GbfsLanguageFeed {
+    @JsonProperty("feeds")
+    var feeds: Array<GbfsLink>
 }

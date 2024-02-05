@@ -1,18 +1,15 @@
-package org.tomp.api.model.parking;
+package org.tomp.api.model.parking
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public class AccessPoints {
+class AccessPoints {
+    @JsonProperty("accessPointLocation")
+    private var accessPointLocation: Array<LonLatLocation>
+    fun getAccessPointLocation(): Array<LonLatLocation>? {
+        return accessPointLocation
+    }
 
-	@JsonProperty("accessPointLocation")
-	private
-	LonLatLocation[] accessPointLocation;
-
-	public LonLatLocation[] getAccessPointLocation() {
-		return accessPointLocation;
-	}
-
-	public void setAccessPointLocation(LonLatLocation[] accessPointLocation) {
-		this.accessPointLocation = accessPointLocation;
-	} 
+    fun setAccessPointLocation(accessPointLocation: Array<LonLatLocation>) {
+        this.accessPointLocation = accessPointLocation
+    }
 }

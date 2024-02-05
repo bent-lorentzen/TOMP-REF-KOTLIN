@@ -1,30 +1,19 @@
-package org.tomp.api.utils;
+package org.tomp.api.utils
 
-public class MessageService {
-
-	public String getHttpMethod() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getURL() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getSensorId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getThumbprint() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getMsgBody() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+class MessageService {
+    val httpMethod: String?
+        get() =// TODO Auto-generated method stub
+            null
+    val uRL: String?
+        get() =// TODO Auto-generated method stub
+            null
+    val sensorId: String?
+        get() =// TODO Auto-generated method stub
+            null
+    val thumbprint: String?
+        get() =// TODO Auto-generated method stub
+            null
+    val msgBody: String?
+        get() =// TODO Auto-generated method stub
+            null
 }

@@ -1,91 +1,82 @@
-package org.tomp.api.planning;
+package org.tomp.api.planning
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.threeten.bp.OffsetDateTime;
-
-import io.swagger.model.AssetClass;
-import io.swagger.model.AssetProperties;
-import io.swagger.model.AssetProperties.EnergyLabelEnum;
-import io.swagger.model.AssetType;
-import io.swagger.model.Booking;
-import io.swagger.model.Coordinates;
-import io.swagger.model.Fare;
-import io.swagger.model.FarePart;
-import io.swagger.model.FarePart.TypeEnum;
-import io.swagger.model.Leg;
-import io.swagger.model.Place;
-import io.swagger.model.Planning;
-import io.swagger.model.PlanningRequest;
+import io.swagger.model.AssetClass
+import io.swagger.model.AssetProperties
+import io.swagger.model.AssetProperties.EnergyLabelEnum
+import io.swagger.model.AssetType
+import io.swagger.model.Booking
+import io.swagger.model.Coordinates
+import io.swagger.model.Fare
+import io.swagger.model.FarePart
+import io.swagger.model.Leg
+import io.swagger.model.Place
+import io.swagger.model.Planning
+import io.swagger.model.PlanningRequest
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.threeten.bp.OffsetDateTime
+import java.util.Arrays
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.planning", havingValue = "train", matchIfMissing = false)
-public class TrainPlanningProvider implements PlanningProvider {
+@ConditionalOnProperty(value = ["tomp.providers.planning"], havingValue = "train", matchIfMissing = false)
+class TrainPlanningProvider : PlanningProvider {
+    private var from: @NotNull @Valid Coordinates? = null
+    private var to: @Valid Coordinates? = null
+    private var start: @Valid OffsetDateTime? = null
+    private var end: @Valid OffsetDateTime? = null
+    override fun getOptions(body: @Valid PlanningRequest?, acceptLanguage: String?, bookingIntent: Boolean): Planning? {
+        val options = Planning()
+        from = body!!.from!!.coordinates
+        to = body.to!!.coordinates
+        start = body.departureTime
+        end = body.arrivalTime
+        options.setOptions(getResults(body, bookingIntent))
+        return options
+    }
 
-	private @NotNull @Valid Coordinates from;
-	private @Valid Coordinates to;
-	private @Valid OffsetDateTime start;
-	private @Valid OffsetDateTime end;
+    private fun getResults(body: @Valid PlanningRequest?, bookingIntent: Boolean): List<Booking> {
+        val booking = Booking()
+        val leg = Leg()
+        if (bookingIntent) {
+            leg.id = "DF(L<#NFSD=SFDKLJ"
+        }
+        leg.assetType = assetType
+        leg.from = toPlace(from)
+        leg.to = toPlace(to)
+        leg.departureTime = start
+        leg.arrivalTime = end
+        leg.pricing = fare
+        booking.setLegs(Arrays.asList(leg))
+        return Arrays.asList(booking)
+    }
 
-	public Planning getOptions(@Valid PlanningRequest body, String acceptLanguage, boolean bookingIntent) {
-		Planning options = new Planning();
-		from = body.getFrom().getCoordinates();
-		to = body.getTo().getCoordinates();
-		start = body.getDepartureTime();
-		end = body.getArrivalTime();
-		options.setOptions(getResults(body, bookingIntent));
-		return options;
-	}
+    private fun toPlace(from2: @NotNull @Valid Coordinates?): Place? {
+        // TODO Auto-generated method stub
+        return null
+    }
 
-	private List<Booking> getResults(@Valid PlanningRequest body, boolean bookingIntent) {
-		Booking booking = new Booking();
-		Leg leg = new Leg();
-		if (bookingIntent) {
-			leg.setId("DF(L<#NFSD=SFDKLJ");
-		}
-		leg.setAssetType(getAssetType());
-		leg.setFrom(toPlace(from));
-		leg.setTo(toPlace(to));
-		leg.setDepartureTime(start);
-		leg.setArrivalTime(end);
-		leg.setPricing(getFare());
-		booking.setLegs(Arrays.asList(leg));
-		return Arrays.asList(booking);
-	}
-
-	private Place toPlace(@NotNull @Valid Coordinates from2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private Fare getFare() {
-		Fare fare = new Fare();
-		FarePart part = new FarePart();
-		part.setType(TypeEnum.FIXED);
-		part.setCurrencyCode("EUR");
-		part.setAmount(10.33F);
-		part.setVatRate(21.0F);
-		fare.addPartsItem(part);
-		return fare;
-	}
-
-	private AssetType getAssetType() {
-		AssetType typeOfAsset = new AssetType();
-		typeOfAsset.setAssetClass(AssetClass.BICYCLE);
-		typeOfAsset.setAssetSubClass("Child, 26 inch");
-		AssetProperties sharedProperties = new AssetProperties();
-
-		typeOfAsset.setSharedProperties(sharedProperties);
-		sharedProperties.setModel("Batavus");
-		sharedProperties.setEnergyLabel(EnergyLabelEnum.A);
-		return typeOfAsset;
-	}
-
+    private val fare: Fare
+        private get() {
+            val fare = Fare()
+            val part = FarePart()
+            part.type = FarePart.TypeEnum.FIXED
+            part.currencyCode = "EUR"
+            part.amount = 10.33f
+            part.vatRate = 21.0f
+            fare.addPartsItem(part)
+            return fare
+        }
+    private val assetType: AssetType
+        private get() {
+            val typeOfAsset = AssetType()
+            typeOfAsset.assetClass = AssetClass.BICYCLE
+            typeOfAsset.assetSubClass = "Child, 26 inch"
+            val sharedProperties = AssetProperties()
+            typeOfAsset.sharedProperties = sharedProperties
+            sharedProperties.model = "Batavus"
+            sharedProperties.energyLabel = EnergyLabelEnum.A
+            return typeOfAsset
+        }
 }

@@ -1,192 +1,132 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.model.Place;
-import io.swagger.model.SupportRequest;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.threeten.bp.OffsetDateTime;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * the current status of support
  */
 @Schema(description = "the current status of support")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-10T11:36:21.130Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2021-12-10T11:36:21.130Z[GMT]")
+class SupportStatus : SupportRequest() {
+    /**
+     * Gets or Sets status
+     */
+    enum class StatusEnum(private val value: String) {
+        PROCESSING("PROCESSING"),
+        UPDATE_REQUESTED("UPDATE_REQUESTED"),
+        RESOLVED("RESOLVED"),
+        CANCELLED("CANCELLED");
 
-
-public class SupportStatus extends SupportRequest  {
-  /**
-   * Gets or Sets status
-   */
-  public enum StatusEnum {
-    PROCESSING("PROCESSING"),
-    
-    UPDATE_REQUESTED("UPDATE_REQUESTED"),
-    
-    RESOLVED("RESOLVED"),
-    
-    CANCELLED("CANCELLED");
-
-    private String value;
-
-    StatusEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static StatusEnum fromValue(String text) {
-      for (StatusEnum b : StatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
+
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): StatusEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-  }
-  @JsonProperty("status")
-  private StatusEnum status = null;
 
-  @JsonProperty("timeToResolution")
-  private Integer timeToResolution = null;
+    /**
+     * Get status
+     * @return status
+     */
+    @get:Schema(example = "PROCESSING", description = "")
+    @JsonProperty("status")
+    var status: StatusEnum? = null
 
-  @JsonProperty("order")
-  private Integer order = null;
+    /**
+     * time in minutes to expected resolution of support request
+     * @return timeToResolution
+     */
+    @get:Schema(example = "9", description = "time in minutes to expected resolution of support request")
+    @JsonProperty("timeToResolution")
+    var timeToResolution: Int? = null
 
-  @JsonProperty("comment")
-  private String comment = null;
+    /**
+     * the sequence number of status of the support issue
+     * minimum: 0
+     * @return order
+     */
+    @get:Schema(description = "the sequence number of status of the support issue")
+    @JsonProperty("order")
+    var order: Int? = null
 
-  public SupportStatus status(StatusEnum status) {
-    this.status = status;
-    return this;
-  }
-
-  /**
-   * Get status
-   * @return status
-   **/
-  @Schema(example = "PROCESSING", description = "")
-  
-    public StatusEnum getStatus() {
-    return status;
-  }
-
-  public void setStatus(StatusEnum status) {
-    this.status = status;
-  }
-
-  public SupportStatus timeToResolution(Integer timeToResolution) {
-    this.timeToResolution = timeToResolution;
-    return this;
-  }
-
-  /**
-   * time in minutes to expected resolution of support request
-   * @return timeToResolution
-   **/
-  @Schema(example = "9", description = "time in minutes to expected resolution of support request")
-  
-    public Integer getTimeToResolution() {
-    return timeToResolution;
-  }
-
-  public void setTimeToResolution(Integer timeToResolution) {
-    this.timeToResolution = timeToResolution;
-  }
-
-  public SupportStatus order(Integer order) {
-    this.order = order;
-    return this;
-  }
-
-  /**
-   * the sequence number of status of the support issue
-   * minimum: 0
-   * @return order
-   **/
-  @Schema(description = "the sequence number of status of the support issue")
-  
-  @Min(0)  public Integer getOrder() {
-    return order;
-  }
-
-  public void setOrder(Integer order) {
-    this.order = order;
-  }
-
-  public SupportStatus comment(String comment) {
-    this.comment = comment;
-    return this;
-  }
-
-  /**
-   * free text to send to the end user.
-   * @return comment
-   **/
-  @Schema(description = "free text to send to the end user.")
-  
-    public String getComment() {
-    return comment;
-  }
-
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * free text to send to the end user.
+     * @return comment
+     */
+    @get:Schema(description = "free text to send to the end user.")
+    @JsonProperty("comment")
+    override var comment: String? = null
+    fun status(status: StatusEnum?): SupportStatus {
+        this.status = status
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun timeToResolution(timeToResolution: Int?): SupportStatus {
+        this.timeToResolution = timeToResolution
+        return this
     }
-    SupportStatus supportStatus = (SupportStatus) o;
-    return Objects.equals(this.status, supportStatus.status) &&
-        Objects.equals(this.timeToResolution, supportStatus.timeToResolution) &&
-        Objects.equals(this.order, supportStatus.order) &&
-        Objects.equals(this.comment, supportStatus.comment) &&
-        super.equals(o);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status, timeToResolution, order, comment, super.hashCode());
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SupportStatus {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-    sb.append("    status: ").append(toIndentedString(status)).append("\n");
-    sb.append("    timeToResolution: ").append(toIndentedString(timeToResolution)).append("\n");
-    sb.append("    order: ").append(toIndentedString(order)).append("\n");
-    sb.append("    comment: ").append(toIndentedString(comment)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun order(order: Int?): SupportStatus {
+        this.order = order
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    override fun comment(comment: String?): SupportStatus {
+        this.comment = comment
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val supportStatus = o as SupportStatus
+        return status == supportStatus.status && timeToResolution == supportStatus.timeToResolution && order == supportStatus.order && this.comment == supportStatus.comment &&
+                super.equals(o)
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(status, timeToResolution, order, comment, super.hashCode())
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class SupportStatus {\n")
+        sb.append("    ").append(toIndentedString(super.toString())).append("\n")
+        sb.append("    status: ").append(toIndentedString(status)).append("\n")
+        sb.append("    timeToResolution: ").append(toIndentedString(timeToResolution)).append("\n")
+        sb.append("    order: ").append(toIndentedString(order)).append("\n")
+        sb.append("    comment: ").append(toIndentedString(comment)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

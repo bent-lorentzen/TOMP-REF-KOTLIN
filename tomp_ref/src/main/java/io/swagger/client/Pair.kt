@@ -9,42 +9,30 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+package io.swagger.client
 
-package io.swagger.client;
+import javax.annotation.Generated
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2020-03-24T12:09:05.155Z[GMT]")public class Pair {
-    private String name = "";
-    private String value = "";
+@Generated(value = ["io.swagger.codegen.v3.generators.java.JavaClientCodegen"], date = "2020-03-24T12:09:05.155Z[GMT]")
+class Pair(name: String, value: String?) {
+    var name = ""
+        private set(name) {
+            if (!isValidString(name)) return
+            field = name
+        }
+    var value: String? = ""
+        private set(value) {
+            if (!isValidString(value)) return
+            field = value
+        }
 
-    public Pair (String name, String value) {
-        setName(name);
-        setValue(value);
+    init {
+        this.name = name
+        this.value = value
     }
 
-    private void setName(String name) {
-        if (!isValidString(name)) return;
-
-        this.name = name;
-    }
-
-    private void setValue(String value) {
-        if (!isValidString(value)) return;
-
-        this.value = value;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getValue() {
-        return this.value;
-    }
-
-    private boolean isValidString(String arg) {
-        if (arg == null) return false;
-        if (arg.trim().isEmpty()) return false;
-
-        return true;
+    private fun isValidString(arg: String?): Boolean {
+        if (arg == null) return false
+        return if (arg.trim { it <= ' ' }.isEmpty()) false else true
     }
 }

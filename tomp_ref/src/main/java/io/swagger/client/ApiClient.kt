@@ -9,1182 +9,1133 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+package io.swagger.client
 
-package io.swagger.client;
-
-import com.squareup.okhttp.*;
-import com.squareup.okhttp.internal.http.HttpMethod;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level;
-
-import okio.BufferedSink;
-import okio.Okio;
-
-import org.springframework.stereotype.Component;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-
-import javax.net.ssl.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.squareup.okhttp.Call
+import com.squareup.okhttp.Callback
+import com.squareup.okhttp.FormEncodingBuilder
+import com.squareup.okhttp.Headers
+import com.squareup.okhttp.MediaType
+import com.squareup.okhttp.MultipartBuilder
+import com.squareup.okhttp.OkHttpClient
+import com.squareup.okhttp.Request
+import com.squareup.okhttp.RequestBody
+import com.squareup.okhttp.Response
+import com.squareup.okhttp.internal.http.HttpMethod
+import com.squareup.okhttp.logging.HttpLoggingInterceptor
+import io.swagger.client.ProgressRequestBody.ProgressRequestListener
+import okio.Okio
+import org.springframework.stereotype.Component
+import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
+import org.threeten.bp.format.DateTimeFormatter
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.io.UnsupportedEncodingException
+import java.lang.reflect.Type
+import java.net.URLConnection
+import java.net.URLEncoder
+import java.security.GeneralSecurityException
+import java.security.KeyStore
+import java.security.SecureRandom
+import java.security.cert.CertificateException
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
+import java.text.DateFormat
+import java.util.Date
+import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.KeyManager
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 @Component
-public class ApiClient {
+class ApiClient {
+    /**
+     * Get base path
+     *
+     * @return Baes path
+     */
+    val basePath: String? = "/"
+        private set
 
-	private String basePath = "/";
-	private boolean debugging = false;
-	private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
-	private String tempFolderPath = null;
+    /**
+     * Check that whether debugging is enabled for this API client.
+     *
+     * @return True if debugging is enabled, false otherwise.
+     */
+    var isDebugging = false
+        private set
+    private val defaultHeaderMap: MutableMap<String, String> = HashMap()
 
-	private DateFormat dateFormat;
-	private DateFormat datetimeFormat;
-	private boolean lenientDatetimeFormat;
-	private int dateLength;
+    /**
+     * The path of temporary folder used to store downloaded files from endpoints
+     * with file response. The default value is `null`, i.e. using the
+     * system's default tempopary folder.
+     *
+     * @see [createTempFile](https://docs.oracle.com/javase/7/docs/api/java/io/File.html.createTempFile)
+     *
+     * @return Temporary folder path
+     */
+    var tempFolderPath: String? = null
+        private set
+    val dateFormat: DateFormat? = null
+    private val datetimeFormat: DateFormat? = null
+    private val lenientDatetimeFormat = false
+    private val dateLength = 0
 
-	private InputStream sslCaCert;
-	private boolean verifyingSsl;
-	private KeyManager[] keyManagers;
+    /**
+     * Get SSL CA cert.
+     *
+     * @return Input stream to the SSL CA cert
+     */
+    var sslCaCert: InputStream? = null
+        private set
 
-	private OkHttpClient httpClient;
-	private JSON json;
+    /**
+     * True if isVerifyingSsl flag is on
+     *
+     * @return True if isVerifySsl flag is on
+     */
+    var isVerifyingSsl: Boolean
+        private set
+    var keyManagers: Array<KeyManager>?
+        private set
 
-	private HttpLoggingInterceptor loggingInterceptor;
+    /**
+     * Get HTTP client
+     *
+     * @return An instance of OkHttpClient
+     */
+    var httpClient: OkHttpClient
+        private set
 
-	/*
+    /**
+     * Get JSON
+     *
+     * @return JSON object
+     */
+    var jSON: JSON
+        private set
+    private var loggingInterceptor: HttpLoggingInterceptor? = null
+
+    /*
 	 * Constructor for ApiClient
 	 */
-	public ApiClient() {
-		httpClient = new OkHttpClient();
-		verifyingSsl = true;
-		json = new JSON();
-		setUserAgent("Swagger-Codegen/1.0.0/java");
-	}
-
-	/**
-	 * Get base path
-	 *
-	 * @return Baes path
-	 */
-	public String getBasePath() {
-		return basePath;
-	}
-
-	/**
-	 * Set base path
-	 *
-	 * @param basePath
-	 *            Base path of the URL (e.g /
-	 * @return An instance of OkHttpClient
-	 */
-	public ApiClient setBasePath(String basePath) {
-		this.basePath = basePath;
-		return this;
-	}
-
-	/**
-	 * Get HTTP client
-	 *
-	 * @return An instance of OkHttpClient
-	 */
-	public OkHttpClient getHttpClient() {
-		return httpClient;
-	}
-
-	/**
-	 * Set HTTP client
-	 *
-	 * @param httpClient
-	 *            An instance of OkHttpClient
-	 * @return Api Client
-	 */
-	public ApiClient setHttpClient(OkHttpClient httpClient) {
-		this.httpClient = httpClient;
-		return this;
-	}
-
-	/**
-	 * Get JSON
-	 *
-	 * @return JSON object
-	 */
-	public JSON getJSON() {
-		return json;
-	}
-
-	/**
-	 * Set JSON
-	 *
-	 * @param json
-	 *            JSON object
-	 * @return Api client
-	 */
-	public ApiClient setJSON(JSON json) {
-		this.json = json;
-		return this;
-	}
-
-	/**
-	 * True if isVerifyingSsl flag is on
-	 *
-	 * @return True if isVerifySsl flag is on
-	 */
-	public boolean isVerifyingSsl() {
-		return verifyingSsl;
-	}
-
-	/**
-	 * Configure whether to verify certificate and hostname when making https
-	 * requests. Default to true. NOTE: Do NOT set to false in production code,
-	 * otherwise you would face multiple types of cryptographic attacks.
-	 *
-	 * @param verifyingSsl
-	 *            True to verify TLS/SSL connection
-	 * @return ApiClient
-	 */
-	public ApiClient setVerifyingSsl(boolean verifyingSsl) {
-		this.verifyingSsl = verifyingSsl;
-		applySslSettings();
-		return this;
-	}
-
-	/**
-	 * Get SSL CA cert.
-	 *
-	 * @return Input stream to the SSL CA cert
-	 */
-	public InputStream getSslCaCert() {
-		return sslCaCert;
-	}
-
-	/**
-	 * Configure the CA certificate to be trusted when making https requests. Use
-	 * null to reset to default.
-	 *
-	 * @param sslCaCert
-	 *            input stream for SSL CA cert
-	 * @return ApiClient
-	 */
-	public ApiClient setSslCaCert(InputStream sslCaCert) {
-		this.sslCaCert = sslCaCert;
-		applySslSettings();
-		return this;
-	}
-
-	public KeyManager[] getKeyManagers() {
-		return keyManagers;
-	}
-
-	/**
-	 * Configure client keys to use for authorization in an SSL session. Use null to
-	 * reset to default.
-	 *
-	 * @param managers
-	 *            The KeyManagers to use
-	 * @return ApiClient
-	 */
-	public ApiClient setKeyManagers(KeyManager[] managers) {
-		this.keyManagers = managers;
-		applySslSettings();
-		return this;
-	}
-
-	public DateFormat getDateFormat() {
-		return dateFormat;
-	}
-
-	public ApiClient setDateFormat(DateFormat dateFormat) {
-		this.json.setDateFormat(dateFormat);
-		return this;
-	}
-
-	public ApiClient setSqlDateFormat(DateFormat dateFormat) {
-		this.json.setSqlDateFormat(dateFormat);
-		return this;
-	}
-
-	public ApiClient setOffsetDateTimeFormat(DateTimeFormatter dateFormat) {
-		this.json.setOffsetDateTimeFormat(dateFormat);
-		return this;
-	}
-
-	public ApiClient setLocalDateFormat(DateTimeFormatter dateFormat) {
-		this.json.setLocalDateFormat(dateFormat);
-		return this;
-	}
-
-	public ApiClient setLenientOnJson(boolean lenientOnJson) {
-		this.json.setLenientOnJson(lenientOnJson);
-		return this;
-	}
-
-	/**
-	 * Set the User-Agent header's value (by adding to the default header map).
-	 *
-	 * @param userAgent
-	 *            HTTP request's user agent
-	 * @return ApiClient
-	 */
-	public ApiClient setUserAgent(String userAgent) {
-		addDefaultHeader("User-Agent", userAgent);
-		return this;
-	}
-
-	/**
-	 * Add a default header.
-	 *
-	 * @param key
-	 *            The header's key
-	 * @param value
-	 *            The header's value
-	 * @return ApiClient
-	 */
-	public ApiClient addDefaultHeader(String key, String value) {
-		defaultHeaderMap.put(key, value);
-		return this;
-	}
-
-	/**
-	 * Check that whether debugging is enabled for this API client.
-	 *
-	 * @return True if debugging is enabled, false otherwise.
-	 */
-	public boolean isDebugging() {
-		return debugging;
-	}
-
-	/**
-	 * Enable/disable debugging for this API client.
-	 *
-	 * @param debugging
-	 *            To enable (true) or disable (false) debugging
-	 * @return ApiClient
-	 */
-	public ApiClient setDebugging(boolean debugging) {
-		if (debugging != this.debugging) {
-			if (debugging) {
-				loggingInterceptor = new HttpLoggingInterceptor();
-				loggingInterceptor.setLevel(Level.BODY);
-				httpClient.interceptors().add(loggingInterceptor);
-			} else {
-				httpClient.interceptors().remove(loggingInterceptor);
-				loggingInterceptor = null;
-			}
-		}
-		this.debugging = debugging;
-		return this;
-	}
-
-	/**
-	 * The path of temporary folder used to store downloaded files from endpoints
-	 * with file response. The default value is <code>null</code>, i.e. using the
-	 * system's default tempopary folder.
-	 *
-	 * @see <a href=
-	 *      "https://docs.oracle.com/javase/7/docs/api/java/io/File.html#createTempFile">createTempFile</a>
-	 * @return Temporary folder path
-	 */
-	public String getTempFolderPath() {
-		return tempFolderPath;
-	}
-
-	/**
-	 * Set the temporary folder path (for downloading files)
-	 *
-	 * @param tempFolderPath
-	 *            Temporary folder path
-	 * @return ApiClient
-	 */
-	public ApiClient setTempFolderPath(String tempFolderPath) {
-		this.tempFolderPath = tempFolderPath;
-		return this;
-	}
-
-	/**
-	 * Get connection timeout (in milliseconds).
-	 *
-	 * @return Timeout in milliseconds
-	 */
-	public int getConnectTimeout() {
-		return httpClient.getConnectTimeout();
-	}
-
-	/**
-	 * Sets the connect timeout (in milliseconds). A value of 0 means no timeout,
-	 * otherwise values must be between 1 and
-	 *
-	 * @param connectionTimeout
-	 *            connection timeout in milliseconds
-	 * @return Api client
-	 */
-	public ApiClient setConnectTimeout(int connectionTimeout) {
-		httpClient.setConnectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
-		return this;
-	}
-
-	/**
-	 * Get read timeout (in milliseconds).
-	 *
-	 * @return Timeout in milliseconds
-	 */
-	public int getReadTimeout() {
-		return httpClient.getReadTimeout();
-	}
-
-	/**
-	 * Sets the read timeout (in milliseconds). A value of 0 means no timeout,
-	 * otherwise values must be between 1 and {@link Integer#MAX_VALUE}.
-	 *
-	 * @param readTimeout
-	 *            read timeout in milliseconds
-	 * @return Api client
-	 */
-	public ApiClient setReadTimeout(int readTimeout) {
-		httpClient.setReadTimeout(readTimeout, TimeUnit.MILLISECONDS);
-		return this;
-	}
-
-	/**
-	 * Get write timeout (in milliseconds).
-	 *
-	 * @return Timeout in milliseconds
-	 */
-	public int getWriteTimeout() {
-		return httpClient.getWriteTimeout();
-	}
-
-	/**
-	 * Sets the write timeout (in milliseconds). A value of 0 means no timeout,
-	 * otherwise values must be between 1 and {@link Integer#MAX_VALUE}.
-	 *
-	 * @param writeTimeout
-	 *            connection timeout in milliseconds
-	 * @return Api client
-	 */
-	public ApiClient setWriteTimeout(int writeTimeout) {
-		httpClient.setWriteTimeout(writeTimeout, TimeUnit.MILLISECONDS);
-		return this;
-	}
-
-	/**
-	 * Format the given parameter object into string.
-	 *
-	 * @param param
-	 *            Parameter
-	 * @return String representation of the parameter
-	 */
-	public String parameterToString(Object param) {
-		if (param == null) {
-			return "";
-		} else if (param instanceof Date || param instanceof OffsetDateTime || param instanceof LocalDate) {
-			// Serialize to json string and remove the " enclosing characters
-			String jsonStr = json.serialize(param);
-			return jsonStr.substring(1, jsonStr.length() - 1);
-		} else if (param instanceof Collection) {
-			StringBuilder b = new StringBuilder();
-			for (Object o : (Collection) param) {
-				if (b.length() > 0) {
-					b.append(",");
-				}
-				b.append(String.valueOf(o));
-			}
-			return b.toString();
-		} else {
-			return String.valueOf(param);
-		}
-	}
-
-	/**
-	 * Formats the specified query parameter to a list containing a single
-	 * {@code Pair} object.
-	 *
-	 * Note that {@code value} must not be a collection.
-	 *
-	 * @param name
-	 *            The name of the parameter.
-	 * @param value
-	 *            The value of the parameter.
-	 * @return A list containing a single {@code Pair} object.
-	 */
-	public List<Pair> parameterToPair(String name, Object value) {
-		List<Pair> params = new ArrayList<Pair>();
-
-		// preconditions
-		if (name == null || name.isEmpty() || value == null || value instanceof Collection)
-			return params;
-
-		params.add(new Pair(name, parameterToString(value)));
-		return params;
-	}
-
-	/**
-	 * Formats the specified collection query parameters to a list of {@code Pair}
-	 * objects.
-	 *
-	 * Note that the values of each of the returned Pair objects are
-	 * percent-encoded.
-	 *
-	 * @param collectionFormat
-	 *            The collection format of the parameter.
-	 * @param name
-	 *            The name of the parameter.
-	 * @param value
-	 *            The value of the parameter.
-	 * @return A list of {@code Pair} objects.
-	 */
-	public List<Pair> parameterToPairs(String collectionFormat, String name, Collection value) {
-		List<Pair> params = new ArrayList<Pair>();
-
-		// preconditions
-		if (name == null || name.isEmpty() || value == null || value.isEmpty()) {
-			return params;
-		}
-
-		// create the params based on the collection format
-		if ("multi".equals(collectionFormat)) {
-			for (Object item : value) {
-				params.add(new Pair(name, escapeString(parameterToString(item))));
-			}
-			return params;
-		}
-
-		// collectionFormat is assumed to be "csv" by default
-		String delimiter = ",";
-
-		// escape all delimiters except commas, which are URI reserved
-		// characters
-		if ("ssv".equals(collectionFormat)) {
-			delimiter = escapeString(" ");
-		} else if ("tsv".equals(collectionFormat)) {
-			delimiter = escapeString("\t");
-		} else if ("pipes".equals(collectionFormat)) {
-			delimiter = escapeString("|");
-		}
-
-		StringBuilder sb = new StringBuilder();
-		for (Object item : value) {
-			sb.append(delimiter);
-			sb.append(escapeString(parameterToString(item)));
-		}
-
-		params.add(new Pair(name, sb.substring(delimiter.length())));
-
-		return params;
-	}
-
-	/**
-	 * Sanitize filename by removing path. e.g. ../../sun.gif becomes sun.gif
-	 *
-	 * @param filename
-	 *            The filename to be sanitized
-	 * @return The sanitized filename
-	 */
-	public String sanitizeFilename(String filename) {
-		return filename.replaceAll(".*[/\\\\]", "");
-	}
-
-	/**
-	 * Check if the given MIME is a JSON MIME. JSON MIME examples: application/json
-	 * application/json; charset=UTF8 APPLICATION/JSON application/vnd.company+json
-	 * "* / *" is also default to JSON
-	 * 
-	 * @param mime
-	 *            MIME (Multipurpose Internet Mail Extensions)
-	 * @return True if the given MIME is JSON, false otherwise.
-	 */
-	public boolean isJsonMime(String mime) {
-		String jsonMime = "(?i)^(application/json|[^;/ \t]+/[^;/ \t]+[+]json)[ \t]*(;.*)?$";
-		return mime != null && (mime.matches(jsonMime) || mime.equals("*/*"));
-	}
-
-	/**
-	 * Select the Accept header's value from the given accepts array: if JSON exists
-	 * in the given array, use it; otherwise use all of them (joining into a string)
-	 *
-	 * @param accepts
-	 *            The accepts array to select from
-	 * @return The Accept header to use. If the given array is empty, null will be
-	 *         returned (not to set the Accept header explicitly).
-	 */
-	public String selectHeaderAccept(String[] accepts) {
-		if (accepts.length == 0) {
-			return null;
-		}
-		for (String accept : accepts) {
-			if (isJsonMime(accept)) {
-				return accept;
-			}
-		}
-		return StringUtil.join(accepts, ",");
-	}
-
-	/**
-	 * Select the Content-Type header's value from the given array: if JSON exists
-	 * in the given array, use it; otherwise use the first one of the array.
-	 *
-	 * @param contentTypes
-	 *            The Content-Type array to select from
-	 * @return The Content-Type header to use. If the given array is empty, or
-	 *         matches "any", JSON will be used.
-	 */
-	public String selectHeaderContentType(String[] contentTypes) {
-		if (contentTypes.length == 0 || contentTypes[0].equals("*/*")) {
-			return "application/json";
-		}
-		for (String contentType : contentTypes) {
-			if (isJsonMime(contentType)) {
-				return contentType;
-			}
-		}
-		return contentTypes[0];
-	}
-
-	/**
-	 * Escape the given string to be used as URL query value.
-	 *
-	 * @param str
-	 *            String to be escaped
-	 * @return Escaped string
-	 */
-	public String escapeString(String str) {
-		try {
-			return URLEncoder.encode(str, "utf8").replaceAll("\\+", "%20");
-		} catch (UnsupportedEncodingException e) {
-			return str;
-		}
-	}
-
-	/**
-	 * Deserialize response body to Java object, according to the return type and
-	 * the Content-Type response header.
-	 *
-	 * @param <T>
-	 *            Type
-	 * @param response
-	 *            HTTP response
-	 * @param returnType
-	 *            The type of the Java object
-	 * @return The deserialized Java object
-	 * @throws ApiException
-	 *             If fail to deserialize response body, i.e. cannot read response
-	 *             body or the Content-Type of the response is not supported.
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T deserialize(Response response, Type returnType) throws ApiException {
-		if (response == null || returnType == null) {
-			return null;
-		}
-
-		if ("byte[]".equals(returnType.toString())) {
-			// Handle binary response (byte array).
-			try {
-				return (T) response.body().bytes();
-			} catch (IOException e) {
-				throw new ApiException(e);
-			}
-		} else if (returnType.equals(File.class)) {
-			// Handle file downloading.
-			return (T) downloadFileFromResponse(response);
-		}
-
-		String respBody;
-		try {
-			if (response.body() != null)
-				respBody = response.body().string();
-			else
-				respBody = null;
-		} catch (IOException e) {
-			throw new ApiException(e);
-		}
-
-		if (respBody == null || "".equals(respBody)) {
-			return null;
-		}
-
-		String contentType = response.headers().get("Content-Type");
-		if (contentType == null) {
-			// ensuring a default content type
-			contentType = "application/json";
-		}
-		if (isJsonMime(contentType)) {
-			try {
-				return json.deserialize(respBody, returnType);
-			} catch (Exception e) {
-				System.out.println("Error" + e.getMessage());
-				System.out.println(respBody);
-				throw e;
-			}
-		} else if (returnType.equals(String.class)) {
-			// Expecting string, return the raw response body.
-			return (T) respBody;
-		} else {
-			throw new ApiException("Content type \"" + contentType + "\" is not supported for type: " + returnType,
-					response.code(), response.headers().toMultimap(), respBody);
-		}
-	}
-
-	/**
-	 * Serialize the given Java object into request body according to the object's
-	 * class and the request Content-Type.
-	 *
-	 * @param obj
-	 *            The Java object
-	 * @param contentType
-	 *            The request Content-Type
-	 * @return The serialized request body
-	 * @throws ApiException
-	 *             If fail to serialize the given object
-	 */
-	public RequestBody serialize(Object obj, String contentType) throws ApiException {
-		if (obj instanceof byte[]) {
-			// Binary (byte array) body parameter support.
-			return RequestBody.create(MediaType.parse(contentType), (byte[]) obj);
-		} else if (obj instanceof File) {
-			// File body parameter support.
-			return RequestBody.create(MediaType.parse(contentType), (File) obj);
-		} else if (isJsonMime(contentType)) {
-			String content;
-			if (obj != null) {
-				if (obj instanceof String && ((String) obj).startsWith("{")) {
-					content = (String) obj;
-				} else {
-					content = json.serialize(obj);
-				}
-			} else {
-				content = null;
-			}
-			return RequestBody.create(MediaType.parse(contentType), content);
-		} else {
-			throw new ApiException("Content type \"" + contentType + "\" is not supported");
-		}
-	}
-
-	/**
-	 * Download file from the given response.
-	 *
-	 * @param response
-	 *            An instance of the Response object
-	 * @throws ApiException
-	 *             If fail to read file content from response and write to disk
-	 * @return Downloaded file
-	 */
-	public File downloadFileFromResponse(Response response) throws ApiException {
-		try {
-			File file = prepareDownloadFile(response);
-			BufferedSink sink = Okio.buffer(Okio.sink(file));
-			sink.writeAll(response.body().source());
-			sink.close();
-			return file;
-		} catch (IOException e) {
-			throw new ApiException(e);
-		}
-	}
-
-	/**
-	 * Prepare file for download
-	 *
-	 * @param response
-	 *            An instance of the Response object
-	 * @throws IOException
-	 *             If fail to prepare file for download
-	 * @return Prepared file for the download
-	 */
-	public File prepareDownloadFile(Response response) throws IOException {
-		String filename = null;
-		String contentDisposition = response.header("Content-Disposition");
-		if (contentDisposition != null && !"".equals(contentDisposition)) {
-			// Get filename from the Content-Disposition header.
-			Pattern pattern = Pattern.compile("filename=['\"]?([^'\"\\s]+)['\"]?");
-			Matcher matcher = pattern.matcher(contentDisposition);
-			if (matcher.find()) {
-				filename = sanitizeFilename(matcher.group(1));
-			}
-		}
-
-		String prefix = null;
-		String suffix = null;
-		if (filename == null) {
-			prefix = "download-";
-			suffix = "";
-		} else {
-			int pos = filename.lastIndexOf(".");
-			if (pos == -1) {
-				prefix = filename + "-";
-			} else {
-				prefix = filename.substring(0, pos) + "-";
-				suffix = filename.substring(pos);
-			}
-			// File.createTempFile requires the prefix to be at least three characters long
-			if (prefix.length() < 3)
-				prefix = "download-";
-		}
-
-		if (tempFolderPath == null)
-			return File.createTempFile(prefix, suffix);
-		else
-			return File.createTempFile(prefix, suffix, new File(tempFolderPath));
-	}
-
-	/**
-	 * {@link #execute(Call, Type)}
-	 *
-	 * @param <T>
-	 *            Type
-	 * @param call
-	 *            An instance of the Call object
-	 * @throws ApiException
-	 *             If fail to execute the call
-	 * @return ApiResponse&lt;T&gt;
-	 */
-	public <T> ApiResponse<T> execute(Call call) throws ApiException {
-		return execute(call, null);
-	}
-
-	/**
-	 * Execute HTTP call and deserialize the HTTP response body into the given
-	 * return type.
-	 *
-	 * @param returnType
-	 *            The return type used to deserialize HTTP response body
-	 * @param <T>
-	 *            The return type corresponding to (same with) returnType
-	 * @param call
-	 *            Call
-	 * @return ApiResponse object containing response status, headers and data,
-	 *         which is a Java object deserialized from response body and would be
-	 *         null when returnType is null.
-	 * @throws ApiException
-	 *             If fail to execute the call
-	 */
-	public <T> ApiResponse<T> execute(Call call, Type returnType) throws ApiException {
-		try {
-			Response response = call.execute();
-			T data = handleResponse(response, returnType);
-			return new ApiResponse<T>(response.code(), response.headers().toMultimap(), data);
-		} catch (IOException e) {
-			throw new ApiException(e);
-		}
-	}
-
-	/**
-	 * {@link #executeAsync(Call, Type, ApiCallback)}
-	 *
-	 * @param <T>
-	 *            Type
-	 * @param call
-	 *            An instance of the Call object
-	 * @param callback
-	 *            ApiCallback&lt;T&gt;
-	 */
-	public <T> void executeAsync(Call call, ApiCallback<T> callback) {
-		executeAsync(call, null, callback);
-	}
-
-	/**
-	 * Execute HTTP call asynchronously.
-	 *
-	 * @see #execute(Call, Type)
-	 * @param <T>
-	 *            Type
-	 * @param call
-	 *            The callback to be executed when the API call finishes
-	 * @param returnType
-	 *            Return type
-	 * @param callback
-	 *            ApiCallback
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> void executeAsync(Call call, final Type returnType, final ApiCallback<T> callback) {
-		call.enqueue(new Callback() {
-			@Override
-			public void onFailure(Request request, IOException e) {
-				callback.onFailure(new ApiException(e), 0, null);
-			}
-
-			@Override
-			public void onResponse(Response response) throws IOException {
-				T result;
-				try {
-					result = (T) handleResponse(response, returnType);
-				} catch (ApiException e) {
-					callback.onFailure(e, response.code(), response.headers().toMultimap());
-					return;
-				}
-				callback.onSuccess(result, response.code(), response.headers().toMultimap());
-			}
-		});
-	}
-
-	/**
-	 * Handle the given response, return the deserialized object when the response
-	 * is successful.
-	 *
-	 * @param <T>
-	 *            Type
-	 * @param response
-	 *            Response
-	 * @param returnType
-	 *            Return type
-	 * @throws ApiException
-	 *             If the response has a unsuccessful status code or fail to
-	 *             deserialize the response body
-	 * @return Type
-	 */
-	public <T> T handleResponse(Response response, Type returnType) throws ApiException {
-		if (response.isSuccessful()) {
-			if (returnType == null || response.code() == 204) {
-				// returning null if the returnType is not defined,
-				// or the status code is 204 (No Content)
-				if (response.body() != null) {
-					try {
-						response.body().close();
-					} catch (IOException e) {
-						throw new ApiException(response.message(), e, response.code(), response.headers().toMultimap());
-					}
-				}
-				return null;
-			} else {
-				return deserialize(response, returnType);
-			}
-		} else {
-			String respBody = null;
-			if (response.body() != null) {
-				try {
-					respBody = response.body().string();
-				} catch (IOException e) {
-					throw new ApiException(response.message(), e, response.code(), response.headers().toMultimap());
-				}
-			}
-			throw new ApiException(response.message(), response.code(), response.headers().toMultimap(), respBody);
-		}
-	}
-
-	/**
-	 * Build HTTP call with the given options.
-	 *
-	 * @param path
-	 *            The sub-path of the HTTP URL
-	 * @param method
-	 *            The request method, one of "GET", "HEAD", "OPTIONS", "POST",
-	 *            "PUT", "PATCH" and "DELETE"
-	 * @param queryParams
-	 *            The query parameters
-	 * @param collectionQueryParams
-	 *            The collection query parameters
-	 * @param body
-	 *            The request body object
-	 * @param headerParams
-	 *            The header parameters
-	 * @param formParams
-	 *            The form parameters
-	 * @param authNames
-	 *            The authentications to apply
-	 * @param progressRequestListener
-	 *            Progress request listener
-	 * @return The HTTP call
-	 * @throws ApiException
-	 *             If fail to serialize the request body object
-	 */
-	public Call buildCall(String path, String method, List<Pair> queryParams, List<Pair> collectionQueryParams,
-			Object body, Map<String, String> headerParams, Map<String, Object> formParams, String[] authNames,
-			ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
-		Request request = buildRequest(path, method, queryParams, collectionQueryParams, body, headerParams, formParams,
-				authNames, progressRequestListener);
-
-		return httpClient.newCall(request);
-	}
-
-	/**
-	 * Build an HTTP request with the given options.
-	 *
-	 * @param path
-	 *            The sub-path of the HTTP URL
-	 * @param method
-	 *            The request method, one of "GET", "HEAD", "OPTIONS", "POST",
-	 *            "PUT", "PATCH" and "DELETE"
-	 * @param queryParams
-	 *            The query parameters
-	 * @param collectionQueryParams
-	 *            The collection query parameters
-	 * @param body
-	 *            The request body object
-	 * @param headerParams
-	 *            The header parameters
-	 * @param formParams
-	 *            The form parameters
-	 * @param authNames
-	 *            The authentications to apply
-	 * @param progressRequestListener
-	 *            Progress request listener
-	 * @return The HTTP request
-	 * @throws ApiException
-	 *             If fail to serialize the request body object
-	 */
-	public Request buildRequest(String path, String method, List<Pair> queryParams, List<Pair> collectionQueryParams,
-			Object body, Map<String, String> headerParams, Map<String, Object> formParams, String[] authNames,
-			ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
-		// updateParamsForAuth(authNames, queryParams, headerParams);
-
-		final String url = buildUrl(path, queryParams, collectionQueryParams);
-		final Request.Builder reqBuilder = new Request.Builder().url(url);
-		processHeaderParams(headerParams, reqBuilder);
-
-		String contentType = (String) headerParams.get("Content-Type");
-		// ensuring a default content type
-		if (contentType == null) {
-			contentType = "application/json";
-		}
-
-		RequestBody reqBody;
-		if (!HttpMethod.permitsRequestBody(method)) {
-			reqBody = null;
-		} else if ("application/x-www-form-urlencoded".equals(contentType)) {
-			reqBody = buildRequestBodyFormEncoding(formParams);
-		} else if ("multipart/form-data".equals(contentType)) {
-			reqBody = buildRequestBodyMultipart(formParams);
-		} else if (body == null) {
-			if ("DELETE".equals(method)) {
-				// allow calling DELETE without sending a request body
-				reqBody = null;
-			} else {
-				// use an empty request body (for POST, PUT and PATCH)
-				reqBody = RequestBody.create(MediaType.parse(contentType), "");
-			}
-		} else {
-			reqBody = serialize(body, contentType);
-		}
-
-		Request request = null;
-
-		if (progressRequestListener != null && reqBody != null) {
-			ProgressRequestBody progressRequestBody = new ProgressRequestBody(reqBody, progressRequestListener);
-			request = reqBuilder.method(method, progressRequestBody).build();
-		} else {
-			request = reqBuilder.method(method, reqBody).build();
-		}
-
-		return request;
-	}
-
-	/**
-	 * Build full URL by concatenating base path, the given sub path and query
-	 * parameters.
-	 *
-	 * @param path
-	 *            The sub path
-	 * @param queryParams
-	 *            The query parameters
-	 * @param collectionQueryParams
-	 *            The collection query parameters
-	 * @return The full URL
-	 */
-	public String buildUrl(String path, List<Pair> queryParams, List<Pair> collectionQueryParams) {
-		final StringBuilder url = new StringBuilder();
-		url.append(basePath).append(path);
-
-		if (queryParams != null && !queryParams.isEmpty()) {
-			// support (constant) query string in `path`, e.g. "/posts?draft=1"
-			String prefix = path.contains("?") ? "&" : "?";
-			for (Pair param : queryParams) {
-				if (param.getValue() != null) {
-					if (prefix != null) {
-						url.append(prefix);
-						prefix = null;
-					} else {
-						url.append("&");
-					}
-					String value = parameterToString(param.getValue());
-					url.append(escapeString(param.getName())).append("=").append(escapeString(value));
-				}
-			}
-		}
-
-		if (collectionQueryParams != null && !collectionQueryParams.isEmpty()) {
-			String prefix = url.toString().contains("?") ? "&" : "?";
-			for (Pair param : collectionQueryParams) {
-				if (param.getValue() != null) {
-					if (prefix != null) {
-						url.append(prefix);
-						prefix = null;
-					} else {
-						url.append("&");
-					}
-					String value = parameterToString(param.getValue());
-					// collection query parameter value already escaped as part of parameterToPairs
-					url.append(escapeString(param.getName())).append("=").append(value);
-				}
-			}
-		}
-
-		return url.toString();
-	}
-
-	/**
-	 * Set header parameters to the request builder, including default headers.
-	 *
-	 * @param headerParams
-	 *            Header parameters in the ofrm of Map
-	 * @param reqBuilder
-	 *            Reqeust.Builder
-	 */
-	public void processHeaderParams(Map<String, String> headerParams, Request.Builder reqBuilder) {
-		for (Entry<String, String> param : headerParams.entrySet()) {
-			reqBuilder.header(param.getKey(), parameterToString(param.getValue()));
-		}
-		for (Entry<String, String> header : defaultHeaderMap.entrySet()) {
-			if (!headerParams.containsKey(header.getKey())) {
-				reqBuilder.header(header.getKey(), parameterToString(header.getValue()));
-			}
-		}
-	}
-
-	/**
-	 * Build a form-encoding request body with the given form parameters.
-	 *
-	 * @param formParams
-	 *            Form parameters in the form of Map
-	 * @return RequestBody
-	 */
-	public RequestBody buildRequestBodyFormEncoding(Map<String, Object> formParams) {
-		FormEncodingBuilder formBuilder = new FormEncodingBuilder();
-		for (Entry<String, Object> param : formParams.entrySet()) {
-			formBuilder.add(param.getKey(), parameterToString(param.getValue()));
-		}
-		return formBuilder.build();
-	}
-
-	/**
-	 * Build a multipart (file uploading) request body with the given form
-	 * parameters, which could contain text fields and file fields.
-	 *
-	 * @param formParams
-	 *            Form parameters in the form of Map
-	 * @return RequestBody
-	 */
-	public RequestBody buildRequestBodyMultipart(Map<String, Object> formParams) {
-		MultipartBuilder mpBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
-		for (Entry<String, Object> param : formParams.entrySet()) {
-			if (param.getValue() instanceof File) {
-				File file = (File) param.getValue();
-				Headers partHeaders = Headers.of("Content-Disposition",
-						"form-data; name=\"" + param.getKey() + "\"; filename=\"" + file.getName() + "\"");
-				MediaType mediaType = MediaType.parse(guessContentTypeFromFile(file));
-				mpBuilder.addPart(partHeaders, RequestBody.create(mediaType, file));
-			} else {
-				Headers partHeaders = Headers.of("Content-Disposition", "form-data; name=\"" + param.getKey() + "\"");
-				mpBuilder.addPart(partHeaders, RequestBody.create(null, parameterToString(param.getValue())));
-			}
-		}
-		return mpBuilder.build();
-	}
-
-	/**
-	 * Guess Content-Type header from the given file (defaults to
-	 * "application/octet-stream").
-	 *
-	 * @param file
-	 *            The given file
-	 * @return The guessed Content-Type
-	 */
-	public String guessContentTypeFromFile(File file) {
-		String contentType = URLConnection.guessContentTypeFromName(file.getName());
-		if (contentType == null) {
-			return "application/octet-stream";
-		} else {
-			return contentType;
-		}
-	}
-
-	/**
-	 * Apply SSL related settings to httpClient according to the current values of
-	 * verifyingSsl and sslCaCert.
-	 */
-	private void applySslSettings() {
-		try {
-			TrustManager[] trustManagers = null;
-			HostnameVerifier hostnameVerifier = null;
-			if (!verifyingSsl) {
-				TrustManager trustAll = new X509TrustManager() {
-					@Override
-					public void checkClientTrusted(X509Certificate[] chain, String authType)
-							throws CertificateException {
-					}
-
-					@Override
-					public void checkServerTrusted(X509Certificate[] chain, String authType)
-							throws CertificateException {
-					}
-
-					@Override
-					public X509Certificate[] getAcceptedIssuers() {
-						return null;
-					}
-				};
-				SSLContext sslContext = SSLContext.getInstance("TLS");
-				trustManagers = new TrustManager[] { trustAll };
-				hostnameVerifier = new HostnameVerifier() {
-					@Override
-					public boolean verify(String hostname, SSLSession session) {
-						return true;
-					}
-				};
-			} else if (sslCaCert != null) {
-				char[] password = null; // Any password will work.
-				CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-				Collection<? extends Certificate> certificates = certificateFactory.generateCertificates(sslCaCert);
-				if (certificates.isEmpty()) {
-					throw new IllegalArgumentException("expected non-empty set of trusted certificates");
-				}
-				KeyStore caKeyStore = newEmptyKeyStore(password);
-				int index = 0;
-				for (Certificate certificate : certificates) {
-					String certificateAlias = "ca" + Integer.toString(index++);
-					caKeyStore.setCertificateEntry(certificateAlias, certificate);
-				}
-				TrustManagerFactory trustManagerFactory = TrustManagerFactory
-						.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-				trustManagerFactory.init(caKeyStore);
-				trustManagers = trustManagerFactory.getTrustManagers();
-			}
-
-			if (keyManagers != null || trustManagers != null) {
-				SSLContext sslContext = SSLContext.getInstance("TLS");
-				sslContext.init(keyManagers, trustManagers, new SecureRandom());
-				httpClient.setSslSocketFactory(sslContext.getSocketFactory());
-			} else {
-				httpClient.setSslSocketFactory(null);
-			}
-			httpClient.setHostnameVerifier(hostnameVerifier);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private KeyStore newEmptyKeyStore(char[] password) throws GeneralSecurityException {
-		try {
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(null, password);
-			return keyStore;
-		} catch (IOException e) {
-			throw new AssertionError(e);
-		}
-	}
+    init {
+        httpClient = OkHttpClient()
+        isVerifyingSsl = true
+        jSON = JSON()
+        setUserAgent("Swagger-Codegen/1.0.0/java")
+    }
+
+    /**
+     * Set base path
+     *
+     * @param basePath
+     * Base path of the URL (e.g /
+     * @return An instance of OkHttpClient
+     */
+    fun setBasePath(basePath: String?): ApiClient {
+        this.basePath = basePath
+        return this
+    }
+
+    /**
+     * Set HTTP client
+     *
+     * @param httpClient
+     * An instance of OkHttpClient
+     * @return Api Client
+     */
+    fun setHttpClient(httpClient: OkHttpClient): ApiClient {
+        this.httpClient = httpClient
+        return this
+    }
+
+    /**
+     * Set JSON
+     *
+     * @param json
+     * JSON object
+     * @return Api client
+     */
+    fun setJSON(json: JSON): ApiClient {
+        jSON = json
+        return this
+    }
+
+    /**
+     * Configure whether to verify certificate and hostname when making https
+     * requests. Default to true. NOTE: Do NOT set to false in production code,
+     * otherwise you would face multiple types of cryptographic attacks.
+     *
+     * @param verifyingSsl
+     * True to verify TLS/SSL connection
+     * @return ApiClient
+     */
+    fun setVerifyingSsl(verifyingSsl: Boolean): ApiClient {
+        isVerifyingSsl = verifyingSsl
+        applySslSettings()
+        return this
+    }
+
+    /**
+     * Configure the CA certificate to be trusted when making https requests. Use
+     * null to reset to default.
+     *
+     * @param sslCaCert
+     * input stream for SSL CA cert
+     * @return ApiClient
+     */
+    fun setSslCaCert(sslCaCert: InputStream?): ApiClient {
+        this.sslCaCert = sslCaCert
+        applySslSettings()
+        return this
+    }
+
+    /**
+     * Configure client keys to use for authorization in an SSL session. Use null to
+     * reset to default.
+     *
+     * @param managers
+     * The KeyManagers to use
+     * @return ApiClient
+     */
+    fun setKeyManagers(managers: Array<KeyManager>?): ApiClient {
+        keyManagers = managers
+        applySslSettings()
+        return this
+    }
+
+    fun setDateFormat(dateFormat: DateFormat?): ApiClient {
+        jSON.setDateFormat(dateFormat)
+        return this
+    }
+
+    fun setSqlDateFormat(dateFormat: DateFormat?): ApiClient {
+        jSON.setSqlDateFormat(dateFormat)
+        return this
+    }
+
+    fun setOffsetDateTimeFormat(dateFormat: DateTimeFormatter): ApiClient {
+        jSON.setOffsetDateTimeFormat(dateFormat)
+        return this
+    }
+
+    fun setLocalDateFormat(dateFormat: DateTimeFormatter): ApiClient {
+        jSON.setLocalDateFormat(dateFormat)
+        return this
+    }
+
+    fun setLenientOnJson(lenientOnJson: Boolean): ApiClient {
+        jSON.setLenientOnJson(lenientOnJson)
+        return this
+    }
+
+    /**
+     * Set the User-Agent header's value (by adding to the default header map).
+     *
+     * @param userAgent
+     * HTTP request's user agent
+     * @return ApiClient
+     */
+    fun setUserAgent(userAgent: String): ApiClient {
+        addDefaultHeader("User-Agent", userAgent)
+        return this
+    }
+
+    /**
+     * Add a default header.
+     *
+     * @param key
+     * The header's key
+     * @param value
+     * The header's value
+     * @return ApiClient
+     */
+    fun addDefaultHeader(key: String, value: String): ApiClient {
+        defaultHeaderMap[key] = value
+        return this
+    }
+
+    /**
+     * Enable/disable debugging for this API client.
+     *
+     * @param debugging
+     * To enable (true) or disable (false) debugging
+     * @return ApiClient
+     */
+    fun setDebugging(debugging: Boolean): ApiClient {
+        if (debugging != isDebugging) {
+            if (debugging) {
+                loggingInterceptor = HttpLoggingInterceptor()
+                loggingInterceptor!!.setLevel(HttpLoggingInterceptor.Level.BODY)
+                httpClient.interceptors().add(loggingInterceptor)
+            } else {
+                httpClient.interceptors().remove(loggingInterceptor)
+                loggingInterceptor = null
+            }
+        }
+        isDebugging = debugging
+        return this
+    }
+
+    /**
+     * Set the temporary folder path (for downloading files)
+     *
+     * @param tempFolderPath
+     * Temporary folder path
+     * @return ApiClient
+     */
+    fun setTempFolderPath(tempFolderPath: String?): ApiClient {
+        this.tempFolderPath = tempFolderPath
+        return this
+    }
+
+    val connectTimeout: Int
+        /**
+         * Get connection timeout (in milliseconds).
+         *
+         * @return Timeout in milliseconds
+         */
+        get() = httpClient.connectTimeout
+
+    /**
+     * Sets the connect timeout (in milliseconds). A value of 0 means no timeout,
+     * otherwise values must be between 1 and
+     *
+     * @param connectionTimeout
+     * connection timeout in milliseconds
+     * @return Api client
+     */
+    fun setConnectTimeout(connectionTimeout: Int): ApiClient {
+        httpClient.setConnectTimeout(connectionTimeout.toLong(), TimeUnit.MILLISECONDS)
+        return this
+    }
+
+    val readTimeout: Int
+        /**
+         * Get read timeout (in milliseconds).
+         *
+         * @return Timeout in milliseconds
+         */
+        get() = httpClient.readTimeout
+
+    /**
+     * Sets the read timeout (in milliseconds). A value of 0 means no timeout,
+     * otherwise values must be between 1 and [Integer.MAX_VALUE].
+     *
+     * @param readTimeout
+     * read timeout in milliseconds
+     * @return Api client
+     */
+    fun setReadTimeout(readTimeout: Int): ApiClient {
+        httpClient.setReadTimeout(readTimeout.toLong(), TimeUnit.MILLISECONDS)
+        return this
+    }
+
+    val writeTimeout: Int
+        /**
+         * Get write timeout (in milliseconds).
+         *
+         * @return Timeout in milliseconds
+         */
+        get() = httpClient.writeTimeout
+
+    /**
+     * Sets the write timeout (in milliseconds). A value of 0 means no timeout,
+     * otherwise values must be between 1 and [Integer.MAX_VALUE].
+     *
+     * @param writeTimeout
+     * connection timeout in milliseconds
+     * @return Api client
+     */
+    fun setWriteTimeout(writeTimeout: Int): ApiClient {
+        httpClient.setWriteTimeout(writeTimeout.toLong(), TimeUnit.MILLISECONDS)
+        return this
+    }
+
+    /**
+     * Format the given parameter object into string.
+     *
+     * @param param
+     * Parameter
+     * @return String representation of the parameter
+     */
+    fun parameterToString(param: Any?): String {
+        return if (param == null) {
+            ""
+        } else if (param is Date || param is OffsetDateTime || param is LocalDate) {
+            // Serialize to json string and remove the " enclosing characters
+            val jsonStr = jSON.serialize(param)
+            jsonStr!!.substring(1, jsonStr.length - 1)
+        } else if (param is Collection<*>) {
+            val b = StringBuilder()
+            for (o in param) {
+                if (b.length > 0) {
+                    b.append(",")
+                }
+                b.append(o.toString())
+            }
+            b.toString()
+        } else {
+            param.toString()
+        }
+    }
+
+    /**
+     * Formats the specified query parameter to a list containing a single
+     * `Pair` object.
+     *
+     * Note that `value` must not be a collection.
+     *
+     * @param name
+     * The name of the parameter.
+     * @param value
+     * The value of the parameter.
+     * @return A list containing a single `Pair` object.
+     */
+    fun parameterToPair(name: String?, value: Any?): List<Pair> {
+        val params: MutableList<Pair> = ArrayList()
+
+        // preconditions
+        if (name == null || name.isEmpty() || value == null || value is Collection<*>) return params
+        params.add(Pair(name, parameterToString(value)))
+        return params
+    }
+
+    /**
+     * Formats the specified collection query parameters to a list of `Pair`
+     * objects.
+     *
+     * Note that the values of each of the returned Pair objects are
+     * percent-encoded.
+     *
+     * @param collectionFormat
+     * The collection format of the parameter.
+     * @param name
+     * The name of the parameter.
+     * @param value
+     * The value of the parameter.
+     * @return A list of `Pair` objects.
+     */
+    fun parameterToPairs(collectionFormat: String, name: String?, value: Collection<*>?): List<Pair> {
+        val params: MutableList<Pair> = ArrayList()
+
+        // preconditions
+        if (name == null || name.isEmpty() || value == null || value.isEmpty()) {
+            return params
+        }
+
+        // create the params based on the collection format
+        if ("multi" == collectionFormat) {
+            for (item in value) {
+                params.add(Pair(name, escapeString(parameterToString(item))))
+            }
+            return params
+        }
+
+        // collectionFormat is assumed to be "csv" by default
+        var delimiter: String? = ","
+
+        // escape all delimiters except commas, which are URI reserved
+        // characters
+        if ("ssv" == collectionFormat) {
+            delimiter = escapeString(" ")
+        } else if ("tsv" == collectionFormat) {
+            delimiter = escapeString("\t")
+        } else if ("pipes" == collectionFormat) {
+            delimiter = escapeString("|")
+        }
+        val sb = StringBuilder()
+        for (item in value) {
+            sb.append(delimiter)
+            sb.append(escapeString(parameterToString(item)))
+        }
+        params.add(Pair(name, sb.substring(delimiter!!.length)))
+        return params
+    }
+
+    /**
+     * Sanitize filename by removing path. e.g. ../../sun.gif becomes sun.gif
+     *
+     * @param filename
+     * The filename to be sanitized
+     * @return The sanitized filename
+     */
+    fun sanitizeFilename(filename: String): String {
+        return filename.replace(".*[/\\\\]".toRegex(), "")
+    }
+
+    /**
+     * Check if the given MIME is a JSON MIME. JSON MIME examples: application/json
+     * application/json; charset=UTF8 APPLICATION/JSON application/vnd.company+json
+     * "* / *" is also default to JSON
+     *
+     * @param mime
+     * MIME (Multipurpose Internet Mail Extensions)
+     * @return True if the given MIME is JSON, false otherwise.
+     */
+    fun isJsonMime(mime: String?): Boolean {
+        val jsonMime = "(?i)^(application/json|[^;/ \t]+/[^;/ \t]+[+]json)[ \t]*(;.*)?$"
+        return mime != null && (mime.matches(jsonMime.toRegex()) || mime == "*/*")
+    }
+
+    /**
+     * Select the Accept header's value from the given accepts array: if JSON exists
+     * in the given array, use it; otherwise use all of them (joining into a string)
+     *
+     * @param accepts
+     * The accepts array to select from
+     * @return The Accept header to use. If the given array is empty, null will be
+     * returned (not to set the Accept header explicitly).
+     */
+    fun selectHeaderAccept(accepts: Array<String?>): String? {
+        if (accepts.size == 0) {
+            return null
+        }
+        for (accept in accepts) {
+            if (isJsonMime(accept)) {
+                return accept
+            }
+        }
+        return StringUtil.join(accepts, ",")
+    }
+
+    /**
+     * Select the Content-Type header's value from the given array: if JSON exists
+     * in the given array, use it; otherwise use the first one of the array.
+     *
+     * @param contentTypes
+     * The Content-Type array to select from
+     * @return The Content-Type header to use. If the given array is empty, or
+     * matches "any", JSON will be used.
+     */
+    fun selectHeaderContentType(contentTypes: Array<String>): String {
+        if (contentTypes.size == 0 || contentTypes[0] == "*/*") {
+            return "application/json"
+        }
+        for (contentType in contentTypes) {
+            if (isJsonMime(contentType)) {
+                return contentType
+            }
+        }
+        return contentTypes[0]
+    }
+
+    /**
+     * Escape the given string to be used as URL query value.
+     *
+     * @param str
+     * String to be escaped
+     * @return Escaped string
+     */
+    fun escapeString(str: String?): String? {
+        return try {
+            URLEncoder.encode(str, "utf8").replace("\\+".toRegex(), "%20")
+        } catch (e: UnsupportedEncodingException) {
+            str
+        }
+    }
+
+    /**
+     * Deserialize response body to Java object, according to the return type and
+     * the Content-Type response header.
+     *
+     * @param <T>
+     * Type
+     * @param response
+     * HTTP response
+     * @param returnType
+     * The type of the Java object
+     * @return The deserialized Java object
+     * @throws ApiException
+     * If fail to deserialize response body, i.e. cannot read response
+     * body or the Content-Type of the response is not supported.
+    </T> */
+    @Throws(ApiException::class)
+    fun <T> deserialize(response: Response?, returnType: Type?): T? {
+        if (response == null || returnType == null) {
+            return null
+        }
+        if ("byte[]" == returnType.toString()) {
+            // Handle binary response (byte array).
+            return try {
+                response.body().bytes() as T
+            } catch (e: IOException) {
+                throw ApiException(e)
+            }
+        } else if (returnType == File::class.java) {
+            // Handle file downloading.
+            return downloadFileFromResponse(response) as T
+        }
+        val respBody: String?
+        respBody = try {
+            if (response.body() != null) response.body().string() else null
+        } catch (e: IOException) {
+            throw ApiException(e)
+        }
+        if (respBody == null || "" == respBody) {
+            return null
+        }
+        var contentType = response.headers()["Content-Type"]
+        if (contentType == null) {
+            // ensuring a default content type
+            contentType = "application/json"
+        }
+        return if (isJsonMime(contentType)) {
+            try {
+                jSON.deserialize<T>(respBody, returnType)
+            } catch (e: Exception) {
+                println("Error" + e.message)
+                println(respBody)
+                throw e
+            }
+        } else if (returnType == String::class.java) {
+            // Expecting string, return the raw response body.
+            respBody as T
+        } else {
+            throw ApiException(
+                "Content type \"$contentType\" is not supported for type: $returnType",
+                response.code(), response.headers().toMultimap(), respBody
+            )
+        }
+    }
+
+    /**
+     * Serialize the given Java object into request body according to the object's
+     * class and the request Content-Type.
+     *
+     * @param obj
+     * The Java object
+     * @param contentType
+     * The request Content-Type
+     * @return The serialized request body
+     * @throws ApiException
+     * If fail to serialize the given object
+     */
+    @Throws(ApiException::class)
+    fun serialize(obj: Any?, contentType: String): RequestBody {
+        return if (obj is ByteArray) {
+            // Binary (byte array) body parameter support.
+            RequestBody.create(MediaType.parse(contentType), obj as ByteArray?)
+        } else if (obj is File) {
+            // File body parameter support.
+            RequestBody.create(MediaType.parse(contentType), obj as File?)
+        } else if (isJsonMime(contentType)) {
+            val content: String?
+            content = if (obj != null) {
+                if (obj is String && obj.startsWith("{")) {
+                    obj
+                } else {
+                    jSON.serialize(obj)
+                }
+            } else {
+                null
+            }
+            RequestBody.create(MediaType.parse(contentType), content)
+        } else {
+            throw ApiException("Content type \"$contentType\" is not supported")
+        }
+    }
+
+    /**
+     * Download file from the given response.
+     *
+     * @param response
+     * An instance of the Response object
+     * @throws ApiException
+     * If fail to read file content from response and write to disk
+     * @return Downloaded file
+     */
+    @Throws(ApiException::class)
+    fun downloadFileFromResponse(response: Response): File {
+        return try {
+            val file = prepareDownloadFile(response)
+            val sink = Okio.buffer(Okio.sink(file))
+            sink.writeAll(response.body().source())
+            sink.close()
+            file
+        } catch (e: IOException) {
+            throw ApiException(e)
+        }
+    }
+
+    /**
+     * Prepare file for download
+     *
+     * @param response
+     * An instance of the Response object
+     * @throws IOException
+     * If fail to prepare file for download
+     * @return Prepared file for the download
+     */
+    @Throws(IOException::class)
+    fun prepareDownloadFile(response: Response): File {
+        var filename: String? = null
+        val contentDisposition = response.header("Content-Disposition")
+        if (contentDisposition != null && "" != contentDisposition) {
+            // Get filename from the Content-Disposition header.
+            val pattern = Pattern.compile("filename=['\"]?([^'\"\\s]+)['\"]?")
+            val matcher = pattern.matcher(contentDisposition)
+            if (matcher.find()) {
+                filename = sanitizeFilename(matcher.group(1))
+            }
+        }
+        var prefix: String? = null
+        var suffix: String? = null
+        if (filename == null) {
+            prefix = "download-"
+            suffix = ""
+        } else {
+            val pos = filename.lastIndexOf(".")
+            if (pos == -1) {
+                prefix = "$filename-"
+            } else {
+                prefix = filename.substring(0, pos) + "-"
+                suffix = filename.substring(pos)
+            }
+            // File.createTempFile requires the prefix to be at least three characters long
+            if (prefix.length < 3) prefix = "download-"
+        }
+        return if (tempFolderPath == null) File.createTempFile(prefix, suffix) else File.createTempFile(
+            prefix,
+            suffix,
+            File(tempFolderPath)
+        )
+    }
+
+    /**
+     * [.execute]
+     *
+     * @param <T>
+     * Type
+     * @param call
+     * An instance of the Call object
+     * @throws ApiException
+     * If fail to execute the call
+     * @return ApiResponse&lt;T&gt;
+    </T> */
+    @Throws(ApiException::class)
+    fun <T> execute(call: Call?): ApiResponse<T> {
+        return execute(call, null)
+    }
+
+    /**
+     * Execute HTTP call and deserialize the HTTP response body into the given
+     * return type.
+     *
+     * @param returnType
+     * The return type used to deserialize HTTP response body
+     * @param <T>
+     * The return type corresponding to (same with) returnType
+     * @param call
+     * Call
+     * @return ApiResponse object containing response status, headers and data,
+     * which is a Java object deserialized from response body and would be
+     * null when returnType is null.
+     * @throws ApiException
+     * If fail to execute the call
+    </T> */
+    @Throws(ApiException::class)
+    fun <T> execute(call: Call?, returnType: Type?): ApiResponse<T> {
+        return try {
+            val response = call!!.execute()
+            val data: T = handleResponse(response, returnType)
+            ApiResponse(response.code(), response.headers().toMultimap(), data)
+        } catch (e: IOException) {
+            throw ApiException(e)
+        }
+    }
+
+    /**
+     * [.executeAsync]
+     *
+     * @param <T>
+     * Type
+     * @param call
+     * An instance of the Call object
+     * @param callback
+     * ApiCallback&lt;T&gt;
+    </T> */
+    fun <T> executeAsync(call: Call, callback: ApiCallback<T>) {
+        executeAsync(call, null, callback)
+    }
+
+    /**
+     * Execute HTTP call asynchronously.
+     *
+     * @see .execute
+     * @param <T>
+     * Type
+     * @param call
+     * The callback to be executed when the API call finishes
+     * @param returnType
+     * Return type
+     * @param callback
+     * ApiCallback
+    </T> */
+    fun <T> executeAsync(call: Call, returnType: Type?, callback: ApiCallback<T>) {
+        call.enqueue(object : Callback {
+            override fun onFailure(request: Request, e: IOException) {
+                callback.onFailure(ApiException(e), 0, null)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(response: Response) {
+                val result: T
+                result = try {
+                    handleResponse<Any>(response, returnType) as T
+                } catch (e: ApiException) {
+                    callback.onFailure(e, response.code(), response.headers().toMultimap())
+                    return
+                }
+                callback.onSuccess(result, response.code(), response.headers().toMultimap())
+            }
+        })
+    }
+
+    /**
+     * Handle the given response, return the deserialized object when the response
+     * is successful.
+     *
+     * @param <T>
+     * Type
+     * @param response
+     * Response
+     * @param returnType
+     * Return type
+     * @throws ApiException
+     * If the response has a unsuccessful status code or fail to
+     * deserialize the response body
+     * @return Type
+    </T> */
+    @Throws(ApiException::class)
+    fun <T> handleResponse(response: Response, returnType: Type?): T? {
+        return if (response.isSuccessful) {
+            if (returnType == null || response.code() == 204) {
+                // returning null if the returnType is not defined,
+                // or the status code is 204 (No Content)
+                if (response.body() != null) {
+                    try {
+                        response.body().close()
+                    } catch (e: IOException) {
+                        throw ApiException(response.message(), e, response.code(), response.headers().toMultimap())
+                    }
+                }
+                null
+            } else {
+                deserialize<T>(response, returnType)
+            }
+        } else {
+            var respBody: String? = null
+            if (response.body() != null) {
+                respBody = try {
+                    response.body().string()
+                } catch (e: IOException) {
+                    throw ApiException(response.message(), e, response.code(), response.headers().toMultimap())
+                }
+            }
+            throw ApiException(response.message(), response.code(), response.headers().toMultimap(), respBody)
+        }
+    }
+
+    /**
+     * Build HTTP call with the given options.
+     *
+     * @param path
+     * The sub-path of the HTTP URL
+     * @param method
+     * The request method, one of "GET", "HEAD", "OPTIONS", "POST",
+     * "PUT", "PATCH" and "DELETE"
+     * @param queryParams
+     * The query parameters
+     * @param collectionQueryParams
+     * The collection query parameters
+     * @param body
+     * The request body object
+     * @param headerParams
+     * The header parameters
+     * @param formParams
+     * The form parameters
+     * @param authNames
+     * The authentications to apply
+     * @param progressRequestListener
+     * Progress request listener
+     * @return The HTTP call
+     * @throws ApiException
+     * If fail to serialize the request body object
+     */
+    @Throws(ApiException::class)
+    fun buildCall(
+        path: String, method: String, queryParams: List<Pair>?, collectionQueryParams: List<Pair>?,
+        body: Any?, headerParams: Map<String?, String?>, formParams: Map<String, Any>, authNames: Array<String?>?,
+        progressRequestListener: ProgressRequestListener?
+    ): Call {
+        val request = buildRequest(
+            path, method, queryParams, collectionQueryParams, body, headerParams, formParams,
+            authNames, progressRequestListener
+        )
+        return httpClient.newCall(request)
+    }
+
+    /**
+     * Build an HTTP request with the given options.
+     *
+     * @param path
+     * The sub-path of the HTTP URL
+     * @param method
+     * The request method, one of "GET", "HEAD", "OPTIONS", "POST",
+     * "PUT", "PATCH" and "DELETE"
+     * @param queryParams
+     * The query parameters
+     * @param collectionQueryParams
+     * The collection query parameters
+     * @param body
+     * The request body object
+     * @param headerParams
+     * The header parameters
+     * @param formParams
+     * The form parameters
+     * @param authNames
+     * The authentications to apply
+     * @param progressRequestListener
+     * Progress request listener
+     * @return The HTTP request
+     * @throws ApiException
+     * If fail to serialize the request body object
+     */
+    @Throws(ApiException::class)
+    fun buildRequest(
+        path: String, method: String, queryParams: List<Pair>?, collectionQueryParams: List<Pair>?,
+        body: Any?, headerParams: Map<String?, String?>, formParams: Map<String, Any>, authNames: Array<String?>?,
+        progressRequestListener: ProgressRequestListener?
+    ): Request? {
+        // updateParamsForAuth(authNames, queryParams, headerParams);
+        val url = buildUrl(path, queryParams, collectionQueryParams)
+        val reqBuilder = Request.Builder().url(url)
+        processHeaderParams(headerParams, reqBuilder)
+        var contentType = headerParams["Content-Type"]
+        // ensuring a default content type
+        if (contentType == null) {
+            contentType = "application/json"
+        }
+        val reqBody: RequestBody?
+        reqBody = if (!HttpMethod.permitsRequestBody(method)) {
+            null
+        } else if ("application/x-www-form-urlencoded" == contentType) {
+            buildRequestBodyFormEncoding(formParams)
+        } else if ("multipart/form-data" == contentType) {
+            buildRequestBodyMultipart(formParams)
+        } else body?.let { serialize(it, contentType) }
+            ?: if ("DELETE" == method) {
+                // allow calling DELETE without sending a request body
+                null
+            } else {
+                // use an empty request body (for POST, PUT and PATCH)
+                RequestBody.create(MediaType.parse(contentType), "")
+            }
+        var request: Request? = null
+        request = if (progressRequestListener != null && reqBody != null) {
+            val progressRequestBody = ProgressRequestBody(reqBody, progressRequestListener)
+            reqBuilder.method(method, progressRequestBody).build()
+        } else {
+            reqBuilder.method(method, reqBody).build()
+        }
+        return request
+    }
+
+    /**
+     * Build full URL by concatenating base path, the given sub path and query
+     * parameters.
+     *
+     * @param path
+     * The sub path
+     * @param queryParams
+     * The query parameters
+     * @param collectionQueryParams
+     * The collection query parameters
+     * @return The full URL
+     */
+    fun buildUrl(path: String, queryParams: List<Pair>?, collectionQueryParams: List<Pair>?): String {
+        val url = StringBuilder()
+        url.append(basePath).append(path)
+        if (queryParams != null && !queryParams.isEmpty()) {
+            // support (constant) query string in `path`, e.g. "/posts?draft=1"
+            var prefix: String? = if (path.contains("?")) "&" else "?"
+            for (param in queryParams) {
+                if (param.value != null) {
+                    if (prefix != null) {
+                        url.append(prefix)
+                        prefix = null
+                    } else {
+                        url.append("&")
+                    }
+                    val value = parameterToString(param.value)
+                    url.append(escapeString(param.name)).append("=").append(escapeString(value))
+                }
+            }
+        }
+        if (collectionQueryParams != null && !collectionQueryParams.isEmpty()) {
+            var prefix: String? = if (url.toString().contains("?")) "&" else "?"
+            for (param in collectionQueryParams) {
+                if (param.value != null) {
+                    if (prefix != null) {
+                        url.append(prefix)
+                        prefix = null
+                    } else {
+                        url.append("&")
+                    }
+                    val value = parameterToString(param.value)
+                    // collection query parameter value already escaped as part of parameterToPairs
+                    url.append(escapeString(param.name)).append("=").append(value)
+                }
+            }
+        }
+        return url.toString()
+    }
+
+    /**
+     * Set header parameters to the request builder, including default headers.
+     *
+     * @param headerParams
+     * Header parameters in the ofrm of Map
+     * @param reqBuilder
+     * Reqeust.Builder
+     */
+    fun processHeaderParams(headerParams: Map<String?, String?>, reqBuilder: Request.Builder) {
+        for ((key, value) in headerParams) {
+            reqBuilder.header(key, parameterToString(value))
+        }
+        for ((key, value) in defaultHeaderMap) {
+            if (!headerParams.containsKey(key)) {
+                reqBuilder.header(key, parameterToString(value))
+            }
+        }
+    }
+
+    /**
+     * Build a form-encoding request body with the given form parameters.
+     *
+     * @param formParams
+     * Form parameters in the form of Map
+     * @return RequestBody
+     */
+    fun buildRequestBodyFormEncoding(formParams: Map<String, Any>): RequestBody {
+        val formBuilder = FormEncodingBuilder()
+        for ((key, value) in formParams) {
+            formBuilder.add(key, parameterToString(value))
+        }
+        return formBuilder.build()
+    }
+
+    /**
+     * Build a multipart (file uploading) request body with the given form
+     * parameters, which could contain text fields and file fields.
+     *
+     * @param formParams
+     * Form parameters in the form of Map
+     * @return RequestBody
+     */
+    fun buildRequestBodyMultipart(formParams: Map<String, Any>): RequestBody {
+        val mpBuilder = MultipartBuilder().type(MultipartBuilder.FORM)
+        for ((key, value) in formParams) {
+            if (value is File) {
+                val file = value
+                val partHeaders = Headers.of(
+                    "Content-Disposition",
+                    "form-data; name=\"" + key + "\"; filename=\"" + file.getName() + "\""
+                )
+                val mediaType = MediaType.parse(guessContentTypeFromFile(file))
+                mpBuilder.addPart(partHeaders, RequestBody.create(mediaType, file))
+            } else {
+                val partHeaders = Headers.of("Content-Disposition", "form-data; name=\"$key\"")
+                mpBuilder.addPart(partHeaders, RequestBody.create(null, parameterToString(value)))
+            }
+        }
+        return mpBuilder.build()
+    }
+
+    /**
+     * Guess Content-Type header from the given file (defaults to
+     * "application/octet-stream").
+     *
+     * @param file
+     * The given file
+     * @return The guessed Content-Type
+     */
+    fun guessContentTypeFromFile(file: File): String {
+        val contentType = URLConnection.guessContentTypeFromName(file.getName())
+        return contentType ?: "application/octet-stream"
+    }
+
+    /**
+     * Apply SSL related settings to httpClient according to the current values of
+     * verifyingSsl and sslCaCert.
+     */
+    private fun applySslSettings() {
+        try {
+            var trustManagers: Array<TrustManager>? = null
+            var hostnameVerifier: HostnameVerifier? = null
+            if (!isVerifyingSsl) {
+                val trustAll: TrustManager = object : X509TrustManager {
+                    @Throws(CertificateException::class)
+                    override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+                    }
+
+                    @Throws(CertificateException::class)
+                    override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+                    }
+
+                    override fun getAcceptedIssuers(): Array<X509Certificate> {
+                        return null
+                    }
+                }
+                val sslContext = SSLContext.getInstance("TLS")
+                trustManagers = arrayOf(trustAll)
+                hostnameVerifier = HostnameVerifier { hostname, session -> true }
+            } else if (sslCaCert != null) {
+                val password: CharArray? = null // Any password will work.
+                val certificateFactory = CertificateFactory.getInstance("X.509")
+                val certificates = certificateFactory.generateCertificates(sslCaCert)
+                require(!certificates.isEmpty()) { "expected non-empty set of trusted certificates" }
+                val caKeyStore = newEmptyKeyStore(password)
+                var index = 0
+                for (certificate in certificates) {
+                    val certificateAlias = "ca" + index++.toString()
+                    caKeyStore.setCertificateEntry(certificateAlias, certificate)
+                }
+                val trustManagerFactory = TrustManagerFactory
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm())
+                trustManagerFactory.init(caKeyStore)
+                trustManagers = trustManagerFactory.trustManagers
+            }
+            if (keyManagers != null || trustManagers != null) {
+                val sslContext = SSLContext.getInstance("TLS")
+                sslContext.init(keyManagers, trustManagers, SecureRandom())
+                httpClient.setSslSocketFactory(sslContext.socketFactory)
+            } else {
+                httpClient.setSslSocketFactory(null)
+            }
+            httpClient.setHostnameVerifier(hostnameVerifier)
+        } catch (e: GeneralSecurityException) {
+            throw RuntimeException(e)
+        }
+    }
+
+    @Throws(GeneralSecurityException::class)
+    private fun newEmptyKeyStore(password: CharArray?): KeyStore {
+        return try {
+            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
+            keyStore.load(null, password)
+            keyStore
+        } catch (e: IOException) {
+            throw AssertionError(e)
+        }
+    }
 }

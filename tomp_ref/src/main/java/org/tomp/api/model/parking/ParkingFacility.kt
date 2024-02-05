@@ -1,66 +1,23 @@
-package org.tomp.api.model.parking;
+package org.tomp.api.model.parking
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public class ParkingFacility {
-	@JsonProperty("name")
-	private String name;
-	@JsonProperty("uuid")
-	private String uuid;
-	@JsonProperty("staticDataUrl")
-	private String staticDataUrl;
-	@JsonProperty("dynamicDataUrl")
-	private String dynamicDataUrl;
-	@JsonProperty("limitedAccess")
-	private boolean limitedAccess;
-	@JsonProperty("geoLocation")
-	private LonLatLocation geoLocation;
+class ParkingFacility {
+    @JsonProperty("name")
+    var name: String? = null
 
-	public String getName() {
-		return name;
-	}
+    @JsonProperty("uuid")
+    var uuid: String? = null
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @JsonProperty("staticDataUrl")
+    var staticDataUrl: String? = null
 
-	public String getUuid() {
-		return uuid;
-	}
+    @JsonProperty("dynamicDataUrl")
+    var dynamicDataUrl: String? = null
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    @JsonProperty("limitedAccess")
+    var isLimitedAccess = false
 
-	public String getStaticDataUrl() {
-		return staticDataUrl;
-	}
-
-	public void setStaticDataUrl(String staticDataUrl) {
-		this.staticDataUrl = staticDataUrl;
-	}
-
-	public String getDynamicDataUrl() {
-		return dynamicDataUrl;
-	}
-
-	public void setDynamicDataUrl(String dynamicDataUrl) {
-		this.dynamicDataUrl = dynamicDataUrl;
-	}
-
-	public boolean isLimitedAccess() {
-		return limitedAccess;
-	}
-
-	public void setLimitedAccess(boolean limitedAccess) {
-		this.limitedAccess = limitedAccess;
-	}
-
-	public LonLatLocation getGeoLocation() {
-		return geoLocation;
-	}
-
-	public void setGeoLocation(LonLatLocation geoLocation) {
-		this.geoLocation = geoLocation;
-	}
+    @JsonProperty("geoLocation")
+    var geoLocation: LonLatLocation? = null
 }

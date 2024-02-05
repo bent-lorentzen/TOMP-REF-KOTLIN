@@ -9,314 +9,74 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+package io.swagger.client
 
-package io.swagger.client;
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonParseException
+import com.google.gson.TypeAdapter
+import com.google.gson.internal.bind.util.ISO8601Utils
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
+import com.google.gson.stream.JsonWriter
+import io.gsonfire.GsonFireBuilder
+import io.gsonfire.PostProcessor
+import io.swagger.model.AmountOfMoney
+import io.swagger.model.Booking
+import io.swagger.model.BookingRequest
+import io.swagger.model.Card
+import io.swagger.model.CardType
+import io.swagger.model.Condition
+import io.swagger.model.ConditionDeposit
+import io.swagger.model.ConditionPayWhenFinished
+import io.swagger.model.ConditionPostponedCommit
+import io.swagger.model.ConditionRequireBookingData
+import io.swagger.model.ConditionReturnArea
+import io.swagger.model.ConditionUpfrontPayment
+import io.swagger.model.Customer
+import io.swagger.model.ExtraCosts
+import io.swagger.model.FarePart
+import io.swagger.model.JournalEntry
+import io.swagger.model.License
+import io.swagger.model.LicenseType
+import io.swagger.model.SupportRequest
+import io.swagger.model.SupportStatus
+import io.swagger.model.Traveler
+import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
+import org.threeten.bp.format.DateTimeFormatter
+import java.io.IOException
+import java.io.StringReader
+import java.lang.reflect.Type
+import java.sql.Date
+import java.text.DateFormat
+import java.text.ParseException
+import java.text.ParsePosition
+import java.util.Locale
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import io.gsonfire.GsonFireBuilder;
-import io.gsonfire.PostProcessor;
-import io.gsonfire.TypeSelector;
-import com.google.gson.JsonParseException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.internal.bind.util.ISO8601Utils;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-
-import io.swagger.model.*;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.util.Date;
-import java.util.Map;
-import java.util.HashMap;
-
-public class JSON {
-    private Gson gson;
-    private boolean isLenientOnJson = false;
-    private DateTypeAdapter dateTypeAdapter = new DateTypeAdapter();
-    private SqlDateTypeAdapter sqlDateTypeAdapter = new SqlDateTypeAdapter();
-    private OffsetDateTimeTypeAdapter offsetDateTimeTypeAdapter = new OffsetDateTimeTypeAdapter();
-    private LocalDateTypeAdapter localDateTypeAdapter = new LocalDateTypeAdapter();
-
-    public static GsonBuilder createGson() {
-        GsonFireBuilder fireBuilder = new GsonFireBuilder()
-          .registerTypeSelector(BookingRequest.class, new TypeSelector<BookingRequest>() {
-            @Override
-            public Class<? extends BookingRequest> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends BookingRequest>> classByDiscriminatorValue = new HashMap<>();
-                    classByDiscriminatorValue.put("booking".toUpperCase(), Booking.class);
-                    classByDiscriminatorValue.put("BookingRequest".toUpperCase(), BookingRequest.class);
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, ""));
-            }
-          })
-          .registerPostProcessor(BookingRequest.class, new PostProcessor<BookingRequest>() {
-              @Override
-              public void postDeserialize(BookingRequest result, JsonElement src, Gson gson) {
-
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, BookingRequest src, Gson gson) {
-                  Map<Class<? extends BookingRequest>, String> discriminatorValueByClass = new HashMap<>();
-                      discriminatorValueByClass.put(Booking.class, "booking");
-                      discriminatorValueByClass.put(BookingRequest.class, "BookingRequest");
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has(""))
-                      {
-                          ((JsonObject) result).addProperty("", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-          .registerTypeSelector(CardType.class, new TypeSelector<CardType>() {
-            @Override
-            public Class<? extends CardType> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends CardType>> classByDiscriminatorValue = new HashMap<>();
-                    classByDiscriminatorValue.put("card".toUpperCase(), Card.class);
-                    classByDiscriminatorValue.put("CardType".toUpperCase(), CardType.class);
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, ""));
-            }
-          })
-          .registerPostProcessor(CardType.class, new PostProcessor<CardType>() {
-              @Override
-              public void postDeserialize(CardType result, JsonElement src, Gson gson) {
-
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, CardType src, Gson gson) {
-                  Map<Class<? extends CardType>, String> discriminatorValueByClass = new HashMap<>();
-                      discriminatorValueByClass.put(Card.class, "card");
-                      discriminatorValueByClass.put(CardType.class, "CardType");
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has(""))
-                      {
-                          ((JsonObject) result).addProperty("", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-          .registerTypeSelector(Condition.class, new TypeSelector<Condition>() {
-            @Override
-            public Class<? extends Condition> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends Condition>> classByDiscriminatorValue = new HashMap<>();
-                    classByDiscriminatorValue.put("conditionDeposit".toUpperCase(), ConditionDeposit.class);
-                    classByDiscriminatorValue.put("conditionPayWhenFinished".toUpperCase(), ConditionPayWhenFinished.class);
-                    classByDiscriminatorValue.put("conditionPostponedCommit".toUpperCase(), ConditionPostponedCommit.class);
-                    classByDiscriminatorValue.put("conditionRequireBookingData".toUpperCase(), ConditionRequireBookingData.class);
-                    classByDiscriminatorValue.put("conditionReturnArea".toUpperCase(), ConditionReturnArea.class);
-                    classByDiscriminatorValue.put("conditionUpfrontPayment".toUpperCase(), ConditionUpfrontPayment.class);
-                    classByDiscriminatorValue.put("Condition".toUpperCase(), Condition.class);
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, "conditionType"));
-            }
-          })
-          .registerPostProcessor(Condition.class, new PostProcessor<Condition>() {
-              @Override
-              public void postDeserialize(Condition result, JsonElement src, Gson gson) {
-
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, Condition src, Gson gson) {
-                  Map<Class<? extends Condition>, String> discriminatorValueByClass = new HashMap<>();
-                      discriminatorValueByClass.put(ConditionDeposit.class, "conditionDeposit");
-                      discriminatorValueByClass.put(ConditionPayWhenFinished.class, "conditionPayWhenFinished");
-                      discriminatorValueByClass.put(ConditionPostponedCommit.class, "conditionPostponedCommit");
-                      discriminatorValueByClass.put(ConditionRequireBookingData.class, "conditionRequireBookingData");
-                      discriminatorValueByClass.put(ConditionReturnArea.class, "conditionReturnArea");
-                      discriminatorValueByClass.put(ConditionUpfrontPayment.class, "conditionUpfrontPayment");
-                      discriminatorValueByClass.put(Condition.class, "Condition");
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has("conditionType"))
-                      {
-                          ((JsonObject) result).addProperty("conditionType", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-          .registerTypeSelector(Traveler.class, new TypeSelector<Traveler>() {
-            @Override
-            public Class<? extends Traveler> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends Traveler>> classByDiscriminatorValue = new HashMap<>();
-                    classByDiscriminatorValue.put("customer".toUpperCase(), Customer.class);
-                    classByDiscriminatorValue.put("Traveler".toUpperCase(), Traveler.class);
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, ""));
-            }
-          })
-          .registerPostProcessor(Traveler.class, new PostProcessor<Traveler>() {
-              @Override
-              public void postDeserialize(Traveler result, JsonElement src, Gson gson) {
-
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, Traveler src, Gson gson) {
-                  Map<Class<? extends Traveler>, String> discriminatorValueByClass = new HashMap<>();
-                      discriminatorValueByClass.put(Customer.class, "customer");
-                      discriminatorValueByClass.put(Traveler.class, "Traveler");
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has(""))
-                      {
-                          ((JsonObject) result).addProperty("", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-          .registerTypeSelector(AmountOfMoney.class, new TypeSelector<AmountOfMoney>() {
-            @Override
-            public Class<? extends AmountOfMoney> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends AmountOfMoney>> classByDiscriminatorValue = new HashMap<>();
-                    classByDiscriminatorValue.put("extraCosts".toUpperCase(), ExtraCosts.class);
-                    classByDiscriminatorValue.put("farePart".toUpperCase(), FarePart.class);
-                    classByDiscriminatorValue.put("journalEntry".toUpperCase(), JournalEntry.class);
-                    classByDiscriminatorValue.put("AmountOfMoney".toUpperCase(), AmountOfMoney.class);
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, ""));
-            }
-          })
-          .registerPostProcessor(AmountOfMoney.class, new PostProcessor<AmountOfMoney>() {
-              @Override
-              public void postDeserialize(AmountOfMoney result, JsonElement src, Gson gson) {
-
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, AmountOfMoney src, Gson gson) {
-                  Map<Class<? extends AmountOfMoney>, String> discriminatorValueByClass = new HashMap<>();
-                      discriminatorValueByClass.put(ExtraCosts.class, "extraCosts");
-                      discriminatorValueByClass.put(FarePart.class, "farePart");
-                      discriminatorValueByClass.put(JournalEntry.class, "journalEntry");
-                      discriminatorValueByClass.put(AmountOfMoney.class, "AmountOfMoney");
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has(""))
-                      {
-                          ((JsonObject) result).addProperty("", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-          .registerTypeSelector(LicenseType.class, new TypeSelector<LicenseType>() {
-            @Override
-            public Class<? extends LicenseType> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends LicenseType>> classByDiscriminatorValue = new HashMap<>();
-                    classByDiscriminatorValue.put("license".toUpperCase(), License.class);
-                    classByDiscriminatorValue.put("LicenseType".toUpperCase(), LicenseType.class);
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, ""));
-            }
-          })
-          .registerPostProcessor(LicenseType.class, new PostProcessor<LicenseType>() {
-              @Override
-              public void postDeserialize(LicenseType result, JsonElement src, Gson gson) {
-
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, LicenseType src, Gson gson) {
-                  Map<Class<? extends LicenseType>, String> discriminatorValueByClass = new HashMap<>();
-                      discriminatorValueByClass.put(License.class, "license");
-                      discriminatorValueByClass.put(LicenseType.class, "LicenseType");
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has(""))
-                      {
-                          ((JsonObject) result).addProperty("", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-          .registerTypeSelector(SupportRequest.class, new TypeSelector<SupportRequest>() {
-            @Override
-            public Class<? extends SupportRequest> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends SupportRequest>> classByDiscriminatorValue = new HashMap<>();
-                    classByDiscriminatorValue.put("supportStatus".toUpperCase(), SupportStatus.class);
-                    classByDiscriminatorValue.put("SupportRequest".toUpperCase(), SupportRequest.class);
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, ""));
-            }
-          })
-          .registerPostProcessor(SupportRequest.class, new PostProcessor<SupportRequest>() {
-              @Override
-              public void postDeserialize(SupportRequest result, JsonElement src, Gson gson) {
-
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, SupportRequest src, Gson gson) {
-                  Map<Class<? extends SupportRequest>, String> discriminatorValueByClass = new HashMap<>();
-                      discriminatorValueByClass.put(SupportStatus.class, "supportStatus");
-                      discriminatorValueByClass.put(SupportRequest.class, "SupportRequest");
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has(""))
-                      {
-                          ((JsonObject) result).addProperty("", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-        ;
-        return fireBuilder.createGsonBuilder();
-    }
-
-    private static String getDiscriminatorValue(JsonElement readElement, String discriminatorField) {
-        JsonElement element = readElement.getAsJsonObject().get(discriminatorField);
-        if(null == element) {
-            throw new IllegalArgumentException("missing discriminator field: <" + discriminatorField + ">");
-        }
-        return element.getAsString();
-    }
-
-    private static <T> Class<? extends T> getClassByDiscriminator(Map<String, Class<? extends T>> classByDiscriminatorValue, String discriminatorValue) {
-        Class<? extends T> clazz = classByDiscriminatorValue.get(discriminatorValue.toUpperCase());
-        if(null == clazz) {
-            throw new IllegalArgumentException("cannot determine model class of name: <" + discriminatorValue + ">");
-        }
-        return clazz;
-    }
-
-    public JSON() {
-        gson = createGson()
-            .registerTypeAdapter(Date.class, dateTypeAdapter)
-            .registerTypeAdapter(java.sql.Date.class, sqlDateTypeAdapter)
-            .registerTypeAdapter(OffsetDateTime.class, offsetDateTimeTypeAdapter)
-            .registerTypeAdapter(LocalDate.class, localDateTypeAdapter)
-            .create();
-    }
-
+class JSON {
     /**
      * Get Gson.
      *
      * @return Gson
      */
-    public Gson getGson() {
-        return gson;
+    var gson: Gson
+        private set
+    private var isLenientOnJson = false
+    private val dateTypeAdapter = DateTypeAdapter()
+    private val sqlDateTypeAdapter = SqlDateTypeAdapter()
+    private val offsetDateTimeTypeAdapter = OffsetDateTimeTypeAdapter()
+    private val localDateTypeAdapter = LocalDateTypeAdapter()
+
+    init {
+        gson = createGson()
+            .registerTypeAdapter(java.util.Date::class.java, dateTypeAdapter)
+            .registerTypeAdapter(Date::class.java, sqlDateTypeAdapter)
+            .registerTypeAdapter(OffsetDateTime::class.java, offsetDateTimeTypeAdapter)
+            .registerTypeAdapter(LocalDate::class.java, localDateTypeAdapter)
+            .create()
     }
 
     /**
@@ -325,14 +85,14 @@ public class JSON {
      * @param gson Gson
      * @return JSON
      */
-    public JSON setGson(Gson gson) {
-        this.gson = gson;
-        return this;
+    fun setGson(gson: Gson): JSON {
+        this.gson = gson
+        return this
     }
 
-    public JSON setLenientOnJson(boolean lenientOnJson) {
-        isLenientOnJson = lenientOnJson;
-        return this;
+    fun setLenientOnJson(lenientOnJson: Boolean): JSON {
+        isLenientOnJson = lenientOnJson
+        return this
     }
 
     /**
@@ -341,8 +101,8 @@ public class JSON {
      * @param obj Object
      * @return String representation of the JSON
      */
-    public String serialize(Object obj) {
-        return gson.toJson(obj);
+    fun serialize(obj: Any?): String {
+        return gson.toJson(obj)
     }
 
     /**
@@ -352,67 +112,57 @@ public class JSON {
      * @param body       The JSON string
      * @param returnType The type to deserialize into
      * @return The deserialized Java object
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T deserialize(String body, Type returnType) {
-        try {
+    </T> */
+    fun <T> deserialize(body: String, returnType: Type): T {
+        return try {
             if (isLenientOnJson) {
-                JsonReader jsonReader = new JsonReader(new StringReader(body));
+                val jsonReader = JsonReader(StringReader(body))
                 // see https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/stream/JsonReader.html#setLenient(boolean)
-                jsonReader.setLenient(true);
-                return gson.fromJson(jsonReader, returnType);
+                jsonReader.isLenient = true
+                gson.fromJson(jsonReader, returnType)
             } else {
-                return gson.fromJson(body, returnType);
+                gson.fromJson(body, returnType)
             }
-        } catch (JsonParseException e) {
+        } catch (e: JsonParseException) {
             // Fallback processing when failed to parse JSON form response body:
             // return the response body string directly for the String return type;
-            if (returnType.equals(String.class))
-                return (T) body;
-            else throw (e);
+            if (returnType == String::class.java) body as T else throw e
         }
     }
 
     /**
      * Gson TypeAdapter for JSR310 OffsetDateTime type
      */
-    public static class OffsetDateTimeTypeAdapter extends TypeAdapter<OffsetDateTime> {
-
-        private DateTimeFormatter formatter;
-
-        public OffsetDateTimeTypeAdapter() {
-            this(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    class OffsetDateTimeTypeAdapter @JvmOverloads constructor(private var formatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME) :
+        TypeAdapter<OffsetDateTime?>() {
+        fun setFormat(dateFormat: DateTimeFormatter) {
+            formatter = dateFormat
         }
 
-        public OffsetDateTimeTypeAdapter(DateTimeFormatter formatter) {
-            this.formatter = formatter;
-        }
-
-        public void setFormat(DateTimeFormatter dateFormat) {
-            this.formatter = dateFormat;
-        }
-
-        @Override
-        public void write(JsonWriter out, OffsetDateTime date) throws IOException {
+        @Throws(IOException::class)
+        override fun write(out: JsonWriter, date: OffsetDateTime?) {
             if (date == null) {
-                out.nullValue();
+                out.nullValue()
             } else {
-                out.value(formatter.format(date));
+                out.value(formatter.format(date))
             }
         }
 
-        @Override
-        public OffsetDateTime read(JsonReader in) throws IOException {
-            switch (in.peek()) {
-                case NULL:
-                    in.nextNull();
-                    return null;
-                default:
-                    String date = in.nextString();
+        @Throws(IOException::class)
+        override fun read(`in`: JsonReader): OffsetDateTime? {
+            return when (`in`.peek()) {
+                JsonToken.NULL -> {
+                    `in`.nextNull()
+                    null
+                }
+
+                else -> {
+                    var date = `in`.nextString()
                     if (date.endsWith("+0000")) {
-                        date = date.substring(0, date.length()-5) + "Z";
+                        date = date.substring(0, date.length - 5) + "Z"
                     }
-                    return OffsetDateTime.parse(date, formatter);
+                    OffsetDateTime.parse(date, formatter)
+                }
             }
         }
     }
@@ -420,52 +170,45 @@ public class JSON {
     /**
      * Gson TypeAdapter for JSR310 LocalDate type
      */
-    public class LocalDateTypeAdapter extends TypeAdapter<LocalDate> {
-
-        private DateTimeFormatter formatter;
-
-        public LocalDateTypeAdapter() {
-            this(DateTimeFormatter.ISO_LOCAL_DATE);
+    inner class LocalDateTypeAdapter @JvmOverloads constructor(private var formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE) :
+        TypeAdapter<LocalDate?>() {
+        fun setFormat(dateFormat: DateTimeFormatter) {
+            formatter = dateFormat
         }
 
-        public LocalDateTypeAdapter(DateTimeFormatter formatter) {
-            this.formatter = formatter;
-        }
-
-        public void setFormat(DateTimeFormatter dateFormat) {
-            this.formatter = dateFormat;
-        }
-
-        @Override
-        public void write(JsonWriter out, LocalDate date) throws IOException {
+        @Throws(IOException::class)
+        override fun write(out: JsonWriter, date: LocalDate?) {
             if (date == null) {
-                out.nullValue();
+                out.nullValue()
             } else {
-                out.value(formatter.format(date));
+                out.value(formatter.format(date))
             }
         }
 
-        @Override
-        public LocalDate read(JsonReader in) throws IOException {
-            switch (in.peek()) {
-                case NULL:
-                    in.nextNull();
-                    return null;
-                default:
-                    String date = in.nextString();
-                    return LocalDate.parse(date, formatter);
+        @Throws(IOException::class)
+        override fun read(`in`: JsonReader): LocalDate? {
+            return when (`in`.peek()) {
+                JsonToken.NULL -> {
+                    `in`.nextNull()
+                    null
+                }
+
+                else -> {
+                    val date = `in`.nextString()
+                    LocalDate.parse(date, formatter)
+                }
             }
         }
     }
 
-    public JSON setOffsetDateTimeFormat(DateTimeFormatter dateFormat) {
-        offsetDateTimeTypeAdapter.setFormat(dateFormat);
-        return this;
+    fun setOffsetDateTimeFormat(dateFormat: DateTimeFormatter): JSON {
+        offsetDateTimeTypeAdapter.setFormat(dateFormat)
+        return this
     }
 
-    public JSON setLocalDateFormat(DateTimeFormatter dateFormat) {
-        localDateTypeAdapter.setFormat(dateFormat);
-        return this;
+    fun setLocalDateFormat(dateFormat: DateTimeFormatter): JSON {
+        localDateTypeAdapter.setFormat(dateFormat)
+        return this
     }
 
     /**
@@ -473,52 +216,51 @@ public class JSON {
      * If the dateFormat is null, a simple "yyyy-MM-dd" format will be used
      * (more efficient than SimpleDateFormat).
      */
-    public static class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
+    class SqlDateTypeAdapter : TypeAdapter<Date?> {
+        private var dateFormat: DateFormat? = null
 
-        private DateFormat dateFormat;
-
-        public SqlDateTypeAdapter() {
+        constructor()
+        constructor(dateFormat: DateFormat?) {
+            this.dateFormat = dateFormat
         }
 
-        public SqlDateTypeAdapter(DateFormat dateFormat) {
-            this.dateFormat = dateFormat;
+        fun setFormat(dateFormat: DateFormat?) {
+            this.dateFormat = dateFormat
         }
 
-        public void setFormat(DateFormat dateFormat) {
-            this.dateFormat = dateFormat;
-        }
-
-        @Override
-        public void write(JsonWriter out, java.sql.Date date) throws IOException {
+        @Throws(IOException::class)
+        override fun write(out: JsonWriter, date: Date?) {
             if (date == null) {
-                out.nullValue();
+                out.nullValue()
             } else {
-                String value;
-                if (dateFormat != null) {
-                    value = dateFormat.format(date);
+                val value: String
+                value = if (dateFormat != null) {
+                    dateFormat!!.format(date)
                 } else {
-                    value = date.toString();
+                    date.toString()
                 }
-                out.value(value);
+                out.value(value)
             }
         }
 
-        @Override
-        public java.sql.Date read(JsonReader in) throws IOException {
-            switch (in.peek()) {
-                case NULL:
-                    in.nextNull();
-                    return null;
-                default:
-                    String date = in.nextString();
+        @Throws(IOException::class)
+        override fun read(`in`: JsonReader): Date? {
+            return when (`in`.peek()) {
+                JsonToken.NULL -> {
+                    `in`.nextNull()
+                    null
+                }
+
+                else -> {
+                    val date = `in`.nextString()
                     try {
                         if (dateFormat != null) {
-                            return new java.sql.Date(dateFormat.parse(date).getTime());
-                        }
-                        return new java.sql.Date(ISO8601Utils.parse(date, new ParsePosition(0)).getTime());
-                    } catch (ParseException e) {
-                        throw new JsonParseException(e);
+                            Date(dateFormat!!.parse(date).time)
+                        } else Date(ISO8601Utils.parse(date, ParsePosition(0)).time)
+                    } catch (e: ParseException) {
+                        throw JsonParseException(e)
                     }
+                }
             }
         }
     }
@@ -527,68 +269,255 @@ public class JSON {
      * Gson TypeAdapter for java.util.Date type
      * If the dateFormat is null, ISO8601Utils will be used.
      */
-    public static class DateTypeAdapter extends TypeAdapter<Date> {
+    class DateTypeAdapter : TypeAdapter<java.util.Date?> {
+        private var dateFormat: DateFormat? = null
 
-        private DateFormat dateFormat;
-
-        public DateTypeAdapter() {
+        constructor()
+        constructor(dateFormat: DateFormat?) {
+            this.dateFormat = dateFormat
         }
 
-        public DateTypeAdapter(DateFormat dateFormat) {
-            this.dateFormat = dateFormat;
+        fun setFormat(dateFormat: DateFormat?) {
+            this.dateFormat = dateFormat
         }
 
-        public void setFormat(DateFormat dateFormat) {
-            this.dateFormat = dateFormat;
-        }
-
-        @Override
-        public void write(JsonWriter out, Date date) throws IOException {
+        @Throws(IOException::class)
+        override fun write(out: JsonWriter, date: java.util.Date?) {
             if (date == null) {
-                out.nullValue();
+                out.nullValue()
             } else {
-                String value;
-                if (dateFormat != null) {
-                    value = dateFormat.format(date);
+                val value: String
+                value = if (dateFormat != null) {
+                    dateFormat!!.format(date)
                 } else {
-                    value = ISO8601Utils.format(date, true);
+                    ISO8601Utils.format(date, true)
                 }
-                out.value(value);
+                out.value(value)
             }
         }
 
-        @Override
-        public Date read(JsonReader in) throws IOException {
-            try {
-                switch (in.peek()) {
-                    case NULL:
-                        in.nextNull();
-                        return null;
-                    default:
-                        String date = in.nextString();
+        @Throws(IOException::class)
+        override fun read(`in`: JsonReader): java.util.Date? {
+            return try {
+                when (`in`.peek()) {
+                    JsonToken.NULL -> {
+                        `in`.nextNull()
+                        null
+                    }
+
+                    else -> {
+                        val date = `in`.nextString()
                         try {
                             if (dateFormat != null) {
-                                return dateFormat.parse(date);
-                            }
-                            return ISO8601Utils.parse(date, new ParsePosition(0));
-                        } catch (ParseException e) {
-                            throw new JsonParseException(e);
+                                dateFormat!!.parse(date)
+                            } else ISO8601Utils.parse(date, ParsePosition(0))
+                        } catch (e: ParseException) {
+                            throw JsonParseException(e)
                         }
+                    }
                 }
-            } catch (IllegalArgumentException e) {
-                throw new JsonParseException(e);
+            } catch (e: IllegalArgumentException) {
+                throw JsonParseException(e)
             }
         }
     }
 
-    public JSON setDateFormat(DateFormat dateFormat) {
-        dateTypeAdapter.setFormat(dateFormat);
-        return this;
+    fun setDateFormat(dateFormat: DateFormat?): JSON {
+        dateTypeAdapter.setFormat(dateFormat)
+        return this
     }
 
-    public JSON setSqlDateFormat(DateFormat dateFormat) {
-        sqlDateTypeAdapter.setFormat(dateFormat);
-        return this;
+    fun setSqlDateFormat(dateFormat: DateFormat?): JSON {
+        sqlDateTypeAdapter.setFormat(dateFormat)
+        return this
     }
 
+    companion object {
+        fun createGson(): GsonBuilder {
+            val fireBuilder = GsonFireBuilder()
+                .registerTypeSelector(BookingRequest::class.java) { readElement ->
+                    val classByDiscriminatorValue: MutableMap<String, Class<out BookingRequest>> = HashMap()
+                    classByDiscriminatorValue["booking".uppercase(Locale.getDefault())] = Booking::class.java
+                    classByDiscriminatorValue["BookingRequest".uppercase(Locale.getDefault())] = BookingRequest::class.java
+                    getClassByDiscriminator(
+                        classByDiscriminatorValue,
+                        getDiscriminatorValue(readElement, "")
+                    )
+                }
+                .registerPostProcessor(BookingRequest::class.java, object : PostProcessor<BookingRequest> {
+                    override fun postDeserialize(result: BookingRequest, src: JsonElement, gson: Gson) {}
+                    override fun postSerialize(result: JsonElement, src: BookingRequest, gson: Gson) {
+                        val discriminatorValueByClass: MutableMap<Class<out BookingRequest>, String> = HashMap()
+                        discriminatorValueByClass[Booking::class.java] = "booking"
+                        discriminatorValueByClass[BookingRequest::class.java] = "BookingRequest"
+                        if (result is JsonObject) {
+                            if (!result.has("")) {
+                                result.addProperty("", discriminatorValueByClass[src.javaClass])
+                            }
+                        }
+                    }
+                })
+                .registerTypeSelector(CardType::class.java) { readElement ->
+                    val classByDiscriminatorValue: MutableMap<String, Class<out CardType>> = HashMap()
+                    classByDiscriminatorValue["card".uppercase(Locale.getDefault())] = Card::class.java
+                    classByDiscriminatorValue["CardType".uppercase(Locale.getDefault())] = CardType::class.java
+                    getClassByDiscriminator(
+                        classByDiscriminatorValue,
+                        getDiscriminatorValue(readElement, "")
+                    )
+                }
+                .registerPostProcessor(CardType::class.java, object : PostProcessor<CardType> {
+                    override fun postDeserialize(result: CardType, src: JsonElement, gson: Gson) {}
+                    override fun postSerialize(result: JsonElement, src: CardType, gson: Gson) {
+                        val discriminatorValueByClass: MutableMap<Class<out CardType>, String> = HashMap()
+                        discriminatorValueByClass[Card::class.java] = "card"
+                        discriminatorValueByClass[CardType::class.java] = "CardType"
+                        if (result is JsonObject) {
+                            if (!result.has("")) {
+                                result.addProperty("", discriminatorValueByClass[src.javaClass])
+                            }
+                        }
+                    }
+                })
+                .registerTypeSelector(Condition::class.java) { readElement ->
+                    val classByDiscriminatorValue: MutableMap<String, Class<out Condition>> = HashMap()
+                    classByDiscriminatorValue["conditionDeposit".uppercase(Locale.getDefault())] = ConditionDeposit::class.java
+                    classByDiscriminatorValue["conditionPayWhenFinished".uppercase(Locale.getDefault())] = ConditionPayWhenFinished::class.java
+                    classByDiscriminatorValue["conditionPostponedCommit".uppercase(Locale.getDefault())] = ConditionPostponedCommit::class.java
+                    classByDiscriminatorValue["conditionRequireBookingData".uppercase(Locale.getDefault())] = ConditionRequireBookingData::class.java
+                    classByDiscriminatorValue["conditionReturnArea".uppercase(Locale.getDefault())] = ConditionReturnArea::class.java
+                    classByDiscriminatorValue["conditionUpfrontPayment".uppercase(Locale.getDefault())] = ConditionUpfrontPayment::class.java
+                    classByDiscriminatorValue["Condition".uppercase(Locale.getDefault())] = Condition::class.java
+                    getClassByDiscriminator(
+                        classByDiscriminatorValue,
+                        getDiscriminatorValue(readElement, "conditionType")
+                    )
+                }
+                .registerPostProcessor(Condition::class.java, object : PostProcessor<Condition> {
+                    override fun postDeserialize(result: Condition, src: JsonElement, gson: Gson) {}
+                    override fun postSerialize(result: JsonElement, src: Condition, gson: Gson) {
+                        val discriminatorValueByClass: MutableMap<Class<out Condition>, String> = HashMap()
+                        discriminatorValueByClass[ConditionDeposit::class.java] = "conditionDeposit"
+                        discriminatorValueByClass[ConditionPayWhenFinished::class.java] = "conditionPayWhenFinished"
+                        discriminatorValueByClass[ConditionPostponedCommit::class.java] = "conditionPostponedCommit"
+                        discriminatorValueByClass[ConditionRequireBookingData::class.java] = "conditionRequireBookingData"
+                        discriminatorValueByClass[ConditionReturnArea::class.java] = "conditionReturnArea"
+                        discriminatorValueByClass[ConditionUpfrontPayment::class.java] = "conditionUpfrontPayment"
+                        discriminatorValueByClass[Condition::class.java] = "Condition"
+                        if (result is JsonObject) {
+                            if (!result.has("conditionType")) {
+                                result.addProperty("conditionType", discriminatorValueByClass[src.javaClass])
+                            }
+                        }
+                    }
+                })
+                .registerTypeSelector(Traveler::class.java) { readElement ->
+                    val classByDiscriminatorValue: MutableMap<String, Class<out Traveler>> = HashMap()
+                    classByDiscriminatorValue["customer".uppercase(Locale.getDefault())] = Customer::class.java
+                    classByDiscriminatorValue["Traveler".uppercase(Locale.getDefault())] = Traveler::class.java
+                    getClassByDiscriminator(
+                        classByDiscriminatorValue,
+                        getDiscriminatorValue(readElement, "")
+                    )
+                }
+                .registerPostProcessor(Traveler::class.java, object : PostProcessor<Traveler> {
+                    override fun postDeserialize(result: Traveler, src: JsonElement, gson: Gson) {}
+                    override fun postSerialize(result: JsonElement, src: Traveler, gson: Gson) {
+                        val discriminatorValueByClass: MutableMap<Class<out Traveler>, String> = HashMap()
+                        discriminatorValueByClass[Customer::class.java] = "customer"
+                        discriminatorValueByClass[Traveler::class.java] = "Traveler"
+                        if (result is JsonObject) {
+                            if (!result.has("")) {
+                                result.addProperty("", discriminatorValueByClass[src.javaClass])
+                            }
+                        }
+                    }
+                })
+                .registerTypeSelector(AmountOfMoney::class.java) { readElement ->
+                    val classByDiscriminatorValue: MutableMap<String, Class<out AmountOfMoney>> = HashMap()
+                    classByDiscriminatorValue["extraCosts".uppercase(Locale.getDefault())] = ExtraCosts::class.java
+                    classByDiscriminatorValue["farePart".uppercase(Locale.getDefault())] = FarePart::class.java
+                    classByDiscriminatorValue["journalEntry".uppercase(Locale.getDefault())] = JournalEntry::class.java
+                    classByDiscriminatorValue["AmountOfMoney".uppercase(Locale.getDefault())] = AmountOfMoney::class.java
+                    getClassByDiscriminator(
+                        classByDiscriminatorValue,
+                        getDiscriminatorValue(readElement, "")
+                    )
+                }
+                .registerPostProcessor(AmountOfMoney::class.java, object : PostProcessor<AmountOfMoney> {
+                    override fun postDeserialize(result: AmountOfMoney, src: JsonElement, gson: Gson) {}
+                    override fun postSerialize(result: JsonElement, src: AmountOfMoney, gson: Gson) {
+                        val discriminatorValueByClass: MutableMap<Class<out AmountOfMoney>, String> = HashMap()
+                        discriminatorValueByClass[ExtraCosts::class.java] = "extraCosts"
+                        discriminatorValueByClass[FarePart::class.java] = "farePart"
+                        discriminatorValueByClass[JournalEntry::class.java] = "journalEntry"
+                        discriminatorValueByClass[AmountOfMoney::class.java] = "AmountOfMoney"
+                        if (result is JsonObject) {
+                            if (!result.has("")) {
+                                result.addProperty("", discriminatorValueByClass[src.javaClass])
+                            }
+                        }
+                    }
+                })
+                .registerTypeSelector(LicenseType::class.java) { readElement ->
+                    val classByDiscriminatorValue: MutableMap<String, Class<out LicenseType>> = HashMap()
+                    classByDiscriminatorValue["license".uppercase(Locale.getDefault())] = License::class.java
+                    classByDiscriminatorValue["LicenseType".uppercase(Locale.getDefault())] = LicenseType::class.java
+                    getClassByDiscriminator(
+                        classByDiscriminatorValue,
+                        getDiscriminatorValue(readElement, "")
+                    )
+                }
+                .registerPostProcessor(LicenseType::class.java, object : PostProcessor<LicenseType> {
+                    override fun postDeserialize(result: LicenseType, src: JsonElement, gson: Gson) {}
+                    override fun postSerialize(result: JsonElement, src: LicenseType, gson: Gson) {
+                        val discriminatorValueByClass: MutableMap<Class<out LicenseType>, String> = HashMap()
+                        discriminatorValueByClass[License::class.java] = "license"
+                        discriminatorValueByClass[LicenseType::class.java] = "LicenseType"
+                        if (result is JsonObject) {
+                            if (!result.has("")) {
+                                result.addProperty("", discriminatorValueByClass[src.javaClass])
+                            }
+                        }
+                    }
+                })
+                .registerTypeSelector(SupportRequest::class.java) { readElement ->
+                    val classByDiscriminatorValue: MutableMap<String, Class<out SupportRequest>> = HashMap()
+                    classByDiscriminatorValue["supportStatus".uppercase(Locale.getDefault())] = SupportStatus::class.java
+                    classByDiscriminatorValue["SupportRequest".uppercase(Locale.getDefault())] = SupportRequest::class.java
+                    getClassByDiscriminator(
+                        classByDiscriminatorValue,
+                        getDiscriminatorValue(readElement, "")
+                    )
+                }
+                .registerPostProcessor(SupportRequest::class.java, object : PostProcessor<SupportRequest> {
+                    override fun postDeserialize(result: SupportRequest, src: JsonElement, gson: Gson) {}
+                    override fun postSerialize(result: JsonElement, src: SupportRequest, gson: Gson) {
+                        val discriminatorValueByClass: MutableMap<Class<out SupportRequest>, String> = HashMap()
+                        discriminatorValueByClass[SupportStatus::class.java] = "supportStatus"
+                        discriminatorValueByClass[SupportRequest::class.java] = "SupportRequest"
+                        if (result is JsonObject) {
+                            if (!result.has("")) {
+                                result.addProperty("", discriminatorValueByClass[src.javaClass])
+                            }
+                        }
+                    }
+                })
+            return fireBuilder.createGsonBuilder()
+        }
+
+        private fun getDiscriminatorValue(readElement: JsonElement, discriminatorField: String): String {
+            val element = readElement.asJsonObject[discriminatorField]
+                ?: throw IllegalArgumentException("missing discriminator field: <$discriminatorField>")
+            return element.asString
+        }
+
+        private fun <T> getClassByDiscriminator(
+            classByDiscriminatorValue: Map<String, Class<out T?>>,
+            discriminatorValue: String
+        ): Class<out T?> {
+            return classByDiscriminatorValue[discriminatorValue.uppercase(Locale.getDefault())]
+                ?: throw IllegalArgumentException("cannot determine model class of name: <$discriminatorValue>")
+        }
+    }
 }

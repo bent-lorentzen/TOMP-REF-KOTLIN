@@ -1,170 +1,124 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * reference to a stop (can be nation specific). This can help to specific pinpoint a (bus) stop. Extra information about the stop is not supplied; you should find it elsewhere.
  */
 @Schema(description = "reference to a stop (can be nation specific). This can help to specific pinpoint a (bus) stop. Extra information about the stop is not supplied; you should find it elsewhere.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class StopReference {
+    /**
+     * type of external reference (GTFS, CHB).
+     */
+    enum class TypeEnum(private val value: String) {
+        GTFS_STOP_ID("GTFS_STOP_ID"),
+        GTFS_STOP_CODE("GTFS_STOP_CODE"),
+        GTFS_AREA_ID("GTFS_AREA_ID"),
+        CHB_STOP_PLACE_CODE("CHB_STOP_PLACE_CODE"),
+        CHB_QUAY_CODE("CHB_QUAY_CODE"),
+        NS_CODE("NS_CODE");
 
-
-public class StopReference   {
-  /**
-   * type of external reference (GTFS, CHB).
-   */
-  public enum TypeEnum {
-    GTFS_STOP_ID("GTFS_STOP_ID"),
-    
-    GTFS_STOP_CODE("GTFS_STOP_CODE"),
-    
-    GTFS_AREA_ID("GTFS_AREA_ID"),
-    
-    CHB_STOP_PLACE_CODE("CHB_STOP_PLACE_CODE"),
-    
-    CHB_QUAY_CODE("CHB_QUAY_CODE"),
-    
-    NS_CODE("NS_CODE");
-
-    private String value;
-
-    TypeEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static TypeEnum fromValue(String text) {
-      for (TypeEnum b : TypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
+
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): TypeEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-  }
-  @JsonProperty("type")
-  private TypeEnum type = null;
 
-  @JsonProperty("id")
-  private String id = null;
+    /**
+     * type of external reference (GTFS, CHB).
+     * @return type
+     */
+    @get:Schema(required = true, description = "type of external reference (GTFS, CHB).")
+    @JsonProperty("type")
+    var type: TypeEnum? = null
 
-  @JsonProperty("country")
-  private String country = null;
+    /**
+     * this field should contain the complete ID. E.g. NL:S:13121110 or BE:S:79640040
+     * @return id
+     */
+    @get:Schema(
+        required = true,
+        description = "this field should contain the complete ID. E.g. NL:S:13121110 or BE:S:79640040"
+    )
+    @JsonProperty("id")
+    var id: String? = null
 
-  public StopReference type(TypeEnum type) {
-    this.type = type;
-    return this;
-  }
-
-  /**
-   * type of external reference (GTFS, CHB).
-   * @return type
-   **/
-  @Schema(required = true, description = "type of external reference (GTFS, CHB).")
-      @NotNull
-
-    public TypeEnum getType() {
-    return type;
-  }
-
-  public void setType(TypeEnum type) {
-    this.type = type;
-  }
-
-  public StopReference id(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * this field should contain the complete ID. E.g. NL:S:13121110 or BE:S:79640040
-   * @return id
-   **/
-  @Schema(required = true, description = "this field should contain the complete ID. E.g. NL:S:13121110 or BE:S:79640040")
-      @NotNull
-
-    public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public StopReference country(String country) {
-    this.country = country;
-    return this;
-  }
-
-  /**
-   * two-letter country codes according to ISO 3166-1
-   * @return country
-   **/
-  @Schema(example = "NL", required = true, description = "two-letter country codes according to ISO 3166-1")
-      @NotNull
-
-  @Size(min=2,max=2)   public String getCountry() {
-    return country;
-  }
-
-  public void setCountry(String country) {
-    this.country = country;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * two-letter country codes according to ISO 3166-1
+     * @return country
+     */
+    @get:Schema(
+        example = "NL",
+        required = true,
+        description = "two-letter country codes according to ISO 3166-1"
+    )
+    @JsonProperty("country")
+    var country: String? = null
+    fun type(type: TypeEnum?): StopReference {
+        this.type = type
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun id(id: String?): StopReference {
+        this.id = id
+        return this
     }
-    StopReference stopReference = (StopReference) o;
-    return Objects.equals(this.type, stopReference.type) &&
-        Objects.equals(this.id, stopReference.id) &&
-        Objects.equals(this.country, stopReference.country);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(type, id, country);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class StopReference {\n");
-    
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    country: ").append(toIndentedString(country)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun country(country: String?): StopReference {
+        this.country = country
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val stopReference = o as StopReference
+        return type == stopReference.type && id == stopReference.id && country == stopReference.country
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(type, id, country)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class StopReference {\n")
+        sb.append("    type: ").append(toIndentedString(type)).append("\n")
+        sb.append("    id: ").append(toIndentedString(id)).append("\n")
+        sb.append("    country: ").append(toIndentedString(country)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

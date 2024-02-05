@@ -1,7 +1,7 @@
-package org.tomp.api.providers.fares;
+package org.tomp.api.providers.fares
 
-import io.swagger.model.Fare;
+import io.swagger.model.Fare
 
-public interface FareProvider {
-	public Fare getFare();
+interface FareProvider {
+    val fare: Fare?
 }

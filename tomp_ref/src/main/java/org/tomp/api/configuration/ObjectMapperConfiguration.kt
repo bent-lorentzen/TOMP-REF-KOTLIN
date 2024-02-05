@@ -1,28 +1,24 @@
-package org.tomp.api.configuration;
+package org.tomp.api.configuration
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
+import javax.annotation.PostConstruct
 
 @Component
-public class ObjectMapperConfiguration {
-
-	@Autowired
-	ObjectMapper mapper;
-
-	@PostConstruct
-	public void postConstruct() {
-		SimpleModule module = new SimpleModule();
-		module.addDeserializer(LocalDate.class, new LocalDateDeserializer());
-		module.addSerializer(LocalDate.class, new LocalDateSerializer());
-		module.addDeserializer(OffsetDateTime.class, new OffsetDateTimeDeserializer());
-		module.addSerializer(OffsetDateTime.class, new OffsetDateTimeSerializer());
-		mapper.registerModule(module);
-	}
+class ObjectMapperConfiguration {
+    @Autowired
+    var mapper: ObjectMapper? = null
+    @PostConstruct
+    fun postConstruct() {
+        val module = SimpleModule()
+        module.addDeserializer(LocalDate::class.java, LocalDateDeserializer())
+        module.addSerializer(LocalDate::class.java, LocalDateSerializer())
+        module.addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer())
+        module.addSerializer(OffsetDateTime::class.java, OffsetDateTimeSerializer())
+        mapper!!.registerModule(module)
+    }
 }

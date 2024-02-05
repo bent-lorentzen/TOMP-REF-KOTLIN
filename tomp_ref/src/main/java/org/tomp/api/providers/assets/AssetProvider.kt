@@ -1,11 +1,8 @@
-package org.tomp.api.providers.assets;
+package org.tomp.api.providers.assets
 
-import java.util.List;
+import io.swagger.model.AssetType
 
-import io.swagger.model.AssetType;
-
-public interface AssetProvider {
-	public AssetType getTypeOfAsset();
-
-	public List<AssetType> getAssetTypes();
+interface AssetProvider {
+    val typeOfAsset: AssetType?
+    val assetTypes: List<AssetType?>?
 }

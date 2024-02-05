@@ -1,26 +1,11 @@
-package org.tomp.api.model.gbfs;
+package org.tomp.api.model.gbfs
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public class GbfsLink {
-	@JsonProperty("name")
-	private String name;
-	@JsonProperty("url")
-	private String url;
+class GbfsLink {
+    @JsonProperty("name")
+    var name: String? = null
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    @JsonProperty("url")
+    var url: String? = null
 }

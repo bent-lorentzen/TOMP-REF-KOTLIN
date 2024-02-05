@@ -1,83 +1,59 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.HashMap;
-import java.util.Map;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * TokenData
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-10T11:36:21.130Z[GMT]")
-
-
-public class TokenData extends HashMap<String, Object>  {
-  @JsonProperty("tokenType")
-  private String tokenType = null;
-
-  public TokenData tokenType(String tokenType) {
-    this.tokenType = tokenType;
-    return this;
-  }
-
-  /**
-   * Get tokenType
-   * @return tokenType
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public String getTokenType() {
-    return tokenType;
-  }
-
-  public void setTokenType(String tokenType) {
-    this.tokenType = tokenType;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2021-12-10T11:36:21.130Z[GMT]")
+open class TokenData : HashMap<String?, Any?>() {
+    /**
+     * Get tokenType
+     * @return tokenType
+     */
+    @get:Schema(required = true, description = "")
+    @JsonProperty("tokenType")
+    var tokenType: String? = null
+    fun tokenType(tokenType: String?): TokenData {
+        this.tokenType = tokenType
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val tokenData = o as TokenData
+        return tokenType == tokenData.tokenType &&
+                super.equals(o)
     }
-    TokenData tokenData = (TokenData) o;
-    return Objects.equals(this.tokenType, tokenData.tokenType) &&
-        super.equals(o);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(tokenType, super.hashCode());
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class TokenData {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-    sb.append("    tokenType: ").append(toIndentedString(tokenType)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    override fun hashCode(): Int {
+        return Objects.hash(tokenType, super.hashCode())
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class TokenData {\n")
+        sb.append("    ").append(toIndentedString(super.toString())).append("\n")
+        sb.append("    tokenType: ").append(toIndentedString(tokenType)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

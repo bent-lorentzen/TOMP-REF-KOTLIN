@@ -1,227 +1,147 @@
-package org.tomp.api.model;
+package org.tomp.api.model
 
-import java.util.Objects;
-
-import javax.validation.Valid;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.model.GeojsonPolygon;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.annotations.ApiModelProperty
+import io.swagger.model.GeojsonPolygon
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * MaasOperator
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-05-06T06:58:30.612Z[GMT]")
-public class MaasOperator {
-	@JsonProperty("id")
-	private String id = null;
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-05-06T06:58:30.612Z[GMT]")
+open class MaasOperator {
+    /**
+     * Get id
+     *
+     * @return id
+     */
+    @get:ApiModelProperty(value = "")
+    @JsonProperty("id")
+    var id: String? = null
 
-	@JsonProperty("type")
-	private MaasEnvironmentType type = null;
+    /**
+     * Get type
+     *
+     * @return type
+     */
+    @get:ApiModelProperty(value = "")
+    @JsonProperty("type")
+    var type: MaasEnvironmentType? = null
 
-	@JsonProperty("name")
-	private String name = null;
+    /**
+     * Get name
+     *
+     * @return name
+     */
+    @get:ApiModelProperty(value = "")
+    @JsonProperty("name")
+    var name: String? = null
 
-	@JsonProperty("url")
-	private String url = null;
+    /**
+     * Get url
+     *
+     * @return url
+     */
+    @get:ApiModelProperty(value = "")
+    @JsonProperty("url")
+    var url: String? = null
 
-	@JsonProperty("version")
-	private String version = null;
+    /**
+     * Get version
+     *
+     * @return version
+     */
+    @get:ApiModelProperty(value = "")
+    @JsonProperty("version")
+    var version: String? = null
 
-	@JsonProperty("validationToken")
-	private String validationToken = null;
+    /**
+     * can be a thumbprint of a certificate
+     *
+     * @return validationToken
+     */
+    @get:ApiModelProperty(value = "can be a thumbprint of a certificate")
+    @JsonProperty("validationToken")
+    var validationToken: String? = null
 
-	@JsonProperty("servicedArea")
-	private GeojsonPolygon servicedArea = null;
+    /**
+     * Get servicedArea
+     *
+     * @return servicedArea
+     */
+    @get:ApiModelProperty(value = "")
+    @JsonProperty("servicedArea")
+    var servicedArea: GeojsonPolygon? = null
+    fun id(id: String?): MaasOperator {
+        this.id = id
+        return this
+    }
 
-	public MaasOperator id(String id) {
-		this.id = id;
-		return this;
-	}
+    fun type(type: MaasEnvironmentType?): MaasOperator {
+        this.type = type
+        return this
+    }
 
-	/**
-	 * Get id
-	 * 
-	 * @return id
-	 **/
-	@ApiModelProperty(value = "")
+    fun name(name: String?): MaasOperator {
+        this.name = name
+        return this
+    }
 
-	public String getId() {
-		return id;
-	}
+    fun url(url: String?): MaasOperator {
+        this.url = url
+        return this
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    fun version(version: String?): MaasOperator {
+        this.version = version
+        return this
+    }
 
-	public MaasOperator type(MaasEnvironmentType type) {
-		this.type = type;
-		return this;
-	}
+    fun validationToken(validationToken: String?): MaasOperator {
+        this.validationToken = validationToken
+        return this
+    }
 
-	/**
-	 * Get type
-	 * 
-	 * @return type
-	 **/
-	@ApiModelProperty(value = "")
+    fun servicedArea(servicedArea: GeojsonPolygon?): MaasOperator {
+        this.servicedArea = servicedArea
+        return this
+    }
 
-	@Valid
-	public MaasEnvironmentType getType() {
-		return type;
-	}
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val maasOperator = o as MaasOperator
+        return id == maasOperator.id && type == maasOperator.type && name == maasOperator.name && url == maasOperator.url && version == maasOperator.version && validationToken == maasOperator.validationToken && servicedArea == maasOperator.servicedArea
+    }
 
-	public void setType(MaasEnvironmentType type) {
-		this.type = type;
-	}
+    override fun hashCode(): Int {
+        return Objects.hash(id, type, name, url, version, validationToken, servicedArea)
+    }
 
-	public MaasOperator name(String name) {
-		this.name = name;
-		return this;
-	}
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class MaasOperator {\n")
+        sb.append("    id: ").append(toIndentedString(id)).append("\n")
+        sb.append("    type: ").append(toIndentedString(type)).append("\n")
+        sb.append("    name: ").append(toIndentedString(name)).append("\n")
+        sb.append("    url: ").append(toIndentedString(url)).append("\n")
+        sb.append("    version: ").append(toIndentedString(version)).append("\n")
+        sb.append("    validationToken: ").append(toIndentedString(validationToken)).append("\n")
+        sb.append("    servicedArea: ").append(toIndentedString(servicedArea)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
 
-	/**
-	 * Get name
-	 * 
-	 * @return name
-	 **/
-	@ApiModelProperty(value = "")
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public MaasOperator url(String url) {
-		this.url = url;
-		return this;
-	}
-
-	/**
-	 * Get url
-	 * 
-	 * @return url
-	 **/
-	@ApiModelProperty(value = "")
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public MaasOperator version(String version) {
-		this.version = version;
-		return this;
-	}
-
-	/**
-	 * Get version
-	 * 
-	 * @return version
-	 **/
-	@ApiModelProperty(value = "")
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public MaasOperator validationToken(String validationToken) {
-		this.validationToken = validationToken;
-		return this;
-	}
-
-	/**
-	 * can be a thumbprint of a certificate
-	 * 
-	 * @return validationToken
-	 **/
-	@ApiModelProperty(value = "can be a thumbprint of a certificate")
-
-	public String getValidationToken() {
-		return validationToken;
-	}
-
-	public void setValidationToken(String validationToken) {
-		this.validationToken = validationToken;
-	}
-
-	public MaasOperator servicedArea(GeojsonPolygon servicedArea) {
-		this.servicedArea = servicedArea;
-		return this;
-	}
-
-	/**
-	 * Get servicedArea
-	 * 
-	 * @return servicedArea
-	 **/
-	@ApiModelProperty(value = "")
-
-	@Valid
-	public GeojsonPolygon getServicedArea() {
-		return servicedArea;
-	}
-
-	public void setServicedArea(GeojsonPolygon servicedArea) {
-		this.servicedArea = servicedArea;
-	}
-
-	@Override
-	public boolean equals(java.lang.Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		MaasOperator maasOperator = (MaasOperator) o;
-		return Objects.equals(this.id, maasOperator.id) && Objects.equals(this.type, maasOperator.type)
-				&& Objects.equals(this.name, maasOperator.name) && Objects.equals(this.url, maasOperator.url)
-				&& Objects.equals(this.version, maasOperator.version)
-				&& Objects.equals(this.validationToken, maasOperator.validationToken)
-				&& Objects.equals(this.servicedArea, maasOperator.servicedArea);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, type, name, url, version, validationToken, servicedArea);
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("class MaasOperator {\n");
-
-		sb.append("    id: ").append(toIndentedString(id)).append("\n");
-		sb.append("    type: ").append(toIndentedString(type)).append("\n");
-		sb.append("    name: ").append(toIndentedString(name)).append("\n");
-		sb.append("    url: ").append(toIndentedString(url)).append("\n");
-		sb.append("    version: ").append(toIndentedString(version)).append("\n");
-		sb.append("    validationToken: ").append(toIndentedString(validationToken)).append("\n");
-		sb.append("    servicedArea: ").append(toIndentedString(servicedArea)).append("\n");
-		sb.append("}");
-		return sb.toString();
-	}
-
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

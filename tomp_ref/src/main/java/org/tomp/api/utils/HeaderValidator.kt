@@ -1,73 +1,63 @@
-package org.tomp.api.utils;
+package org.tomp.api.utils
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.exceptions.MissingArgumentException;
-import org.tomp.api.model.LookupService;
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.exceptions.MissingArgumentException
+import org.tomp.api.model.LookupService
+import java.util.Collections
+import java.util.Locale
+import javax.servlet.http.HttpServletRequest
 
 @Component
-public class HeaderValidator {
-	private HashMap<String, String> requiredHeaderValues = new HashMap<>();
-	private static HeaderValidator singleton;
+class HeaderValidator @Autowired private constructor(configuration: ExternalConfiguration, private val lookupService: LookupService) {
+    private val requiredHeaderValues = HashMap<String, String?>()
 
-	private static final Logger log = LoggerFactory.getLogger(HeaderValidator.class);
-	private LookupService lookupService;
+    init {
+        requiredHeaderValues["api-version"] = configuration.apiVersion
+        requiredHeaderValues["api"] = "TOMP"
+        requiredHeaderValues["accept-language"] = "*"
+        requiredHeaderValues["maas-id"] = "*"
+        singleton = this
+    }
 
-	@Autowired
-	private HeaderValidator(ExternalConfiguration configuration, LookupService lookupService) {
-		this.lookupService = lookupService;
+    private fun privateValidateHeader(request: HttpServletRequest) {
+        val headerNames = Collections.list(request.headerNames)
+        headerNames.replaceAll { obj: String -> obj.lowercase(Locale.getDefault()) }
+        for (required in requiredHeaderValues.keys) {
+            if (!headerNames.contains(required)) {
+                throw MissingArgumentException(required)
+            }
+            val value = requiredHeaderValues[required]
+            val headerValue = request.getHeader(required)
+            if (value != "*" && !headerValue.equals(value, ignoreCase = true)) {
+                log.error("{} contains invalid value: {} ({})", required, value, headerValue)
+                throw IllegalArgumentException(required)
+            }
+        }
+        val p = request.userPrincipal
+        if (p != null) {
+            checkValidCombination(p.name, request.getHeader("maas-id"))
+        }
+    }
 
-		requiredHeaderValues.put("api-version", configuration.getApiVersion());
-		requiredHeaderValues.put("api", "TOMP");
-		requiredHeaderValues.put("accept-language", "*");
-		requiredHeaderValues.put("maas-id", "*");
-		singleton = this;
-	}
+    private fun checkValidCombination(token: String, maasId: String) {
+        if (validateCertificate(maasId, token)) {
+            val msg = String.format("Invalid combination maas-id/certificate %s %s", maasId, token)
+            log.error(msg)
+        }
+    }
 
-	public static void validateHeader(HttpServletRequest request) {
-		singleton.privateValidateHeader(request);
-	}
+    private fun validateCertificate(maasId: String, token: String): Boolean {
+        return lookupService.validate(maasId, token)
+    }
 
-	private void privateValidateHeader(HttpServletRequest request) {
-		ArrayList<String> headerNames = Collections.list(request.getHeaderNames());
-		headerNames.replaceAll(String::toLowerCase);
-
-		for (String required : requiredHeaderValues.keySet()) {
-			if (!headerNames.contains(required)) {
-				throw new MissingArgumentException(required);
-			}
-			String value = requiredHeaderValues.get(required);
-			String headerValue = request.getHeader(required);
-			if (!value.equals("*") && !headerValue.equalsIgnoreCase(value)) {
-				log.error("{} contains invalid value: {} ({})", required, value, headerValue);
-				throw new IllegalArgumentException(required);
-			}
-		}
-
-		Principal p = request.getUserPrincipal();
-		if (p != null) {
-			checkValidCombination(p.getName(), request.getHeader("maas-id"));
-		}
-	}
-
-	private void checkValidCombination(String token, String maasId) {
-		if (validateCertificate(maasId, token)) {
-			String msg = String.format("Invalid combination maas-id/certificate %s %s", maasId, token);
-			log.error(msg);
-		}
-	}
-
-	private boolean validateCertificate(String maasId, String token) {
-		return lookupService.validate(maasId, token);
-	}
+    companion object {
+        private var singleton: HeaderValidator
+        private val log = LoggerFactory.getLogger(HeaderValidator::class.java)
+        fun validateHeader(request: HttpServletRequest) {
+            singleton.privateValidateHeader(request)
+        }
+    }
 }

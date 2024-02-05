@@ -9,20 +9,14 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-
-package io.swagger.client;
-
-import java.io.IOException;
-
-import java.util.Map;
-import java.util.List;
+package io.swagger.client
 
 /**
  * Callback for asynchronous API call.
  *
  * @param <T> The return type
- */
-public interface ApiCallback<T> {
+</T> */
+interface ApiCallback<T> {
     /**
      * This is called when the API call fails.
      *
@@ -30,7 +24,7 @@ public interface ApiCallback<T> {
      * @param statusCode Status code of the response if available, otherwise it would be 0
      * @param responseHeaders Headers of the response if available, otherwise it would be null
      */
-    void onFailure(ApiException e, int statusCode, Map<String, List<String>> responseHeaders);
+    fun onFailure(e: ApiException?, statusCode: Int, responseHeaders: Map<String?, List<String?>?>?)
 
     /**
      * This is called when the API call succeeded.
@@ -39,7 +33,7 @@ public interface ApiCallback<T> {
      * @param statusCode Status code of the response
      * @param responseHeaders Headers of the response
      */
-    void onSuccess(T result, int statusCode, Map<String, List<String>> responseHeaders);
+    fun onSuccess(result: T, statusCode: Int, responseHeaders: Map<String?, List<String?>?>?)
 
     /**
      * This is called when the API upload processing.
@@ -48,7 +42,7 @@ public interface ApiCallback<T> {
      * @param contentLength content length of request body
      * @param done write end
      */
-    void onUploadProgress(long bytesWritten, long contentLength, boolean done);
+    fun onUploadProgress(bytesWritten: Long, contentLength: Long, done: Boolean)
 
     /**
      * This is called when the API downlond processing.
@@ -57,5 +51,5 @@ public interface ApiCallback<T> {
      * @param contentLength content lenngth of the response
      * @param done Read end
      */
-    void onDownloadProgress(long bytesRead, long contentLength, boolean done);
+    fun onDownloadProgress(bytesRead: Long, contentLength: Long, done: Boolean)
 }

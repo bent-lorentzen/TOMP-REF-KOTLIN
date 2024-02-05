@@ -1,32 +1,23 @@
-package org.tomp.api.configuration;
+package org.tomp.api.configuration
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import org.threeten.bp.LocalDate
+import java.io.IOException
 
-import org.threeten.bp.LocalDate;
+class LocalDateDeserializer @JvmOverloads constructor(vc: Class<*>? = null) : StdDeserializer<LocalDate>(vc) {
+    @Throws(IOException::class)
+    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): LocalDate {
+        val node = jp.codec.readTree<JsonNode>(jp)
+        return LocalDate.parse(node.textValue())
+    }
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-
-public class LocalDateDeserializer extends StdDeserializer<LocalDate> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1586983811903817030L;
-
-	public LocalDateDeserializer() {
-		this(null);
-	}
-
-	public LocalDateDeserializer(Class<?> vc) {
-		super(vc);
-	}
-
-	@Override
-	public LocalDate deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-		JsonNode node = jp.getCodec().readTree(jp);
-		return LocalDate.parse(node.textValue());
-	}
+    companion object {
+        /**
+         *
+         */
+        private const val serialVersionUID = -1586983811903817030L
+    }
 }

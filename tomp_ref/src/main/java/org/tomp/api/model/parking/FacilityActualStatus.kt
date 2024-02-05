@@ -1,56 +1,20 @@
-package org.tomp.api.model.parking;
+package org.tomp.api.model.parking
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public class FacilityActualStatus {
-	@JsonProperty("lastUpdated")
-	private long lastUpdated;
-	@JsonProperty("open")
-	private boolean open;
-	@JsonProperty("full")
-	private boolean full;
-	@JsonProperty("parkingCapacity")
-	private long parkingCapacity;
-	@JsonProperty("vacantSpaces")
-	private long vacantSpaces;
+class FacilityActualStatus {
+    @JsonProperty("lastUpdated")
+    var lastUpdated: Long = 0
 
-	public long getLastUpdated() {
-		return lastUpdated;
-	}
+    @JsonProperty("open")
+    var isOpen = false
 
-	public void setLastUpdated(long lastUpdated) {
-		this.lastUpdated = lastUpdated;
-	}
+    @JsonProperty("full")
+    var isFull = false
 
-	public boolean isOpen() {
-		return open;
-	}
+    @JsonProperty("parkingCapacity")
+    var parkingCapacity: Long = 0
 
-	public void setOpen(boolean open) {
-		this.open = open;
-	}
-
-	public boolean isFull() {
-		return full;
-	}
-
-	public void setFull(boolean full) {
-		this.full = full;
-	}
-
-	public long getParkingCapacity() {
-		return parkingCapacity;
-	}
-
-	public void setParkingCapacity(long parkingCapacity) {
-		this.parkingCapacity = parkingCapacity;
-	}
-
-	public long getVacantSpaces() {
-		return vacantSpaces;
-	}
-
-	public void setVacantSpaces(long vacantSpaces) {
-		this.vacantSpaces = vacantSpaces;
-	}
+    @JsonProperty("vacantSpaces")
+    var vacantSpaces: Long = 0
 }

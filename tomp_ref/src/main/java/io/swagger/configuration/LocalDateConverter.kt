@@ -1,21 +1,19 @@
-package io.swagger.configuration;
+package io.swagger.configuration
 
-import org.springframework.core.convert.converter.Converter;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
+import org.springframework.core.convert.converter.Converter
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 
-public class LocalDateConverter implements Converter<String, LocalDate> {
-    private final DateTimeFormatter formatter;
+class LocalDateConverter(dateFormat: String?) : Converter<String?, LocalDate?> {
+    private val formatter: DateTimeFormatter
 
-    public LocalDateConverter(String dateFormat) {
-        this.formatter = DateTimeFormatter.ofPattern(dateFormat);
+    init {
+        formatter = DateTimeFormatter.ofPattern(dateFormat)
     }
 
-    @Override
-    public LocalDate convert(String source) {
-        if(source == null || source.isEmpty()) {
-            return null;
-        }
-        return LocalDate.parse(source, this.formatter);
+    override fun convert(source: String?): LocalDate? {
+        return if (source == null || source.isEmpty()) {
+            null
+        } else LocalDate.parse(source, formatter)
     }
 }

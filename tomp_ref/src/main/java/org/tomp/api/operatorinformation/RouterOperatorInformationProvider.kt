@@ -1,121 +1,121 @@
-package org.tomp.api.operatorinformation;
+package org.tomp.api.operatorinformation
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.utils.RouterUtil;
-
-import io.swagger.model.AssetType;
-import io.swagger.model.EndpointImplementation;
-import io.swagger.model.StationInformation;
-import io.swagger.model.SystemCalendar;
-import io.swagger.model.SystemHours;
-import io.swagger.model.SystemInformation;
-import io.swagger.model.SystemPricingPlan;
-import io.swagger.model.SystemRegion;
+import io.swagger.model.AssetType
+import io.swagger.model.EndpointImplementation
+import io.swagger.model.StationInformation
+import io.swagger.model.SystemCalendar
+import io.swagger.model.SystemHours
+import io.swagger.model.SystemInformation
+import io.swagger.model.SystemPricingPlan
+import io.swagger.model.SystemRegion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.utils.RouterUtil
+import java.util.Arrays
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "router", matchIfMissing = false)
-public class RouterOperatorInformationProvider implements OperatorInformationProvider {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "router", matchIfMissing = false)
+open class RouterOperatorInformationProvider : OperatorInformationProvider {
+    @Autowired
+    var routerUtil: RouterUtil? = null
+    override fun getAvailableAssetTypes(acceptLanguage: String?): List<AssetType?>? {
+        return try {
+            val assetTypes = routerUtil!!.sendToTO(
+                "GET", "/operator/available-assets/", Array<AssetType>::class.java, "",
+                acceptLanguage
+            )!!
+            Arrays.asList(*assetTypes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ArrayList()
+        }
+    }
 
-	@Autowired
-	RouterUtil routerUtil;
+    override fun getOperatorInformation(acceptLanguage: String?): SystemInformation? {
+        return try {
+            routerUtil!!.sendToTO("GET", "/operator/information/", SystemInformation::class.java, "", acceptLanguage)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
-	@Override
-	public List<AssetType> getAvailableAssetTypes(String acceptLanguage) {
-		try {
-			AssetType[] assetTypes = routerUtil.sendToTO("GET", "/operator/available-assets/", AssetType[].class, "",
-					acceptLanguage);
-			return Arrays.asList(assetTypes);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-	}
+    override fun getStations(acceptLanguage: String?): List<StationInformation?>? {
+        return try {
+            val assetTypes = routerUtil!!.sendToTO(
+                "GET", "/operator/stations/",
+                Array<StationInformation>::class.java, "", acceptLanguage
+            )!!
+            Arrays.asList(*assetTypes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ArrayList()
+        }
+    }
 
-	@Override
-	public SystemInformation getOperatorInformation(String acceptLanguage) {
-		try {
-			return routerUtil.sendToTO("GET", "/operator/information/", SystemInformation.class, "", acceptLanguage);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+    override fun getRegions(acceptLanguage: String?): MutableList<SystemRegion?>? {
+        return try {
+            val assetTypes = routerUtil!!.sendToTO(
+                "GET", "/operator/regions/", Array<SystemRegion>::class.java, "",
+                acceptLanguage
+            )!!
+            Arrays.asList(*assetTypes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ArrayList()
+        }
+    }
 
-	@Override
-	public List<StationInformation> getStations(String acceptLanguage) {
-		try {
-			StationInformation[] assetTypes = routerUtil.sendToTO("GET", "/operator/stations/",
-					StationInformation[].class, "", acceptLanguage);
-			return Arrays.asList(assetTypes);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-	}
+    override fun getPricingPlans(acceptLanguage: String?): List<SystemPricingPlan> {
+        return try {
+            val assetTypes = routerUtil!!.sendToTO(
+                "GET", "/operator/pricing/", Array<SystemPricingPlan>::class.java,
+                "", acceptLanguage
+            )!!
+            Arrays.asList(*assetTypes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ArrayList()
+        }
+    }
 
-	@Override
-	public List<SystemRegion> getRegions(String acceptLanguage) {
-		try {
-			SystemRegion[] assetTypes = routerUtil.sendToTO("GET", "/operator/regions/", SystemRegion[].class, "",
-					acceptLanguage);
-			return Arrays.asList(assetTypes);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-	}
+    override fun getHours(acceptLanguage: String?): List<SystemHours> {
+        return try {
+            val assetTypes = routerUtil!!.sendToTO(
+                "GET", "/operator/operating-hours/", Array<SystemHours>::class.java, "",
+                acceptLanguage
+            )!!
+            Arrays.asList(*assetTypes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ArrayList()
+        }
+    }
 
-	@Override
-	public List<SystemPricingPlan> getPricingPlans(String acceptLanguage) {
-		try {
-			SystemPricingPlan[] assetTypes = routerUtil.sendToTO("GET", "/operator/pricing/", SystemPricingPlan[].class,
-					"", acceptLanguage);
-			return Arrays.asList(assetTypes);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-	}
+    override fun getCalendar(acceptLanguage: String?): List<SystemCalendar> {
+        return try {
+            val assetTypes = routerUtil!!.sendToTO(
+                "GET", "/operator/operating-calendar/",
+                Array<SystemCalendar>::class.java, "", acceptLanguage
+            )!!
+            Arrays.asList(*assetTypes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ArrayList()
+        }
+    }
 
-	@Override
-	public List<SystemHours> getHours(String acceptLanguage) {
-		try {
-			SystemHours[] assetTypes = routerUtil.sendToTO("GET", "/operator/operating-hours/", SystemHours[].class, "",
-					acceptLanguage);
-			return Arrays.asList(assetTypes);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-	}
-
-	@Override
-	public List<SystemCalendar> getCalendar(String acceptLanguage) {
-		try {
-			SystemCalendar[] assetTypes = routerUtil.sendToTO("GET", "/operator/operating-calendar/",
-					SystemCalendar[].class, "", acceptLanguage);
-			return Arrays.asList(assetTypes);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-	}
-
-	@Override
-	public List<EndpointImplementation> getMeta(String acceptLanguage) {
-		try {
-			EndpointImplementation[] assetTypes = routerUtil.sendToTO("GET", "/operator/meta/",
-					EndpointImplementation[].class, "", acceptLanguage);
-			return Arrays.asList(assetTypes);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-	}
+    override fun getMeta(acceptLanguage: String?): List<EndpointImplementation?>? {
+        return try {
+            val assetTypes = routerUtil!!.sendToTO(
+                "GET", "/operator/meta/",
+                Array<EndpointImplementation>::class.java, "", acceptLanguage
+            )!!
+            Arrays.asList(*assetTypes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ArrayList()
+        }
+    }
 }

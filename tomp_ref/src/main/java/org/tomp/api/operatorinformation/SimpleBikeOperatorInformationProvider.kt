@@ -1,93 +1,81 @@
-package org.tomp.api.operatorinformation;
+package org.tomp.api.operatorinformation
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.utils.ExternalFileService;
-import org.tomp.api.utils.ObjectFromFileProvider;
-
-import io.swagger.model.StationInformation;
-import io.swagger.model.SystemCalendar;
-import io.swagger.model.SystemHours;
-import io.swagger.model.SystemInformation;
-import io.swagger.model.SystemPricingPlan;
-import io.swagger.model.SystemRegion;
-import io.swagger.model.AssetType;
-import io.swagger.model.EndpointImplementation;
+import io.swagger.model.AssetType
+import io.swagger.model.EndpointImplementation
+import io.swagger.model.StationInformation
+import io.swagger.model.SystemCalendar
+import io.swagger.model.SystemHours
+import io.swagger.model.SystemInformation
+import io.swagger.model.SystemPricingPlan
+import io.swagger.model.SystemRegion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.utils.ExternalFileService
+import org.tomp.api.utils.ObjectFromFileProvider
+import java.util.Arrays
+import java.util.Collections
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "bike", matchIfMissing = false)
-public class SimpleBikeOperatorInformationProvider implements OperatorInformationProvider {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "bike", matchIfMissing = false)
+class SimpleBikeOperatorInformationProvider : OperatorInformationProvider {
+    @Autowired
+    var configuration: ExternalConfiguration? = null
 
-	@Autowired
-	ExternalConfiguration configuration;
+    @Autowired
+    var fileService: ExternalFileService? = null
+    override fun getAvailableAssetTypes(acceptLanguage: String?): List<AssetType?>? {
+        val provider = ObjectFromFileProvider<Array<AssetType>>()
+        val list = ArrayList<AssetType?>()
+        val assets = provider.getObject(acceptLanguage, Array<AssetType>::class.java, configuration.getAssetFile())!!
+        Collections.addAll(list, *assets)
+        return list
+    }
 
-	@Autowired
-	ExternalFileService fileService;
+    override fun getOperatorInformation(acceptLanguage: String?): SystemInformation? {
+        val info = SystemInformation()
+        info.systemId = "maas-3234434"
+        info.email = "email@bike-operator.org"
+        info.setLanguage(Arrays.asList(acceptLanguage))
+        info.name = "Bike Operator"
+        return info
+    }
 
-	@Override
-	public List<AssetType> getAvailableAssetTypes(String acceptLanguage) {
-		ObjectFromFileProvider<AssetType[]> provider = new ObjectFromFileProvider<>();
-		ArrayList<AssetType> list = new ArrayList<>();
-		AssetType[] assets = provider.getObject(acceptLanguage, AssetType[].class, configuration.getAssetFile());
-		Collections.addAll(list, assets);
-		return list;
-	}
+    override fun getStations(acceptLanguage: String?): List<StationInformation?>? {
+        val provider = ObjectFromFileProvider<Array<StationInformation>>()
+        return Arrays.asList(
+            *provider.getObject(acceptLanguage, Array<StationInformation>::class.java, configuration.getStationsFile())
+        )
+    }
 
-	@Override
-	public SystemInformation getOperatorInformation(String acceptLanguage) {
-		SystemInformation info = new SystemInformation();
-		info.setSystemId("maas-3234434");
-		info.setEmail("email@bike-operator.org");
-		info.setLanguage(Arrays.asList(acceptLanguage));
-		info.setName("Bike Operator");
-		return info;
-	}
+    override fun getRegions(acceptLanguage: String?): MutableList<SystemRegion?>? {
+        val provider = ObjectFromFileProvider<Array<SystemRegion>>()
+        val regionArray = provider.getObject(
+            acceptLanguage, Array<SystemRegion>::class.java,
+            configuration.getRegionsFile()
+        )!!
+        val regions: MutableList<SystemRegion?> = ArrayList()
+        for (i in regionArray.indices) {
+            regions.add(regionArray[i])
+            println(regionArray[i].toString())
+        }
+        return regions
+    }
 
-	@Override
-	public List<StationInformation> getStations(String acceptLanguage) {
-		ObjectFromFileProvider<StationInformation[]> provider = new ObjectFromFileProvider<>();
+    override fun getPricingPlans(acceptLanguage: String?): List<SystemPricingPlan> {
+        return ArrayList()
+    }
 
-		return Arrays.asList(
-				provider.getObject(acceptLanguage, StationInformation[].class, configuration.getStationsFile()));
-	}
+    override fun getHours(acceptLanguage: String?): List<SystemHours> {
+        return ArrayList()
+    }
 
-	@Override
-	public List<SystemRegion> getRegions(String acceptLanguage) {
-		ObjectFromFileProvider<SystemRegion[]> provider = new ObjectFromFileProvider<>();
-		SystemRegion[] regionArray = provider.getObject(acceptLanguage, SystemRegion[].class,
-				configuration.getRegionsFile());
-		List<SystemRegion> regions = new ArrayList<>();
-		for (int i = 0; i < regionArray.length; i++) {
-			regions.add(regionArray[i]);
-			System.out.println(regionArray[i].toString());
-		}
-		return regions;
-	}
+    override fun getCalendar(acceptLanguage: String?): List<SystemCalendar> {
+        return ArrayList()
+    }
 
-	@Override
-	public List<SystemPricingPlan> getPricingPlans(String acceptLanguage) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<SystemHours> getHours(String acceptLanguage) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<SystemCalendar> getCalendar(String acceptLanguage) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<EndpointImplementation> getMeta(String acceptLanguage) {
-		return fileService.getEndPoints();
-	}
+    override fun getMeta(acceptLanguage: String?): List<EndpointImplementation?>? {
+        return fileService.getEndPoints()
+    }
 }

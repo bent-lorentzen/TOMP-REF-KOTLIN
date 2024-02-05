@@ -1,23 +1,17 @@
-package org.tomp.api.payment;
+package org.tomp.api.payment
 
-import java.util.List;
+import io.swagger.model.ExtraCosts
+import io.swagger.model.JournalEntry
+import io.swagger.model.JournalState
+import org.threeten.bp.OffsetDateTime
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.http.HttpStatus;
-import org.threeten.bp.OffsetDateTime;
-
-import io.swagger.model.ExtraCosts;
-import io.swagger.model.JournalEntry;
-import io.swagger.model.JournalState;
-
-public interface PaymentProvider {
-
-	JournalEntry claimExtraCosts(String acceptLanguage, String api, String apiVersion, String id, ExtraCosts body);
-
-	List<JournalEntry> getJournalEntries(String acceptLanguage, String api, String apiVersion,
-			@NotNull @Valid OffsetDateTime from, @NotNull @Valid OffsetDateTime to, JournalState state, String category, String id,
-			String maasId);
-
+interface PaymentProvider {
+    fun claimExtraCosts(acceptLanguage: String?, api: String?, apiVersion: String?, id: String?, body: ExtraCosts?): JournalEntry
+    fun getJournalEntries(
+        acceptLanguage: String?, api: String?, apiVersion: String?,
+        from: @NotNull @Valid OffsetDateTime?, to: @NotNull @Valid OffsetDateTime?, state: JournalState?, category: String?, id: String?,
+        maasId: String?
+    ): List<JournalEntry?>?
 }

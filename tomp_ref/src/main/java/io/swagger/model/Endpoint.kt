@@ -1,321 +1,223 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * a formal description of an endpoint.
  */
 @Schema(description = "a formal description of an endpoint.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-10T11:36:21.130Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2021-12-10T11:36:21.130Z[GMT]")
+class Endpoint {
+    /**
+     * Gets or Sets method
+     */
+    enum class MethodEnum(private val value: String) {
+        POST("POST"),
+        PUT("PUT"),
+        GET("GET"),
+        DELETE("DELETE"),
+        PATCH("PATCH");
 
-
-public class Endpoint   {
-  /**
-   * Gets or Sets method
-   */
-  public enum MethodEnum {
-    POST("POST"),
-    
-    PUT("PUT"),
-    
-    GET("GET"),
-    
-    DELETE("DELETE"),
-    
-    PATCH("PATCH");
-
-    private String value;
-
-    MethodEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static MethodEnum fromValue(String text) {
-      for (MethodEnum b : MethodEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
-    }
-  }
-  @JsonProperty("method")
-  private MethodEnum method = null;
 
-  @JsonProperty("path")
-  private String path = null;
-
-  /**
-   * in case the path is ending in /events, the event type/operator enum should be added here.
-   */
-  public enum EventTypeEnum {
-    PREPARE("PREPARE"),
-    
-    ASSIGN_ASSET("ASSIGN_ASSET"),
-    
-    SET_IN_USE("SET_IN_USE"),
-    
-    PAUSE("PAUSE"),
-    
-    START_FINISHING("START_FINISHING"),
-    
-    FINISH("FINISH"),
-    
-    ISSUE("ISSUE"),
-    
-    CANCEL("CANCEL"),
-    
-    EXPIRE("EXPIRE"),
-    
-    DENY("DENY"),
-    
-    COMMIT("COMMIT");
-
-    private String value;
-
-    EventTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static EventTypeEnum fromValue(String text) {
-      for (EventTypeEnum b : EventTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): MethodEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
         }
-      }
-      return null;
-    }
-  }
-  @JsonProperty("eventType")
-  private EventTypeEnum eventType = null;
-
-  /**
-   * Gets or Sets status
-   */
-  public enum StatusEnum {
-    NOT_IMPLEMENTED("NOT_IMPLEMENTED"),
-    
-    DIALECT("DIALECT"),
-    
-    IMPLEMENTED("IMPLEMENTED");
-
-    private String value;
-
-    StatusEnum(String value) {
-      this.value = value;
     }
 
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
+    /**
+     * Get method
+     * @return method
+     */
+    @get:Schema(required = true, description = "")
+    @JsonProperty("method")
+    var method: MethodEnum? = null
 
-    @JsonCreator
-    public static StatusEnum fromValue(String text) {
-      for (StatusEnum b : StatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+    /**
+     * the exact path of the endpoint, starting after the base URL
+     * @return path
+     */
+    @get:Schema(
+        example = "/plannings/",
+        required = true,
+        description = "the exact path of the endpoint, starting after the base URL"
+    )
+    @JsonProperty("path")
+    var path: String? = null
+
+    /**
+     * in case the path is ending in /events, the event type/operator enum should be added here.
+     */
+    enum class EventTypeEnum(private val value: String) {
+        PREPARE("PREPARE"),
+        ASSIGN_ASSET("ASSIGN_ASSET"),
+        SET_IN_USE("SET_IN_USE"),
+        PAUSE("PAUSE"),
+        START_FINISHING("START_FINISHING"),
+        FINISH("FINISH"),
+        ISSUE("ISSUE"),
+        CANCEL("CANCEL"),
+        EXPIRE("EXPIRE"),
+        DENY("DENY"),
+        COMMIT("COMMIT");
+
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
+
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): EventTypeEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-  }
-  @JsonProperty("status")
-  private StatusEnum status = null;
 
-  @JsonProperty("supportsPaging")
-  private Boolean supportsPaging = false;
+    /**
+     * in case the path is ending in /events, the event type/operator enum should be added here.
+     * @return eventType
+     */
+    @get:Schema(description = "in case the path is ending in /events, the event type/operator enum should be added here.")
+    @JsonProperty("eventType")
+    var eventType: EventTypeEnum? = null
 
-  @JsonProperty("maxPageSize")
-  private Integer maxPageSize = null;
+    /**
+     * Gets or Sets status
+     */
+    enum class StatusEnum(private val value: String) {
+        NOT_IMPLEMENTED("NOT_IMPLEMENTED"),
+        DIALECT("DIALECT"),
+        IMPLEMENTED("IMPLEMENTED");
 
-  public Endpoint method(MethodEnum method) {
-    this.method = method;
-    return this;
-  }
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
+        }
 
-  /**
-   * Get method
-   * @return method
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public MethodEnum getMethod() {
-    return method;
-  }
-
-  public void setMethod(MethodEnum method) {
-    this.method = method;
-  }
-
-  public Endpoint path(String path) {
-    this.path = path;
-    return this;
-  }
-
-  /**
-   * the exact path of the endpoint, starting after the base URL
-   * @return path
-   **/
-  @Schema(example = "/plannings/", required = true, description = "the exact path of the endpoint, starting after the base URL")
-      @NotNull
-
-    public String getPath() {
-    return path;
-  }
-
-  public void setPath(String path) {
-    this.path = path;
-  }
-
-  public Endpoint eventType(EventTypeEnum eventType) {
-    this.eventType = eventType;
-    return this;
-  }
-
-  /**
-   * in case the path is ending in /events, the event type/operator enum should be added here.
-   * @return eventType
-   **/
-  @Schema(description = "in case the path is ending in /events, the event type/operator enum should be added here.")
-  
-    public EventTypeEnum getEventType() {
-    return eventType;
-  }
-
-  public void setEventType(EventTypeEnum eventType) {
-    this.eventType = eventType;
-  }
-
-  public Endpoint status(StatusEnum status) {
-    this.status = status;
-    return this;
-  }
-
-  /**
-   * Get status
-   * @return status
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public StatusEnum getStatus() {
-    return status;
-  }
-
-  public void setStatus(StatusEnum status) {
-    this.status = status;
-  }
-
-  public Endpoint supportsPaging(Boolean supportsPaging) {
-    this.supportsPaging = supportsPaging;
-    return this;
-  }
-
-  /**
-   * does this endpoint support paging? In that case this endpoint can be accessed using query parameters offset=x and limit=y. Only allowed at endpoints that have specified these query parameters.
-   * @return supportsPaging
-   **/
-  @Schema(description = "does this endpoint support paging? In that case this endpoint can be accessed using query parameters offset=x and limit=y. Only allowed at endpoints that have specified these query parameters.")
-  
-    public Boolean isSupportsPaging() {
-    return supportsPaging;
-  }
-
-  public void setSupportsPaging(Boolean supportsPaging) {
-    this.supportsPaging = supportsPaging;
-  }
-
-  public Endpoint maxPageSize(Integer maxPageSize) {
-    this.maxPageSize = maxPageSize;
-    return this;
-  }
-
-  /**
-   * the maximum size of the pages (only valid when supportsPaging=true). If the limit-parameter of the request is above this amount, a http code 400 will be returned.
-   * minimum: 1
-   * @return maxPageSize
-   **/
-  @Schema(description = "the maximum size of the pages (only valid when supportsPaging=true). If the limit-parameter of the request is above this amount, a http code 400 will be returned.")
-  
-  @Min(1)  public Integer getMaxPageSize() {
-    return maxPageSize;
-  }
-
-  public void setMaxPageSize(Integer maxPageSize) {
-    this.maxPageSize = maxPageSize;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): StatusEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    /**
+     * Get status
+     * @return status
+     */
+    @get:Schema(required = true, description = "")
+    @JsonProperty("status")
+    var status: StatusEnum? = null
+
+    /**
+     * does this endpoint support paging? In that case this endpoint can be accessed using query parameters offset=x and limit=y. Only allowed at endpoints that have specified these query parameters.
+     * @return supportsPaging
+     */
+    @get:Schema(description = "does this endpoint support paging? In that case this endpoint can be accessed using query parameters offset=x and limit=y. Only allowed at endpoints that have specified these query parameters.")
+    @JsonProperty("supportsPaging")
+    var isSupportsPaging = false
+
+    /**
+     * the maximum size of the pages (only valid when supportsPaging=true). If the limit-parameter of the request is above this amount, a http code 400 will be returned.
+     * minimum: 1
+     * @return maxPageSize
+     */
+    @get:Schema(description = "the maximum size of the pages (only valid when supportsPaging=true). If the limit-parameter of the request is above this amount, a http code 400 will be returned.")
+    @JsonProperty("maxPageSize")
+    var maxPageSize: Int? = null
+    fun method(method: MethodEnum?): Endpoint {
+        this.method = method
+        return this
     }
-    Endpoint endpoint = (Endpoint) o;
-    return Objects.equals(this.method, endpoint.method) &&
-        Objects.equals(this.path, endpoint.path) &&
-        Objects.equals(this.eventType, endpoint.eventType) &&
-        Objects.equals(this.status, endpoint.status) &&
-        Objects.equals(this.supportsPaging, endpoint.supportsPaging) &&
-        Objects.equals(this.maxPageSize, endpoint.maxPageSize);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(method, path, eventType, status, supportsPaging, maxPageSize);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Endpoint {\n");
-    
-    sb.append("    method: ").append(toIndentedString(method)).append("\n");
-    sb.append("    path: ").append(toIndentedString(path)).append("\n");
-    sb.append("    eventType: ").append(toIndentedString(eventType)).append("\n");
-    sb.append("    status: ").append(toIndentedString(status)).append("\n");
-    sb.append("    supportsPaging: ").append(toIndentedString(supportsPaging)).append("\n");
-    sb.append("    maxPageSize: ").append(toIndentedString(maxPageSize)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun path(path: String?): Endpoint {
+        this.path = path
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun eventType(eventType: EventTypeEnum?): Endpoint {
+        this.eventType = eventType
+        return this
+    }
+
+    fun status(status: StatusEnum?): Endpoint {
+        this.status = status
+        return this
+    }
+
+    fun supportsPaging(supportsPaging: Boolean): Endpoint {
+        isSupportsPaging = supportsPaging
+        return this
+    }
+
+    fun maxPageSize(maxPageSize: Int?): Endpoint {
+        this.maxPageSize = maxPageSize
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val endpoint = o as Endpoint
+        return method == endpoint.method && path == endpoint.path && eventType == endpoint.eventType && status == endpoint.status && isSupportsPaging == endpoint.isSupportsPaging && maxPageSize == endpoint.maxPageSize
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(method, path, eventType, status, isSupportsPaging, maxPageSize)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class Endpoint {\n")
+        sb.append("    method: ").append(toIndentedString(method)).append("\n")
+        sb.append("    path: ").append(toIndentedString(path)).append("\n")
+        sb.append("    eventType: ").append(toIndentedString(eventType)).append("\n")
+        sb.append("    status: ").append(toIndentedString(status)).append("\n")
+        sb.append("    supportsPaging: ").append(toIndentedString(isSupportsPaging)).append("\n")
+        sb.append("    maxPageSize: ").append(toIndentedString(maxPageSize)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

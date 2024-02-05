@@ -1,7 +1,5 @@
-package org.tomp.api.utils;
+package org.tomp.api.utils
 
-public interface ObjectProvider<T> {
-
-	T getObject(String acceptLanguage, Class<T> c, String fromFile);
-
+interface ObjectProvider<T> {
+    fun getObject(acceptLanguage: String?, c: Class<T>?, fromFile: String?): T
 }

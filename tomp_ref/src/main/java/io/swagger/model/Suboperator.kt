@@ -1,153 +1,102 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * The operator of a leg or asset, in case this is not the TO itself but should be shown to the user
  */
 @Schema(description = "The operator of a leg or asset, in case this is not the TO itself but should be shown to the user")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class Suboperator {
+    /**
+     * Name of the operator, could match Content-Language
+     * @return name
+     */
+    @JvmField
+    @get:Schema(required = true, description = "Name of the operator, could match Content-Language")
+    @JsonProperty("name")
+    var name: String? = null
 
+    /**
+     * the maasId from the operator
+     * @return maasId
+     */
+    @JvmField
+    @get:Schema(description = "the maasId from the operator")
+    @JsonProperty("maasId")
+    var maasId: String? = null
 
-public class Suboperator   {
-  @JsonProperty("name")
-  private String name = null;
+    /**
+     * short description of the operator, should match Content-Language
+     * @return description
+     */
+    @get:Schema(description = "short description of the operator, should match Content-Language")
+    @JsonProperty("description")
+    var description: String? = null
 
-  @JsonProperty("maasId")
-  private String maasId = null;
-
-  @JsonProperty("description")
-  private String description = null;
-
-  @JsonProperty("contact")
-  private String contact = null;
-
-  public Suboperator name(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * Name of the operator, could match Content-Language
-   * @return name
-   **/
-  @Schema(required = true, description = "Name of the operator, could match Content-Language")
-      @NotNull
-
-    public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Suboperator maasId(String maasId) {
-    this.maasId = maasId;
-    return this;
-  }
-
-  /**
-   * the maasId from the operator
-   * @return maasId
-   **/
-  @Schema(description = "the maasId from the operator")
-  
-    public String getMaasId() {
-    return maasId;
-  }
-
-  public void setMaasId(String maasId) {
-    this.maasId = maasId;
-  }
-
-  public Suboperator description(String description) {
-    this.description = description;
-    return this;
-  }
-
-  /**
-   * short description of the operator, should match Content-Language
-   * @return description
-   **/
-  @Schema(description = "short description of the operator, should match Content-Language")
-  
-    public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public Suboperator contact(String contact) {
-    this.contact = contact;
-    return this;
-  }
-
-  /**
-   * contact information, should match Content-Language
-   * @return contact
-   **/
-  @Schema(description = "contact information, should match Content-Language")
-  
-    public String getContact() {
-    return contact;
-  }
-
-  public void setContact(String contact) {
-    this.contact = contact;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * contact information, should match Content-Language
+     * @return contact
+     */
+    @get:Schema(description = "contact information, should match Content-Language")
+    @JsonProperty("contact")
+    var contact: String? = null
+    fun name(name: String?): Suboperator {
+        this.name = name
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun maasId(maasId: String?): Suboperator {
+        this.maasId = maasId
+        return this
     }
-    Suboperator suboperator = (Suboperator) o;
-    return Objects.equals(this.name, suboperator.name) &&
-        Objects.equals(this.maasId, suboperator.maasId) &&
-        Objects.equals(this.description, suboperator.description) &&
-        Objects.equals(this.contact, suboperator.contact);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(name, maasId, description, contact);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Suboperator {\n");
-    
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    maasId: ").append(toIndentedString(maasId)).append("\n");
-    sb.append("    description: ").append(toIndentedString(description)).append("\n");
-    sb.append("    contact: ").append(toIndentedString(contact)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun description(description: String?): Suboperator {
+        this.description = description
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun contact(contact: String?): Suboperator {
+        this.contact = contact
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val suboperator = o as Suboperator
+        return name == suboperator.name && maasId == suboperator.maasId && description == suboperator.description && contact == suboperator.contact
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(name, maasId, description, contact)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class Suboperator {\n")
+        sb.append("    name: ").append(toIndentedString(name)).append("\n")
+        sb.append("    maasId: ").append(toIndentedString(maasId)).append("\n")
+        sb.append("    description: ").append(toIndentedString(description)).append("\n")
+        sb.append("    contact: ").append(toIndentedString(contact)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

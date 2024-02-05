@@ -1,32 +1,26 @@
-package org.tomp.api.providers.assets;
+package org.tomp.api.providers.assets
 
-import java.util.List;
-import java.util.Random;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.repository.GbfsRepository;
-
-import io.swagger.model.AssetType;
+import io.swagger.model.AssetType
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.repository.GbfsRepository
+import java.util.Random
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.operatorinformation", havingValue = "gbfs", matchIfMissing = false)
-public class GfbsAssetProvider implements AssetProvider {
+@ConditionalOnProperty(value = ["tomp.providers.operatorinformation"], havingValue = "gbfs", matchIfMissing = false)
+class GfbsAssetProvider : AssetProvider {
+    @Autowired
+    var repostory: GbfsRepository? = null
+    override val typeOfAsset: AssetType?
+        get() {
+            val assets = repostory.getAssets()
+            return assets!![r.nextInt(assets!!.size)]
+        }
+    override val assetTypes: List<AssetType?>?
+        get() = repostory.getAssets()
 
-	@Autowired
-	GbfsRepository repostory;
-
-	private static Random r = new Random();
-
-	@Override
-	public AssetType getTypeOfAsset() {
-		List<AssetType> assets = repostory.getAssets();
-		return assets.get(r.nextInt(assets.size()));
-	}
-
-	@Override
-	public List<AssetType> getAssetTypes() {
-		return repostory.getAssets();
-	}
+    companion object {
+        private val r = Random()
+    }
 }

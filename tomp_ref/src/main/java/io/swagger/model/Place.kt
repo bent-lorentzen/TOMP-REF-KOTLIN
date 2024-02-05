@@ -1,228 +1,165 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.Address;
-import io.swagger.model.Coordinates;
-import io.swagger.model.StopReference;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
+import javax.validation.Valid
 
 /**
  * a origin or destination of a leg, 3D. lon/lat in WGS84.
  */
 @Schema(description = "a origin or destination of a leg, 3D. lon/lat in WGS84.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class Place {
+    /**
+     * Human readable name of the place, could match Content-Language
+     * @return name
+     */
+    @JvmField
+    @get:Schema(description = "Human readable name of the place, could match Content-Language")
+    @JsonProperty("name")
+    var name: String? = null
 
+    @JsonProperty("stopReference")
+    private var stopReference: @Valid MutableList<StopReference>? = null
 
-public class Place   {
-  @JsonProperty("name")
-  private String name = null;
+    /**
+     * reference to /operator/stations
+     * @return stationId
+     */
+    @JvmField
+    @get:Schema(description = "reference to /operator/stations")
+    @JsonProperty("stationId")
+    var stationId: String? = null
 
-  @JsonProperty("stopReference")
-  @Valid
-  private List<StopReference> stopReference = null;
+    /**
+     * Get coordinates
+     * @return coordinates
+     */
+    @JvmField
+    @get:Schema(required = true, description = "")
+    @JsonProperty("coordinates")
+    var coordinates: Coordinates? = null
 
-  @JsonProperty("stationId")
-  private String stationId = null;
+    /**
+     * Get physicalAddress
+     * @return physicalAddress
+     */
+    @JvmField
+    @get:Schema(description = "")
+    @JsonProperty("physicalAddress")
+    var physicalAddress: Address? = null
 
-  @JsonProperty("coordinates")
-  private Coordinates coordinates = null;
-
-  @JsonProperty("physicalAddress")
-  private Address physicalAddress = null;
-
-  @JsonProperty("extraInfo")
-  @Valid
-  private Map<String, Object> extraInfo = null;
-
-  public Place name(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * Human readable name of the place, could match Content-Language
-   * @return name
-   **/
-  @Schema(description = "Human readable name of the place, could match Content-Language")
-  
-    public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Place stopReference(List<StopReference> stopReference) {
-    this.stopReference = stopReference;
-    return this;
-  }
-
-  public Place addStopReferenceItem(StopReference stopReferenceItem) {
-    if (this.stopReference == null) {
-      this.stopReference = new ArrayList<StopReference>();
+    @JsonProperty("extraInfo")
+    private var extraInfo: @Valid MutableMap<String, Any>? = null
+    fun name(name: String?): Place {
+        this.name = name
+        return this
     }
-    this.stopReference.add(stopReferenceItem);
-    return this;
-  }
 
-  /**
-   * Get stopReference
-   * @return stopReference
-   **/
-  @Schema(description = "")
-      @Valid
-    public List<StopReference> getStopReference() {
-    return stopReference;
-  }
-
-  public void setStopReference(List<StopReference> stopReference) {
-    this.stopReference = stopReference;
-  }
-
-  public Place stationId(String stationId) {
-    this.stationId = stationId;
-    return this;
-  }
-
-  /**
-   * reference to /operator/stations
-   * @return stationId
-   **/
-  @Schema(description = "reference to /operator/stations")
-  
-    public String getStationId() {
-    return stationId;
-  }
-
-  public void setStationId(String stationId) {
-    this.stationId = stationId;
-  }
-
-  public Place coordinates(Coordinates coordinates) {
-    this.coordinates = coordinates;
-    return this;
-  }
-
-  /**
-   * Get coordinates
-   * @return coordinates
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    @Valid
-    public Coordinates getCoordinates() {
-    return coordinates;
-  }
-
-  public void setCoordinates(Coordinates coordinates) {
-    this.coordinates = coordinates;
-  }
-
-  public Place physicalAddress(Address physicalAddress) {
-    this.physicalAddress = physicalAddress;
-    return this;
-  }
-
-  /**
-   * Get physicalAddress
-   * @return physicalAddress
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public Address getPhysicalAddress() {
-    return physicalAddress;
-  }
-
-  public void setPhysicalAddress(Address physicalAddress) {
-    this.physicalAddress = physicalAddress;
-  }
-
-  public Place extraInfo(Map<String, Object> extraInfo) {
-    this.extraInfo = extraInfo;
-    return this;
-  }
-
-  public Place putExtraInfoItem(String key, Object extraInfoItem) {
-    if (this.extraInfo == null) {
-      this.extraInfo = new HashMap<String, Object>();
+    fun stopReference(stopReference: List<StopReference>?): Place {
+        this.stopReference = stopReference
+        return this
     }
-    this.extraInfo.put(key, extraInfoItem);
-    return this;
-  }
 
-  /**
-   * Get extraInfo
-   * @return extraInfo
-   **/
-  @Schema(description = "")
-  
-    public Map<String, Object> getExtraInfo() {
-    return extraInfo;
-  }
-
-  public void setExtraInfo(Map<String, Object> extraInfo) {
-    this.extraInfo = extraInfo;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    fun addStopReferenceItem(stopReferenceItem: StopReference): Place {
+        if (stopReference == null) {
+            stopReference = ArrayList()
+        }
+        stopReference!!.add(stopReferenceItem)
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    /**
+     * Get stopReference
+     * @return stopReference
+     */
+    @Schema(description = "")
+    fun getStopReference(): @Valid MutableList<StopReference>? {
+        return stopReference
     }
-    Place place = (Place) o;
-    return Objects.equals(this.name, place.name) &&
-        Objects.equals(this.stopReference, place.stopReference) &&
-        Objects.equals(this.stationId, place.stationId) &&
-        Objects.equals(this.coordinates, place.coordinates) &&
-        Objects.equals(this.physicalAddress, place.physicalAddress) &&
-        Objects.equals(this.extraInfo, place.extraInfo);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(name, stopReference, stationId, coordinates, physicalAddress, extraInfo);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Place {\n");
-    
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    stopReference: ").append(toIndentedString(stopReference)).append("\n");
-    sb.append("    stationId: ").append(toIndentedString(stationId)).append("\n");
-    sb.append("    coordinates: ").append(toIndentedString(coordinates)).append("\n");
-    sb.append("    physicalAddress: ").append(toIndentedString(physicalAddress)).append("\n");
-    sb.append("    extraInfo: ").append(toIndentedString(extraInfo)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun setStopReference(stopReference: List<StopReference>?) {
+        this.stopReference = stopReference
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun stationId(stationId: String?): Place {
+        this.stationId = stationId
+        return this
+    }
+
+    fun coordinates(coordinates: Coordinates?): Place {
+        this.coordinates = coordinates
+        return this
+    }
+
+    fun physicalAddress(physicalAddress: Address?): Place {
+        this.physicalAddress = physicalAddress
+        return this
+    }
+
+    fun extraInfo(extraInfo: Map<String, Any>?): Place {
+        this.extraInfo = extraInfo
+        return this
+    }
+
+    fun putExtraInfoItem(key: String, extraInfoItem: Any): Place {
+        if (extraInfo == null) {
+            extraInfo = HashMap()
+        }
+        extraInfo!![key] = extraInfoItem
+        return this
+    }
+
+    /**
+     * Get extraInfo
+     * @return extraInfo
+     */
+    @Schema(description = "")
+    fun getExtraInfo(): Map<String, Any>? {
+        return extraInfo
+    }
+
+    fun setExtraInfo(extraInfo: Map<String, Any>?) {
+        this.extraInfo = extraInfo
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val place = o as Place
+        return name == place.name && stopReference == place.stopReference && stationId == place.stationId && coordinates == place.coordinates && physicalAddress == place.physicalAddress && extraInfo == place.extraInfo
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(name, stopReference, stationId, coordinates, physicalAddress, extraInfo)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class Place {\n")
+        sb.append("    name: ").append(toIndentedString(name)).append("\n")
+        sb.append("    stopReference: ").append(toIndentedString(stopReference)).append("\n")
+        sb.append("    stationId: ").append(toIndentedString(stationId)).append("\n")
+        sb.append("    coordinates: ").append(toIndentedString(coordinates)).append("\n")
+        sb.append("    physicalAddress: ").append(toIndentedString(physicalAddress)).append("\n")
+        sb.append("    extraInfo: ").append(toIndentedString(extraInfo)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

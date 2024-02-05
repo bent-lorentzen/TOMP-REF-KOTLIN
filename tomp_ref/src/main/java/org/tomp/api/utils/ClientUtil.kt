@@ -1,278 +1,252 @@
-package org.tomp.api.utils;
+package org.tomp.api.utils
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.controllers.WebsocketController;
-import org.tomp.api.model.MaasOperator;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.Call;
-
-import io.swagger.client.ApiClient;
-import io.swagger.client.ApiException;
-import io.swagger.client.ApiResponse;
-import io.swagger.client.Pair;
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.squareup.okhttp.Call
+import io.swagger.client.ApiClient
+import io.swagger.client.ApiException
+import io.swagger.client.Pair
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.controllers.WebsocketController
+import org.tomp.api.model.MaasOperator
+import java.io.IOException
 
 @Component
-public class ClientUtil {
+class ClientUtil @Autowired private constructor(configuration: ExternalConfiguration, mapper: ObjectMapper) {
+    @Autowired
+    private val websocket: WebsocketController? = null
 
-	private static ExternalConfiguration configuration;
-	private static final Logger log = LoggerFactory.getLogger(ClientUtil.class);
+    init {
+        Companion.configuration = configuration
+        Companion.mapper = mapper
+    }
 
-	private static ObjectMapper mapper;
+    @Throws(ApiException::class)
+    operator fun <T> get(to: MaasOperator?, localVarPath: String, class1: Class<T>): T {
+        return get(
+            to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
+            configuration.getMaasId(), class1, null
+        )
+    }
 
-	@Autowired
-	private WebsocketController websocket;
+    @Throws(ApiException::class)
+    operator fun <T> get(to: MaasOperator?, localVarPath: String, class1: Class<T>, headers: Map<String?, String?>?): T {
+        return get(
+            to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
+            configuration.getMaasId(), class1, headers
+        )
+    }
 
-	@Autowired
-	private ClientUtil(ExternalConfiguration configuration, ObjectMapper mapper) {
-		ClientUtil.configuration = configuration;
-		ClientUtil.mapper = mapper;
-	}
+    @Throws(ApiException::class)
+    operator fun <T> get(
+        to: MaasOperator?, acceptLanguage: String?, apiVersion: String?, localVarPath: String, maasId: String?,
+        class1: Class<T>, headers: Map<String?, String?>?
+    ): T {
+        val apiClient = ApiClient()
+        apiClient.setVerifyingSsl(false)
+        var url = to.getUrl()
+        if (url!!.endsWith("/") && localVarPath.startsWith("/")) {
+            url = url!!.substring(0, url!!.length - 1)
+        }
+        apiClient.setBasePath(url)
+        val localVarPostBody: Any? = null
+        val localVarQueryParams: List<Pair> = ArrayList()
+        val localVarCollectionQueryParams: List<Pair> = ArrayList()
+        val localVarHeaderParams: MutableMap<String?, String?> = HashMap()
+        if (acceptLanguage != null) localVarHeaderParams["Accept-Language"] = apiClient.parameterToString(acceptLanguage)
+        localVarHeaderParams["Api"] = apiClient.parameterToString("TOMP")
+        if (apiVersion != null) localVarHeaderParams["Api-Version"] = apiClient.parameterToString(apiVersion)
+        localVarHeaderParams["maas-id"] = maasId
+        val localVarFormParams: Map<String, Any> = HashMap()
+        val localVarAccepts = arrayOf<String?>("application/json")
+        val localVarAccept = apiClient.selectHeaderAccept(localVarAccepts)
+        if (localVarAccept != null) {
+            localVarHeaderParams["Accept"] = localVarAccept
+        }
+        if (headers != null) {
+            for ((key, value) in headers) {
+                localVarHeaderParams[key] = value
+            }
+        }
+        val localVarContentTypes = arrayOf<String>()
+        val localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes)
+        localVarHeaderParams["Content-Type"] = localVarContentType
+        val localVarAuthNames = arrayOf<String?>()
+        val call = apiClient.buildCall(
+            localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams,
+            localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, null
+        )
+        return handleResult(to, class1, apiClient, call, localVarPath, localVarPostBody, "GET")
+    }
 
-	public <T> T get(MaasOperator to, String localVarPath, Class<T> class1) throws ApiException {
-		return get(to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
-				configuration.getMaasId(), class1, null);
-	}
+    @Throws(ApiException::class)
+    fun <T> post(to: MaasOperator?, localVarPath: String, localVarPostBody: Any?, class1: Class<T>): T {
+        return post(
+            to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
+            configuration.getMaasId(), localVarPostBody, class1
+        )
+    }
 
-	public <T> T get(MaasOperator to, String localVarPath, Class<T> class1, Map<String, String> headers)
-			throws ApiException {
-		return get(to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
-				configuration.getMaasId(), class1, headers);
-	}
+    @Throws(ApiException::class)
+    fun <T> post(
+        to: MaasOperator?, acceptLanguage: String?, apiVersion: String?, localVarPath: String, maasId: String?,
+        localVarPostBody: Any?, class1: Class<T>
+    ): T {
+        return post(to, acceptLanguage, apiVersion, localVarPath, maasId, null, localVarPostBody, class1)
+    }
 
-	public <T> T get(MaasOperator to, String acceptLanguage, String apiVersion, String localVarPath, String maasId,
-			Class<T> class1, Map<String, String> headers) throws ApiException {
-		ApiClient apiClient = new ApiClient();
-		apiClient.setVerifyingSsl(false);
-		String url = to.getUrl();
-		if (url.endsWith("/") && localVarPath.startsWith("/")) {
-			url = url.substring(0, url.length() - 1);
-		}
-		apiClient.setBasePath(url);
-		Object localVarPostBody = null;
+    @Throws(ApiException::class)
+    fun <T> post(
+        to: MaasOperator?, acceptLanguage: String?, apiVersion: String?, localVarPath: String, maasId: String?,
+        headers: Map<String?, String?>?, localVarPostBody: Any?, class1: Class<T>
+    ): T {
+        var localVarPostBody = localVarPostBody
+        val apiClient = ApiClient()
+        apiClient.setConnectTimeout(20000)
+        apiClient.setReadTimeout(20000)
+        var url = to.getUrl()
+        if (url!!.endsWith("/") && localVarPath.startsWith("/")) {
+            url = url!!.substring(0, url!!.length - 1)
+        }
+        apiClient.setBasePath(url)
+        apiClient.setReadTimeout(10000)
+        log.info("Connecting to {}{}", url, localVarPath)
+        log.info("Body {}", localVarPostBody)
+        val localVarQueryParams: List<Pair> = ArrayList()
+        val localVarCollectionQueryParams: List<Pair> = ArrayList()
+        val localVarHeaderParams: MutableMap<String?, String?> = HashMap()
+        if (acceptLanguage != null) localVarHeaderParams["Accept-Language"] = apiClient.parameterToString(acceptLanguage)
+        localVarHeaderParams["Api"] = apiClient.parameterToString("TOMP")
+        if (apiVersion != null) localVarHeaderParams["Api-Version"] = apiClient.parameterToString(apiVersion)
+        localVarHeaderParams["maas-id"] = maasId
+        if (headers != null) {
+            for ((key, value) in headers) {
+                localVarHeaderParams[key] = value
+            }
+        }
+        val localVarFormParams: Map<String, Any> = HashMap()
+        val localVarAccepts = arrayOf<String?>("application/json")
+        val localVarAccept = apiClient.selectHeaderAccept(localVarAccepts)
+        if (localVarAccept != null) localVarHeaderParams["Accept"] = localVarAccept
+        val localVarContentTypes = arrayOf<String>()
+        val localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes)
+        localVarHeaderParams["Content-Type"] = localVarContentType
+        val localVarAuthNames = arrayOf<String?>()
+        if (class1 != String::class.java) {
+            try {
+                localVarPostBody = mapper!!.writeValueAsString(localVarPostBody)
+            } catch (e: JsonProcessingException) {
+                log.error(e.message)
+            }
+        }
+        val call = apiClient.buildCall(
+            localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams,
+            localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, null
+        )
+        return handleResult(to, class1, apiClient, call, localVarPath, localVarPostBody, "POST")
+    }
 
-		List<Pair> localVarQueryParams = new ArrayList<>();
-		List<Pair> localVarCollectionQueryParams = new ArrayList<>();
+    private fun <T> handleResult(
+        to: MaasOperator?, class1: Class<T>, apiClient: ApiClient, call: Call?, localVarPath: String,
+        body: Any?, getOrPost: String
+    ): T? {
+        if (class1 == String::class.java) {
+            return try {
+                val result = apiClient.execute<T>(call, String::class.java)
+                result.data
+            } catch (e: ApiException) {
+                websocket!!.sendMessage(localVarPath, body)
+                log.error("Cannot connect to {} ({})", to.getName(), to.getUrl())
+                log.error(e.message)
+                log.error(e.responseBody)
+                null
+            }
+        }
+        try {
+            val dest = if (getOrPost == "POST") post(to, localVarPath, body, String::class.java) else if (getOrPost == "GET") get(
+                to,
+                localVarPath,
+                String::class.java
+            ) else patch(to, localVarPath, body, String::class.java)
+            return if (dest != null) {
+                mapper!!.readValue(dest, class1)
+            } else {
+                null
+            }
+        } catch (e2: IOException) {
+            log.error("Deserialisation error")
+            log.error(e2.message)
+        } catch (e: ApiException) {
+            log.error("Exception connecting to {} ({})", to.getName(), to.getUrl())
+            log.error(e.message)
+            log.error(e.responseBody)
+        } catch (e: Exception) {
+            log.error("Exception connecting to {} ({})", to.getName(), to.getUrl())
+            log.error(e.message)
+        }
+        return null
+    }
 
-		Map<String, String> localVarHeaderParams = new HashMap<>();
-		if (acceptLanguage != null)
-			localVarHeaderParams.put("Accept-Language", apiClient.parameterToString(acceptLanguage));
-		localVarHeaderParams.put("Api", apiClient.parameterToString("TOMP"));
-		if (apiVersion != null)
-			localVarHeaderParams.put("Api-Version", apiClient.parameterToString(apiVersion));
+    @Throws(ApiException::class)
+    fun <T> patch(to: MaasOperator?, localVarPath: String, localVarPostBody: Any?, class1: Class<T>): T {
+        return patch(
+            to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
+            configuration.getMaasId(), localVarPostBody, class1
+        )
+    }
 
-		localVarHeaderParams.put("maas-id", maasId);
+    @Throws(ApiException::class)
+    private fun <T> patch(
+        to: MaasOperator?, acceptLanguage: String?, apiVersion: String?, localVarPath: String, maasId: String?,
+        localVarPostBody: Any?, class1: Class<T>
+    ): T {
+        var localVarPostBody = localVarPostBody
+        val apiClient = ApiClient()
+        apiClient.setConnectTimeout(20000)
+        apiClient.setReadTimeout(20000)
+        var url = to.getUrl()
+        if (url!!.endsWith("/") && localVarPath.startsWith("/")) {
+            url = url!!.substring(0, url!!.length - 1)
+        }
+        apiClient.setBasePath(url)
+        apiClient.setReadTimeout(10000)
+        log.info("Connecting to {}{}", url, localVarPath)
+        log.info("Body {}", localVarPostBody)
+        val localVarQueryParams: List<Pair> = ArrayList()
+        val localVarCollectionQueryParams: List<Pair> = ArrayList()
+        val localVarHeaderParams: MutableMap<String?, String?> = HashMap()
+        if (acceptLanguage != null) localVarHeaderParams["Accept-Language"] = apiClient.parameterToString(acceptLanguage)
+        localVarHeaderParams["Api"] = apiClient.parameterToString("TOMP")
+        if (apiVersion != null) localVarHeaderParams["Api-Version"] = apiClient.parameterToString(apiVersion)
+        localVarHeaderParams["maas-id"] = maasId
+        val localVarFormParams: Map<String, Any> = HashMap()
+        val localVarAccepts = arrayOf<String?>("application/json")
+        val localVarAccept = apiClient.selectHeaderAccept(localVarAccepts)
+        if (localVarAccept != null) localVarHeaderParams["Accept"] = localVarAccept
+        val localVarContentTypes = arrayOf<String>()
+        val localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes)
+        localVarHeaderParams["Content-Type"] = localVarContentType
+        val localVarAuthNames = arrayOf<String?>()
+        if (class1 != String::class.java) {
+            try {
+                localVarPostBody = mapper!!.writeValueAsString(localVarPostBody)
+            } catch (e: JsonProcessingException) {
+                log.error(e.message)
+            }
+        }
+        val call = apiClient.buildCall(
+            localVarPath, "PATCH", localVarQueryParams, localVarCollectionQueryParams,
+            localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, null
+        )
+        return handleResult(to, class1, apiClient, call, localVarPath, localVarPostBody, "PATCH")
+    }
 
-		Map<String, Object> localVarFormParams = new HashMap<>();
-
-		final String[] localVarAccepts = { "application/json" };
-		final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-		if (localVarAccept != null) {
-			localVarHeaderParams.put("Accept", localVarAccept);
-		}
-
-		if (headers != null) {
-			for (Entry<String, String> entry : headers.entrySet()) {
-				localVarHeaderParams.put(entry.getKey(), entry.getValue());
-			}
-		}
-
-		final String[] localVarContentTypes = {
-
-		};
-		final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-		localVarHeaderParams.put("Content-Type", localVarContentType);
-
-		String[] localVarAuthNames = new String[] {};
-		Call call = apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams,
-				localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, null);
-
-		return handleResult(to, class1, apiClient, call, localVarPath, localVarPostBody, "GET");
-	}
-
-	public <T> T post(MaasOperator to, String localVarPath, Object localVarPostBody, Class<T> class1)
-			throws ApiException {
-		return post(to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
-				configuration.getMaasId(), localVarPostBody, class1);
-	}
-
-	public <T> T post(MaasOperator to, String acceptLanguage, String apiVersion, String localVarPath, String maasId,
-			Object localVarPostBody, Class<T> class1) throws ApiException {
-		return post(to, acceptLanguage, apiVersion, localVarPath, maasId, null, localVarPostBody, class1);
-
-	}
-
-	public <T> T post(MaasOperator to, String acceptLanguage, String apiVersion, String localVarPath, String maasId,
-			Map<String, String> headers, Object localVarPostBody, Class<T> class1) throws ApiException {
-
-		ApiClient apiClient = new ApiClient();
-		apiClient.setConnectTimeout(20000);
-		apiClient.setReadTimeout(20000);
-		String url = to.getUrl();
-		if (url.endsWith("/") && localVarPath.startsWith("/")) {
-			url = url.substring(0, url.length() - 1);
-		}
-		apiClient.setBasePath(url);
-		apiClient.setReadTimeout(10000);
-		log.info("Connecting to {}{}", url, localVarPath);
-		log.info("Body {}", localVarPostBody);
-
-		List<Pair> localVarQueryParams = new ArrayList<>();
-		List<Pair> localVarCollectionQueryParams = new ArrayList<>();
-
-		Map<String, String> localVarHeaderParams = new HashMap<>();
-		if (acceptLanguage != null)
-			localVarHeaderParams.put("Accept-Language", apiClient.parameterToString(acceptLanguage));
-		localVarHeaderParams.put("Api", apiClient.parameterToString("TOMP"));
-		if (apiVersion != null)
-			localVarHeaderParams.put("Api-Version", apiClient.parameterToString(apiVersion));
-
-		localVarHeaderParams.put("maas-id", maasId);
-
-		if (headers != null) {
-			for (Entry<String, String> entry : headers.entrySet()) {
-				localVarHeaderParams.put(entry.getKey(), entry.getValue());
-			}
-		}
-
-		Map<String, Object> localVarFormParams = new HashMap<>();
-
-		final String[] localVarAccepts = { "application/json" };
-		final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-		if (localVarAccept != null)
-			localVarHeaderParams.put("Accept", localVarAccept);
-
-		final String[] localVarContentTypes = {
-
-		};
-		final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-		localVarHeaderParams.put("Content-Type", localVarContentType);
-
-		String[] localVarAuthNames = new String[] {};
-
-		if (class1 != String.class) {
-			try {
-				localVarPostBody = mapper.writeValueAsString(localVarPostBody);
-			} catch (JsonProcessingException e) {
-				log.error(e.getMessage());
-			}
-		}
-
-		Call call = apiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams,
-				localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, null);
-
-		return handleResult(to, class1, apiClient, call, localVarPath, localVarPostBody, "POST");
-	}
-
-	private <T> T handleResult(MaasOperator to, Class<T> class1, ApiClient apiClient, Call call, String localVarPath,
-			Object body, String getOrPost) {
-
-		if (class1 == String.class) {
-			try {
-				ApiResponse<T> result = apiClient.execute(call, String.class);
-				return result.getData();
-			} catch (ApiException e) {
-				websocket.sendMessage(localVarPath, body);
-				log.error("Cannot connect to {} ({})", to.getName(), to.getUrl());
-				log.error(e.getMessage());
-				log.error(e.getResponseBody());
-				return null;
-			}
-		}
-		try {
-			String dest = getOrPost.equals("POST") ? post(to, localVarPath, body, String.class)
-					: getOrPost.equals("GET") ? get(to, localVarPath, String.class)
-							: patch(to, localVarPath, body, String.class);
-			if (dest != null) {
-				return mapper.readValue(dest, class1);
-			} else {
-				return null;
-			}
-		} catch (IOException e2) {
-			log.error("Deserialisation error");
-			log.error(e2.getMessage());
-		} catch (ApiException e) {
-			log.error("Exception connecting to {} ({})", to.getName(), to.getUrl());
-			log.error(e.getMessage());
-			log.error(e.getResponseBody());
-		} catch (Exception e) {
-			log.error("Exception connecting to {} ({})", to.getName(), to.getUrl());
-			log.error(e.getMessage());
-		}
-		return null;
-	}
-
-	public <T> T patch(MaasOperator to, String localVarPath, Object localVarPostBody, Class<T> class1)
-			throws ApiException {
-		return patch(to, configuration.getAcceptLanguage(), configuration.getApiVersion(), localVarPath,
-				configuration.getMaasId(), localVarPostBody, class1);
-	}
-
-	private <T> T patch(MaasOperator to, String acceptLanguage, String apiVersion, String localVarPath, String maasId,
-			Object localVarPostBody, Class<T> class1) throws ApiException {
-
-		ApiClient apiClient = new ApiClient();
-		apiClient.setConnectTimeout(20000);
-		apiClient.setReadTimeout(20000);
-		String url = to.getUrl();
-		if (url.endsWith("/") && localVarPath.startsWith("/")) {
-			url = url.substring(0, url.length() - 1);
-		}
-		apiClient.setBasePath(url);
-		apiClient.setReadTimeout(10000);
-		log.info("Connecting to {}{}", url, localVarPath);
-		log.info("Body {}", localVarPostBody);
-
-		List<Pair> localVarQueryParams = new ArrayList<>();
-		List<Pair> localVarCollectionQueryParams = new ArrayList<>();
-
-		Map<String, String> localVarHeaderParams = new HashMap<>();
-		if (acceptLanguage != null)
-			localVarHeaderParams.put("Accept-Language", apiClient.parameterToString(acceptLanguage));
-		localVarHeaderParams.put("Api", apiClient.parameterToString("TOMP"));
-		if (apiVersion != null)
-			localVarHeaderParams.put("Api-Version", apiClient.parameterToString(apiVersion));
-
-		localVarHeaderParams.put("maas-id", maasId);
-
-		Map<String, Object> localVarFormParams = new HashMap<>();
-
-		final String[] localVarAccepts = { "application/json" };
-		final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-		if (localVarAccept != null)
-			localVarHeaderParams.put("Accept", localVarAccept);
-
-		final String[] localVarContentTypes = {
-
-		};
-		final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-		localVarHeaderParams.put("Content-Type", localVarContentType);
-
-		String[] localVarAuthNames = new String[] {};
-
-		if (class1 != String.class) {
-			try {
-				localVarPostBody = mapper.writeValueAsString(localVarPostBody);
-			} catch (JsonProcessingException e) {
-				log.error(e.getMessage());
-			}
-		}
-
-		Call call = apiClient.buildCall(localVarPath, "PATCH", localVarQueryParams, localVarCollectionQueryParams,
-				localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, null);
-
-		return handleResult(to, class1, apiClient, call, localVarPath, localVarPostBody, "PATCH");
-	}
+    companion object {
+        private var configuration: ExternalConfiguration? = null
+        private val log = LoggerFactory.getLogger(ClientUtil::class.java)
+        private var mapper: ObjectMapper? = null
+    }
 }

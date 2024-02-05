@@ -1,9 +1,6 @@
-package io.swagger.model;
-
+package io.swagger.model
 
 /**
-* OneOfcondition
-*/
-public interface OneOfcondition {
-
-}
+ * OneOfcondition
+ */
+interface OneOfcondition

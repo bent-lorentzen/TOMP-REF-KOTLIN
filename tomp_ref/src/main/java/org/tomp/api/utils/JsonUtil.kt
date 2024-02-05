@@ -1,37 +1,27 @@
-package org.tomp.api.utils;
+package org.tomp.api.utils
 
-import java.util.Map;
+object JsonUtil {
+    fun getValue(fields: String?, map: Map<String, Any>?): String {
+        val street = StringBuilder()
+        for (field in fields!!.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
+            val value = getFieldValue(field, map)
+            if (value != null) {
+                street.append(value)
+            } else if (field.contains(",") || field.contains(" ") || field == "-") {
+                street.append(field)
+            }
+        }
+        return street.toString().trim { it <= ' ' }
+    }
 
-public class JsonUtil {
-
-	private JsonUtil() {
-
-	}
-
-	public static String getValue(String fields, Map<String, Object> map) {
-		StringBuilder street = new StringBuilder();
-		for (String field : fields.split("\\|")) {
-			String value = getFieldValue(field, map);
-			if (value != null) {
-				street.append(value);
-			} else if (field.contains(",") || field.contains(" ") || field.equals("-")) {
-				street.append(field);
-			}
-		}
-
-		return street.toString().trim();
-	}
-
-	@SuppressWarnings("unchecked")
-	private static String getFieldValue(String field, Map<String, Object> map) {
-		if (field.contains(".")) {
-			String mapName = field.split("\\.")[0];
-			Map<String, Object> submap = (Map<String, Object>) map.get(mapName);
-			return getFieldValue(field.substring(field.indexOf('.') + 1), submap);
-		}
-		if (map.containsKey(field)) {
-			return ((String) map.get(field)).trim();
-		}
-		return null;
-	}
+    private fun getFieldValue(field: String, map: Map<String, Any>?): String? {
+        if (field.contains(".")) {
+            val mapName = field.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+            val submap = map!![mapName] as Map<String, Any>?
+            return getFieldValue(field.substring(field.indexOf('.') + 1), submap)
+        }
+        return if (map!!.containsKey(field)) {
+            (map[field] as String?)!!.trim { it <= ' ' }
+        } else null
+    }
 }

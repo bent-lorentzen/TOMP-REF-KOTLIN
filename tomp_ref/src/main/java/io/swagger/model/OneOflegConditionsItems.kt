@@ -1,9 +1,6 @@
-package io.swagger.model;
-
+package io.swagger.model
 
 /**
-* OneOflegConditionsItems
-*/
-public interface OneOflegConditionsItems {
-
-}
+ * OneOflegConditionsItems
+ */
+interface OneOflegConditionsItems

@@ -1,9 +1,6 @@
-package io.swagger.model;
-
+package io.swagger.model
 
 /**
-* OneOftokenTokenData
-*/
-public interface OneOftokenTokenData {
-
-}
+ * OneOftokenTokenData
+ */
+interface OneOftokenTokenData

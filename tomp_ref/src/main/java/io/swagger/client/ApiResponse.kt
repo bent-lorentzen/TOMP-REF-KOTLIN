@@ -9,50 +9,25 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-
-package io.swagger.client;
-
-import java.util.List;
-import java.util.Map;
+package io.swagger.client
 
 /**
  * API response returned by API call.
  *
  * @param <T> The type of data that is deserialized from response body
- */
-public class ApiResponse<T> {
-    final private int statusCode;
-    final private Map<String, List<String>> headers;
-    final private T data;
-
-    /**
-     * @param statusCode The status code of HTTP response
-     * @param headers The headers of HTTP response
-     */
-    public ApiResponse(int statusCode, Map<String, List<String>> headers) {
-        this(statusCode, headers, null);
-    }
-
+</T> */
+class ApiResponse<T> @JvmOverloads constructor(val statusCode: Int, val headers: Map<String, List<String>>, data: T? = null) {
+    val data: T
     /**
      * @param statusCode The status code of HTTP response
      * @param headers The headers of HTTP response
      * @param data The object deserialized from response bod
      */
-    public ApiResponse(int statusCode, Map<String, List<String>> headers, T data) {
-        this.statusCode = statusCode;
-        this.headers = headers;
-        this.data = data;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public Map<String, List<String>> getHeaders() {
-        return headers;
-    }
-
-    public T getData() {
-        return data;
+    /**
+     * @param statusCode The status code of HTTP response
+     * @param headers The headers of HTTP response
+     */
+    init {
+        this.data = data
     }
 }

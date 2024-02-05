@@ -1,242 +1,178 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.model.Day;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 /**
  * SystemHours
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class SystemHours {
+    /**
+     * This indicates that this set of rental hours applies to either members or non-members only.
+     */
+    enum class UserTypeEnum(private val value: String) {
+        MEMBER("MEMBER"),
+        NON_MEMBERS("NON_MEMBERS");
 
-
-public class SystemHours   {
-  /**
-   * This indicates that this set of rental hours applies to either members or non-members only.
-   */
-  public enum UserTypeEnum {
-    MEMBER("MEMBER"),
-    
-    NON_MEMBERS("NON_MEMBERS");
-
-    private String value;
-
-    UserTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static UserTypeEnum fromValue(String text) {
-      for (UserTypeEnum b : UserTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
+
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): UserTypeEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-  }
-  @JsonProperty("userType")
-  private UserTypeEnum userType = null;
 
-  @JsonProperty("stationId")
-  private String stationId = null;
+    /**
+     * This indicates that this set of rental hours applies to either members or non-members only.
+     * @return userType
+     */
+    @JvmField
+    @get:Schema(
+        example = "MEMBER",
+        description = "This indicates that this set of rental hours applies to either members or non-members only."
+    )
+    @JsonProperty("userType")
+    var userType: UserTypeEnum? = null
 
-  @JsonProperty("regionId")
-  private String regionId = null;
+    /**
+     * If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours of the station. (GET /operator/stations)
+     * @return stationId
+     */
+    @get:Schema(description = "If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours of the station. (GET /operator/stations)")
+    @JsonProperty("stationId")
+    var stationId: String? = null
 
-  @JsonProperty("startTime")
-  private String startTime = null;
+    /**
+     * If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours for the region. (GET /operator/regions)
+     * @return regionId
+     */
+    @get:Schema(description = "If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours for the region. (GET /operator/regions)")
+    @JsonProperty("regionId")
+    var regionId: String? = null
 
-  @JsonProperty("endTime")
-  private String endTime = null;
+    /**
+     * Get startTime
+     * @return startTime
+     */
+    @JvmField
+    @get:Schema(required = true, description = "")
+    @JsonProperty("startTime")
+    var startTime: String? = null
 
-  @JsonProperty("days")
-  @Valid
-  private List<Day> days = new ArrayList<Day>();
+    /**
+     * Get endTime
+     * @return endTime
+     */
+    @JvmField
+    @get:Schema(required = true, description = "")
+    @JsonProperty("endTime")
+    var endTime: String? = null
 
-  public SystemHours userType(UserTypeEnum userType) {
-    this.userType = userType;
-    return this;
-  }
-
-  /**
-   * This indicates that this set of rental hours applies to either members or non-members only.
-   * @return userType
-   **/
-  @Schema(example = "MEMBER", description = "This indicates that this set of rental hours applies to either members or non-members only.")
-  
-    public UserTypeEnum getUserType() {
-    return userType;
-  }
-
-  public void setUserType(UserTypeEnum userType) {
-    this.userType = userType;
-  }
-
-  public SystemHours stationId(String stationId) {
-    this.stationId = stationId;
-    return this;
-  }
-
-  /**
-   * If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours of the station. (GET /operator/stations)
-   * @return stationId
-   **/
-  @Schema(description = "If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours of the station. (GET /operator/stations)")
-  
-    public String getStationId() {
-    return stationId;
-  }
-
-  public void setStationId(String stationId) {
-    this.stationId = stationId;
-  }
-
-  public SystemHours regionId(String regionId) {
-    this.regionId = regionId;
-    return this;
-  }
-
-  /**
-   * If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours for the region. (GET /operator/regions)
-   * @return regionId
-   **/
-  @Schema(description = "If this parameter is present, it means that startTime and endTime correspond to the opening and closing hours for the region. (GET /operator/regions)")
-  
-    public String getRegionId() {
-    return regionId;
-  }
-
-  public void setRegionId(String regionId) {
-    this.regionId = regionId;
-  }
-
-  public SystemHours startTime(String startTime) {
-    this.startTime = startTime;
-    return this;
-  }
-
-  /**
-   * Get startTime
-   * @return startTime
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public String getStartTime() {
-    return startTime;
-  }
-
-  public void setStartTime(String startTime) {
-    this.startTime = startTime;
-  }
-
-  public SystemHours endTime(String endTime) {
-    this.endTime = endTime;
-    return this;
-  }
-
-  /**
-   * Get endTime
-   * @return endTime
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public String getEndTime() {
-    return endTime;
-  }
-
-  public void setEndTime(String endTime) {
-    this.endTime = endTime;
-  }
-
-  public SystemHours days(List<Day> days) {
-    this.days = days;
-    return this;
-  }
-
-  public SystemHours addDaysItem(Day daysItem) {
-    this.days.add(daysItem);
-    return this;
-  }
-
-  /**
-   * An array of abbreviations (first 3 letters) of English names of the days of the week that this hour object applies to (i.e. [\"mon\", \"tue\"]). Each day can only appear once within all of the hours objects in this feed.
-   * @return days
-   **/
-  @Schema(required = true, description = "An array of abbreviations (first 3 letters) of English names of the days of the week that this hour object applies to (i.e. [\"mon\", \"tue\"]). Each day can only appear once within all of the hours objects in this feed.")
-      @NotNull
-    @Valid
-    public List<Day> getDays() {
-    return days;
-  }
-
-  public void setDays(List<Day> days) {
-    this.days = days;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    @JsonProperty("days")
+    private var days: @Valid MutableList<Day>? = ArrayList()
+    fun userType(userType: UserTypeEnum?): SystemHours {
+        this.userType = userType
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun stationId(stationId: String?): SystemHours {
+        this.stationId = stationId
+        return this
     }
-    SystemHours systemHours = (SystemHours) o;
-    return Objects.equals(this.userType, systemHours.userType) &&
-        Objects.equals(this.stationId, systemHours.stationId) &&
-        Objects.equals(this.regionId, systemHours.regionId) &&
-        Objects.equals(this.startTime, systemHours.startTime) &&
-        Objects.equals(this.endTime, systemHours.endTime) &&
-        Objects.equals(this.days, systemHours.days);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(userType, stationId, regionId, startTime, endTime, days);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SystemHours {\n");
-    
-    sb.append("    userType: ").append(toIndentedString(userType)).append("\n");
-    sb.append("    stationId: ").append(toIndentedString(stationId)).append("\n");
-    sb.append("    regionId: ").append(toIndentedString(regionId)).append("\n");
-    sb.append("    startTime: ").append(toIndentedString(startTime)).append("\n");
-    sb.append("    endTime: ").append(toIndentedString(endTime)).append("\n");
-    sb.append("    days: ").append(toIndentedString(days)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun regionId(regionId: String?): SystemHours {
+        this.regionId = regionId
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun startTime(startTime: String?): SystemHours {
+        this.startTime = startTime
+        return this
+    }
+
+    fun endTime(endTime: String?): SystemHours {
+        this.endTime = endTime
+        return this
+    }
+
+    fun days(days: List<Day>?): SystemHours {
+        this.days = days
+        return this
+    }
+
+    fun addDaysItem(daysItem: Day): SystemHours {
+        days!!.add(daysItem)
+        return this
+    }
+
+    /**
+     * An array of abbreviations (first 3 letters) of English names of the days of the week that this hour object applies to (i.e. [\"mon\", \"tue\"]). Each day can only appear once within all of the hours objects in this feed.
+     * @return days
+     */
+    @Schema(
+        required = true,
+        description = "An array of abbreviations (first 3 letters) of English names of the days of the week that this hour object applies to (i.e. [\"mon\", \"tue\"]). Each day can only appear once within all of the hours objects in this feed."
+    )
+    fun getDays(): @NotNull @Valid MutableList<Day>? {
+        return days
+    }
+
+    fun setDays(days: List<Day>?) {
+        this.days = days
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val systemHours = o as SystemHours
+        return userType == systemHours.userType && stationId == systemHours.stationId && regionId == systemHours.regionId && startTime == systemHours.startTime && endTime == systemHours.endTime && days == systemHours.days
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(userType, stationId, regionId, startTime, endTime, days)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class SystemHours {\n")
+        sb.append("    userType: ").append(toIndentedString(userType)).append("\n")
+        sb.append("    stationId: ").append(toIndentedString(stationId)).append("\n")
+        sb.append("    regionId: ").append(toIndentedString(regionId)).append("\n")
+        sb.append("    startTime: ").append(toIndentedString(startTime)).append("\n")
+        sb.append("    endTime: ").append(toIndentedString(endTime)).append("\n")
+        sb.append("    days: ").append(toIndentedString(days)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

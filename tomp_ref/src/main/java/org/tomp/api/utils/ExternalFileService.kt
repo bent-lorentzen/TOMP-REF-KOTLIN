@@ -1,42 +1,36 @@
-package org.tomp.api.utils;
+package org.tomp.api.utils
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-
-import io.swagger.model.EndpointImplementation;
-import io.swagger.model.GeojsonPolygon;
+import io.swagger.model.EndpointImplementation
+import io.swagger.model.GeojsonPolygon
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.util.Arrays
 
 @Component
-public class ExternalFileService {
+class ExternalFileService @Autowired constructor(private val configuration: ExternalConfiguration) {
+    val area: GeojsonPolygon?
+        get() {
+            val areaProvider = ObjectFromFileProvider<GeojsonPolygon>()
+            return areaProvider.getObject("", GeojsonPolygon::class.java, configuration.areaFile)
+        }
 
-	private ExternalConfiguration configuration;
-
-	@Autowired
-	public ExternalFileService(ExternalConfiguration configuration) {
-		this.configuration = configuration;
-	}
-
-	public GeojsonPolygon getArea() {
-		ObjectFromFileProvider<GeojsonPolygon> areaProvider = new ObjectFromFileProvider<>();
-		return areaProvider.getObject("", GeojsonPolygon.class, configuration.getAreaFile());
-	}
-
-	public String getVersions() throws IOException {
-		File f = new File(configuration.getVersionFile());
-		return String.join("", Files.readAllLines(f.toPath()));
-	}
-
-	public List<EndpointImplementation> getEndPoints() {
-		ObjectFromFileProvider<EndpointImplementation[]> versionProvider = new ObjectFromFileProvider<>();
-		EndpointImplementation[] list = versionProvider.getObject("", EndpointImplementation[].class,
-				configuration.getVersionFile());
-		return Arrays.asList(list);
-	}
+    @get:Throws(IOException::class)
+    val versions: String
+        get() {
+            val f = File(configuration.versionFile)
+            return java.lang.String.join("", Files.readAllLines(f.toPath()))
+        }
+    val endPoints: List<EndpointImplementation>
+        get() {
+            val versionProvider = ObjectFromFileProvider<Array<EndpointImplementation>>()
+            val list = versionProvider.getObject(
+                "", Array<EndpointImplementation>::class.java,
+                configuration.versionFile
+            )!!
+            return Arrays.asList(*list)
+        }
 }

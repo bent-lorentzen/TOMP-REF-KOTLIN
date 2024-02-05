@@ -1,50 +1,44 @@
-package org.tomp.api.payment;
+package org.tomp.api.payment
 
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.threeten.bp.OffsetDateTime;
-import org.tomp.api.repository.DefaultRepository;
-
-import io.swagger.model.ExtraCosts;
-import io.swagger.model.JournalEntry;
-import io.swagger.model.JournalState;
+import io.swagger.model.ExtraCosts
+import io.swagger.model.JournalEntry
+import io.swagger.model.JournalState
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.threeten.bp.OffsetDateTime
+import org.tomp.api.repository.DefaultRepository
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.payment", havingValue = "generic", matchIfMissing = true)
-public class GenericPaymentProvider implements PaymentProvider {
+@ConditionalOnProperty(value = ["tomp.providers.payment"], havingValue = "generic", matchIfMissing = true)
+class GenericPaymentProvider : PaymentProvider {
+    @Autowired
+    var repository: DefaultRepository? = null
+    override fun claimExtraCosts(
+        acceptLanguage: String?, api: String?, apiVersion: String?, id: String?,
+        body: ExtraCosts?
+    ): JournalEntry {
+        val extraCosts = JournalEntry()
+        extraCosts.amount = body!!.amount
+        extraCosts.amountExVat = body.amountExVat
+        extraCosts.comment = body.description
+        extraCosts.currencyCode = body.currencyCode
+        extraCosts.details = body
+        // extraCosts.setExpirationDate(body.get);
+        extraCosts.journalId = id
+        extraCosts.state = JournalState.TO_INVOICE
+        extraCosts.vatCountryCode = body.vatCountryCode
+        extraCosts.vatRate = body.vatRate
+        return extraCosts
+    }
 
-	@Autowired
-	DefaultRepository repository;
-
-	@Override
-	public JournalEntry claimExtraCosts(String acceptLanguage, String api, String apiVersion, String id,
-			ExtraCosts body) {
-		JournalEntry extraCosts = new JournalEntry();
-		extraCosts.setAmount(body.getAmount());
-		extraCosts.setAmountExVat(body.getAmountExVat());
-		extraCosts.setComment(body.getDescription());
-		extraCosts.setCurrencyCode(body.getCurrencyCode());
-		extraCosts.setDetails(body);
-		// extraCosts.setExpirationDate(body.get);
-		extraCosts.setJournalId(id);
-		extraCosts.setState(JournalState.TO_INVOICE);
-		extraCosts.setVatCountryCode(body.getVatCountryCode());
-		extraCosts.setVatRate(body.getVatRate());
-		return extraCosts;
-	}
-
-	@Override
-	public List<JournalEntry> getJournalEntries(String acceptLanguage, String api, String apiVersion,
-			@NotNull @Valid OffsetDateTime from, @NotNull @Valid OffsetDateTime to, JournalState state, String category,
-			String id, String maasId) {
-		return repository.getJournalEntries(acceptLanguage, from, to, state, category, id, maasId);
-	}
-
+    override fun getJournalEntries(
+        acceptLanguage: String?, api: String?, apiVersion: String?,
+        from: @NotNull @Valid OffsetDateTime?, to: @NotNull @Valid OffsetDateTime?, state: JournalState?, category: String?,
+        id: String?, maasId: String?
+    ): List<JournalEntry?>? {
+        return repository!!.getJournalEntries(acceptLanguage, from, to, state, category, id, maasId)
+    }
 }

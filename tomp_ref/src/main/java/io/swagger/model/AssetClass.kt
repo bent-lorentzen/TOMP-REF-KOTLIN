@@ -1,19 +1,13 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import io.swagger.v3.oas.annotations.media.Schema;
-import com.fasterxml.jackson.annotation.JsonValue;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 
 /**
  * These classes are taken from the NeTeX standard, but ALL and UNKNOWN are removed. On the other hand OTHER and PARKING are added.
  */
-public enum AssetClass {
-  AIR("AIR"),
+enum class AssetClass(private val value: String) {
+    AIR("AIR"),
     BUS("BUS"),
     TROLLEYBUS("TROLLEYBUS"),
     TRAM("TRAM"),
@@ -37,25 +31,20 @@ public enum AssetClass {
     MOPED("MOPED"),
     STEP("STEP");
 
-  private String value;
-
-  AssetClass(String value) {
-    this.value = value;
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return String.valueOf(value);
-  }
-
-  @JsonCreator
-  public static AssetClass fromValue(String text) {
-    for (AssetClass b : AssetClass.values()) {
-      if (String.valueOf(b.value).equals(text)) {
-        return b;
-      }
+    @JsonValue
+    override fun toString(): String {
+        return value.toString()
     }
-    return null;
-  }
+
+    companion object {
+        @JsonCreator
+        fun fromValue(text: String): AssetClass? {
+            for (b in entries) {
+                if (b.value.toString() == text) {
+                    return b
+                }
+            }
+            return null
+        }
+    }
 }

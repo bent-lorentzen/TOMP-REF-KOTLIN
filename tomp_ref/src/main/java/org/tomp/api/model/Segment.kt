@@ -1,34 +1,25 @@
-package org.tomp.api.model;
+package org.tomp.api.model
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import io.swagger.model.Leg
+import io.swagger.model.Planning
 
-import io.swagger.model.Leg;
-import io.swagger.model.Planning;
+class Segment : Leg() {
+    private val offeredResults: MutableMap<TransportOperator?, Planning?> = HashMap()
+    fun addResult(operator: TransportOperator?, result: Planning?) {
+        offeredResults[operator] = result
+    }
 
-public class Segment extends Leg {
+    fun getResult(operator: TransportOperator?): Planning? {
+        return offeredResults[operator]
+    }
 
-	private Map<TransportOperator, Planning> offeredResults = new HashMap<>();
+    fun getResult(operatorId: String): Planning? {
+        for ((key) in offeredResults) {
+            if (key.getId() == operatorId) return offeredResults[key]
+        }
+        return null
+    }
 
-	public void addResult(TransportOperator operator, Planning result) {
-		offeredResults.put(operator, result);
-	}
-
-	public Planning getResult(TransportOperator operator) {
-		return offeredResults.get(operator);
-	}
-
-	public Planning getResult(String operatorId) {
-		for (Entry<TransportOperator, Planning> entry : offeredResults.entrySet()) {
-			if (entry.getKey().getId().equals(operatorId))
-				return offeredResults.get(entry.getKey());
-		}
-		return null;
-	}
-
-	public Set<TransportOperator> getOperators() {
-		return offeredResults.keySet();
-	}
+    val operators: Set<TransportOperator?>
+        get() = offeredResults.keys
 }

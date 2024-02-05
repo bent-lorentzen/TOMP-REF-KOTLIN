@@ -1,25 +1,16 @@
-package org.tomp.api.exceptions;
+package org.tomp.api.exceptions
 
-public class MissingArgumentException extends RuntimeException {
+class MissingArgumentException(requiredArgument: String?) : RuntimeException() {
+    var requiredArgument: String? = null
 
-	private static final long serialVersionUID = -3443398319953659611L;
-	private String requiredArgument;
+    init {
+        this.requiredArgument = requiredArgument
+    }
 
-	public MissingArgumentException(String requiredArgument) {
-		this.setRequiredArgument(requiredArgument);
-	}
+    override val message: String
+        get() = "Missing argument: $requiredArgument"
 
-	public String getRequiredArgument() {
-		return requiredArgument;
-	}
-
-	public void setRequiredArgument(String requiredArgument) {
-		this.requiredArgument = requiredArgument;
-	}
-	
-	@Override
-	public String getMessage() {
-		return "Missing argument: " + requiredArgument;
-	}
-
+    companion object {
+        private const val serialVersionUID = -3443398319953659611L
+    }
 }

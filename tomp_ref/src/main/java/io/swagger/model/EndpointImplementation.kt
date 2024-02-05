@@ -1,199 +1,142 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.Endpoint;
-import io.swagger.model.ProcessIdentifiers;
-import io.swagger.model.Scenario;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 /**
  * a complete endpoint description, containing all endpoints, their status, but also the served scenarios and implemented process flows. The identifiers for the process flows can be found at https://github.com/TOMP-WG/TOMP-API/wiki/ProcessIdentifiers
  */
 @Schema(description = "a complete endpoint description, containing all endpoints, their status, but also the served scenarios and implemented process flows. The identifiers for the process flows can be found at https://github.com/TOMP-WG/TOMP-API/wiki/ProcessIdentifiers")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class EndpointImplementation {
+    /**
+     * Get version
+     * @return version
+     */
+    @get:Schema(required = true, description = "")
+    @JsonProperty("version")
+    var version: String? = null
 
+    /**
+     * Get baseUrl
+     * @return baseUrl
+     */
+    @get:Schema(required = true, description = "")
+    @JsonProperty("baseUrl")
+    var baseUrl: String? = null
 
-public class EndpointImplementation   {
-  @JsonProperty("version")
-  private String version = null;
+    @JsonProperty("endpoints")
+    private var endpoints: @Valid MutableList<Endpoint>? = ArrayList()
 
-  @JsonProperty("baseUrl")
-  private String baseUrl = null;
+    @JsonProperty("scenarios")
+    private var scenarios: @Valid MutableList<Scenario>? = ArrayList()
 
-  @JsonProperty("endpoints")
-  @Valid
-  private List<Endpoint> endpoints = new ArrayList<Endpoint>();
-
-  @JsonProperty("scenarios")
-  @Valid
-  private List<Scenario> scenarios = new ArrayList<Scenario>();
-
-  @JsonProperty("processIdentifiers")
-  private ProcessIdentifiers processIdentifiers = null;
-
-  public EndpointImplementation version(String version) {
-    this.version = version;
-    return this;
-  }
-
-  /**
-   * Get version
-   * @return version
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public String getVersion() {
-    return version;
-  }
-
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  public EndpointImplementation baseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
-    return this;
-  }
-
-  /**
-   * Get baseUrl
-   * @return baseUrl
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public String getBaseUrl() {
-    return baseUrl;
-  }
-
-  public void setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
-  }
-
-  public EndpointImplementation endpoints(List<Endpoint> endpoints) {
-    this.endpoints = endpoints;
-    return this;
-  }
-
-  public EndpointImplementation addEndpointsItem(Endpoint endpointsItem) {
-    this.endpoints.add(endpointsItem);
-    return this;
-  }
-
-  /**
-   * Get endpoints
-   * @return endpoints
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-    @Valid
-    public List<Endpoint> getEndpoints() {
-    return endpoints;
-  }
-
-  public void setEndpoints(List<Endpoint> endpoints) {
-    this.endpoints = endpoints;
-  }
-
-  public EndpointImplementation scenarios(List<Scenario> scenarios) {
-    this.scenarios = scenarios;
-    return this;
-  }
-
-  public EndpointImplementation addScenariosItem(Scenario scenariosItem) {
-    this.scenarios.add(scenariosItem);
-    return this;
-  }
-
-  /**
-   * Get scenarios
-   * @return scenarios
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-    @Valid
-    public List<Scenario> getScenarios() {
-    return scenarios;
-  }
-
-  public void setScenarios(List<Scenario> scenarios) {
-    this.scenarios = scenarios;
-  }
-
-  public EndpointImplementation processIdentifiers(ProcessIdentifiers processIdentifiers) {
-    this.processIdentifiers = processIdentifiers;
-    return this;
-  }
-
-  /**
-   * Get processIdentifiers
-   * @return processIdentifiers
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    @Valid
-    public ProcessIdentifiers getProcessIdentifiers() {
-    return processIdentifiers;
-  }
-
-  public void setProcessIdentifiers(ProcessIdentifiers processIdentifiers) {
-    this.processIdentifiers = processIdentifiers;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * Get processIdentifiers
+     * @return processIdentifiers
+     */
+    @get:Schema(required = true, description = "")
+    @JsonProperty("processIdentifiers")
+    var processIdentifiers: ProcessIdentifiers? = null
+    fun version(version: String?): EndpointImplementation {
+        this.version = version
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun baseUrl(baseUrl: String?): EndpointImplementation {
+        this.baseUrl = baseUrl
+        return this
     }
-    EndpointImplementation endpointImplementation = (EndpointImplementation) o;
-    return Objects.equals(this.version, endpointImplementation.version) &&
-        Objects.equals(this.baseUrl, endpointImplementation.baseUrl) &&
-        Objects.equals(this.endpoints, endpointImplementation.endpoints) &&
-        Objects.equals(this.scenarios, endpointImplementation.scenarios) &&
-        Objects.equals(this.processIdentifiers, endpointImplementation.processIdentifiers);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(version, baseUrl, endpoints, scenarios, processIdentifiers);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class EndpointImplementation {\n");
-    
-    sb.append("    version: ").append(toIndentedString(version)).append("\n");
-    sb.append("    baseUrl: ").append(toIndentedString(baseUrl)).append("\n");
-    sb.append("    endpoints: ").append(toIndentedString(endpoints)).append("\n");
-    sb.append("    scenarios: ").append(toIndentedString(scenarios)).append("\n");
-    sb.append("    processIdentifiers: ").append(toIndentedString(processIdentifiers)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun endpoints(endpoints: List<Endpoint>?): EndpointImplementation {
+        this.endpoints = endpoints
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun addEndpointsItem(endpointsItem: Endpoint): EndpointImplementation {
+        endpoints!!.add(endpointsItem)
+        return this
+    }
+
+    /**
+     * Get endpoints
+     * @return endpoints
+     */
+    @Schema(required = true, description = "")
+    fun getEndpoints(): @NotNull @Valid MutableList<Endpoint>? {
+        return endpoints
+    }
+
+    fun setEndpoints(endpoints: List<Endpoint>?) {
+        this.endpoints = endpoints
+    }
+
+    fun scenarios(scenarios: List<Scenario>?): EndpointImplementation {
+        this.scenarios = scenarios
+        return this
+    }
+
+    fun addScenariosItem(scenariosItem: Scenario): EndpointImplementation {
+        scenarios!!.add(scenariosItem)
+        return this
+    }
+
+    /**
+     * Get scenarios
+     * @return scenarios
+     */
+    @Schema(required = true, description = "")
+    fun getScenarios(): @NotNull @Valid MutableList<Scenario>? {
+        return scenarios
+    }
+
+    fun setScenarios(scenarios: List<Scenario>?) {
+        this.scenarios = scenarios
+    }
+
+    fun processIdentifiers(processIdentifiers: ProcessIdentifiers?): EndpointImplementation {
+        this.processIdentifiers = processIdentifiers
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val endpointImplementation = o as EndpointImplementation
+        return version == endpointImplementation.version && baseUrl == endpointImplementation.baseUrl && endpoints == endpointImplementation.endpoints && scenarios == endpointImplementation.scenarios && processIdentifiers == endpointImplementation.processIdentifiers
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(version, baseUrl, endpoints, scenarios, processIdentifiers)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class EndpointImplementation {\n")
+        sb.append("    version: ").append(toIndentedString(version)).append("\n")
+        sb.append("    baseUrl: ").append(toIndentedString(baseUrl)).append("\n")
+        sb.append("    endpoints: ").append(toIndentedString(endpoints)).append("\n")
+        sb.append("    scenarios: ").append(toIndentedString(scenarios)).append("\n")
+        sb.append("    processIdentifiers: ").append(toIndentedString(processIdentifiers)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

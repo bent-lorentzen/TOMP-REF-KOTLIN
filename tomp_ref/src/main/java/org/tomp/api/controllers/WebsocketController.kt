@@ -1,32 +1,37 @@
-package org.tomp.api.controllers;
+package org.tomp.api.controllers
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.MessagingException;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.messaging.MessagingException
+import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.stereotype.Controller
 
 @Controller
-public class WebsocketController {
+class WebsocketController {
+    @Autowired
+    var mapper: ObjectMapper? = null
 
-	@Autowired
-	ObjectMapper mapper;
-
-	@Autowired
-	SimpMessagingTemplate simpMessagingTemplate;
-
-	public void sendMessage(String message, Object o) {
-		try {
-			if (o == null) {
-				simpMessagingTemplate.convertAndSend("/topic/backend", message + "\r\n");
-			} else {
-				simpMessagingTemplate.convertAndSend("/topic/backend",
-						message + "\r\n" + mapper.writeValueAsString(o) + "\r\n");
-			}
-		} catch (MessagingException | JsonProcessingException e) {
-			e.printStackTrace();
-		}
-	}
+    @Autowired
+    var simpMessagingTemplate: SimpMessagingTemplate? = null
+    fun sendMessage(message: String, o: Any?) {
+        try {
+            if (o == null) {
+                simpMessagingTemplate!!.convertAndSend("/topic/backend", message + "\r\n")
+            } else {
+                simpMessagingTemplate!!.convertAndSend(
+                    "/topic/backend",
+                    """
+                        $message
+                        ${mapper!!.writeValueAsString(o)}
+                        
+                        """.trimIndent()
+                )
+            }
+        } catch (e: MessagingException) {
+            e.printStackTrace()
+        } catch (e: JsonProcessingException) {
+            e.printStackTrace()
+        }
+    }
 }

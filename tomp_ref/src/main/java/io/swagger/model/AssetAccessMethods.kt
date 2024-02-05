@@ -1,18 +1,13 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonValue;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 
 /**
  * Gets or Sets assetAccessMethods
  */
-public enum AssetAccessMethods {
-  DEEPLINK("DEEPLINK"),
+enum class AssetAccessMethods(private val value: String) {
+    DEEPLINK("DEEPLINK"),
     QR("QR"),
     AZTEC("AZTEC"),
     TOMP_API("TOMP-API"),
@@ -25,25 +20,20 @@ public enum AssetAccessMethods {
     EMV("EMV"),
     NONE("NONE");
 
-  private String value;
-
-  AssetAccessMethods(String value) {
-    this.value = value;
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return String.valueOf(value);
-  }
-
-  @JsonCreator
-  public static AssetAccessMethods fromValue(String text) {
-    for (AssetAccessMethods b : AssetAccessMethods.values()) {
-      if (String.valueOf(b.value).equals(text)) {
-        return b;
-      }
+    @JsonValue
+    override fun toString(): String {
+        return value.toString()
     }
-    return null;
-  }
+
+    companion object {
+        @JsonCreator
+        fun fromValue(text: String): AssetAccessMethods? {
+            for (b in entries) {
+                if (b.value.toString() == text) {
+                    return b
+                }
+            }
+            return null
+        }
+    }
 }

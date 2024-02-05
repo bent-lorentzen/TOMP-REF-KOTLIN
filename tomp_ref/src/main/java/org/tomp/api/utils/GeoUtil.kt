@@ -1,129 +1,127 @@
-package org.tomp.api.utils;
+package org.tomp.api.utils
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import io.swagger.model.Coordinates
+import io.swagger.model.GeojsonLine
+import io.swagger.model.GeojsonPoint
+import io.swagger.model.GeojsonPolygon
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Envelope
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Polygon
+import org.tomp.api.model.parking.LonLatLocation
+import java.util.function.Function
+import java.util.stream.Collectors
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+object GeoUtil {
+    var gf = GeometryFactory()
+    @JvmStatic
+		fun isNearby(
+        coordinates: @NotNull @Valid Coordinates?, coordinates2: @NotNull @Valid Coordinates?,
+        meters: @Valid Double
+    ): Boolean {
+        val distance = distanceInMeters(
+            coordinates!!.lat!!, coordinates.lng!!,
+            coordinates2!!.lat!!, coordinates2.lng!!
+        )
+        return distance < meters
+    }
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.tomp.api.model.parking.LonLatLocation;
-
-import io.swagger.model.Coordinates;
-import io.swagger.model.GeojsonLine;
-import io.swagger.model.GeojsonPoint;
-import io.swagger.model.GeojsonPolygon;
-
-public class GeoUtil {
-
-	static GeometryFactory gf = new GeometryFactory();
-
-	private GeoUtil() {
-	}
-
-	public static boolean isNearby(@NotNull @Valid Coordinates coordinates, @NotNull @Valid Coordinates coordinates2,
-			@Valid double meters) {
-		float distance = distanceInMeters(coordinates.getLat().floatValue(), coordinates.getLng().floatValue(),
-				coordinates2.getLat().floatValue(), coordinates2.getLng().floatValue());
-		return distance < meters;
-	}
-
-	/*
+    /*
 	 * Distance in meters
 	 */
-	public static float distanceInMeters(float lat1, float lng1, float lat2, float lng2) {
-		double earthRadius = 6371000; // meters
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
-				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		return (float) (earthRadius * c);
-	}
+    fun distanceInMeters(lat1: Float, lng1: Float, lat2: Float, lng2: Float): Float {
+        val earthRadius = 6371000.0 // meters
+        val dLat = Math.toRadians((lat2 - lat1).toDouble())
+        val dLng = Math.toRadians((lng2 - lng1).toDouble())
+        val a =
+            sin(dLat / 2) * sin(dLat / 2) + cos(Math.toRadians(lat1.toDouble())) * cos(Math.toRadians(lat2.toDouble())) * sin(dLng / 2) * sin(dLng / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return (earthRadius * c).toFloat()
+    }
 
-	public static Coordinates toCoordinates(double lat, double lng) {
-		Coordinates c = new Coordinates();
-		c.setLat((float) lat);
-		c.setLng((float) lng);
-		return c;
-	}
+    @JvmStatic
+		fun toCoordinates(lat: Double, lng: Double): Coordinates {
+        val c = Coordinates()
+        c.lat = lat.toFloat()
+        c.lng = lng.toFloat()
+        return c
+    }
 
-	public static GeojsonPolygon toPolygon(LonLatLocation location, double radius) {
-		Coordinates c = new Coordinates();
-		c.setLng(location.getLongitude());
-		c.setLat(location.getLatitude());
-		return toPolygon(c, radius);
-	}
+    fun toPolygon(location: LonLatLocation?, radius: Double): GeojsonPolygon {
+        val c = Coordinates()
+        c.lng = location.getLongitude()
+        c.lat = location.getLatitude()
+        return toPolygon(c, radius)
+    }
 
-	public static void addPoint(GeojsonPolygon polygon, Float lng, Float lat) {
-		if (polygon.isEmpty()) {
-			polygon.add(new GeojsonLine());
-		}
-		GeojsonPoint e = new GeojsonPoint();
-		e.add(lng);
-		e.add(lat);
-		polygon.get(0).add(e);
-	}
+    fun addPoint(polygon: GeojsonPolygon, lng: Float?, lat: Float?) {
+        if (polygon.isEmpty()) {
+            polygon.add(GeojsonLine())
+        }
+        val e = GeojsonPoint()
+        e.add(lng)
+        e.add(lat)
+        polygon[0]!!.add(e)
+    }
 
-	public static void addPoint(GeojsonPolygon polygon, double lng, double lat) {
-		addPoint(polygon, (float) (lng), (float) (lat));
-	}
+    fun addPoint(polygon: GeojsonPolygon?, lng: Double, lat: Double) {
+        addPoint(polygon, lng.toFloat().toDouble(), lat.toFloat().toDouble())
+    }
 
-	public static GeojsonPolygon toPolygon(Coordinates location, double radius) {
-		GeojsonPolygon p = new GeojsonPolygon();
+    fun toPolygon(location: Coordinates?, radius: Double): GeojsonPolygon {
+        val p = GeojsonPolygon()
+        val r = radius.toFloat()
+        addPoint(p, (location!!.lng!! - r).toDouble(), (location.lat!! - r).toDouble())
+        addPoint(p, (location.lng!! + r).toDouble(), (location.lat!! - r).toDouble())
+        addPoint(p, (location.lng!! + r).toDouble(), (location.lat!! + r).toDouble())
+        addPoint(p, (location.lng!! - r).toDouble(), (location.lat!! + r).toDouble())
+        addPoint(p, (location.lng!! - r).toDouble(), (location.lat!! - r).toDouble())
+        return p
+    }
 
-		Float r = (float) (radius);
+    fun getBoundingBox(geometry: Geometry?): Envelope {
+        val envelope = Envelope()
+        val enclosingGeometry = geometry!!.envelope
+        val enclosingCoordinates = enclosingGeometry.coordinates
+        for (c in enclosingCoordinates) {
+            envelope.expandToInclude(c)
+        }
+        return envelope
+    }
 
-		addPoint(p, location.getLng() - r, location.getLat() - r);
-		addPoint(p, location.getLng() + r, location.getLat() - r);
-		addPoint(p, location.getLng() + r, location.getLat() + r);
-		addPoint(p, location.getLng() - r, location.getLat() + r);
-		addPoint(p, location.getLng() - r, location.getLat() - r);
+    fun toPolygon(serviceArea: GeojsonPolygon?): Polygon {
+        val points: MutableList<Coordinate> = ArrayList()
+        for (coordinate in serviceArea!![0]!!) {
+            points.add(toCoordinate(coordinate))
+        }
+        return gf.createPolygon(points.toArray(arrayOf()))
+    }
 
-		return p;
-	}
+    private fun toCoordinate(coordinates: @NotNull @Valid GeojsonPoint?): Coordinate {
+        val c = Coordinate()
+        c.setX(coordinates!![0]!!.toDouble())
+        c.setY(coordinates[1]!!.toDouble())
+        return c
+    }
 
-	public static Envelope getBoundingBox(Geometry geometry) {
-		final Envelope envelope = new Envelope();
-		final Geometry enclosingGeometry = geometry.getEnvelope();
-		final Coordinate[] enclosingCoordinates = enclosingGeometry.getCoordinates();
-		for (Coordinate c : enclosingCoordinates) {
-			envelope.expandToInclude(c);
-		}
-		return envelope;
-	}
-
-	public static org.locationtech.jts.geom.Polygon toPolygon(GeojsonPolygon serviceArea) {
-		List<Coordinate> points = new ArrayList<>();
-		for (GeojsonPoint coordinate : serviceArea.get(0)) {
-			points.add(toCoordinate(coordinate));
-		}
-		return gf.createPolygon(points.toArray(new Coordinate[] {}));
-	}
-
-	private static Coordinate toCoordinate(@NotNull @Valid GeojsonPoint coordinates) {
-		Coordinate c = new Coordinate();
-		c.setX(coordinates.get(0).doubleValue());
-		c.setY(coordinates.get(1).doubleValue());
-		return c;
-	}
-
-	public static List<Coordinates> getCoordinatesFromPolygon(@Valid GeojsonPolygon serviceArea) {
-		List<Coordinates> coordinates = new ArrayList<>();
-		for (GeojsonLine line : serviceArea) {
-			List<Coordinates> points = line.stream().map(point -> {
-				Coordinates c = new Coordinates();
-				c.setLng(point.get(0));
-				c.setLat(point.get(1));
-				return c;
-			}).collect(Collectors.toList());
-			coordinates.addAll(points);
-		}
-		return coordinates;
-	}
+    fun getCoordinatesFromPolygon(serviceArea: @Valid GeojsonPolygon?): List<Coordinates> {
+        val coordinates: MutableList<Coordinates> = ArrayList()
+        for (line in serviceArea!!) {
+            val points = line.stream().map<Coordinates>(Function { point: GeojsonPoint ->
+                val c = Coordinates()
+                c.lng = point[0]
+                c.lat = point[1]
+                c
+            }).collect(Collectors.toList())
+            coordinates.addAll(points)
+        }
+        return coordinates
+    }
 }

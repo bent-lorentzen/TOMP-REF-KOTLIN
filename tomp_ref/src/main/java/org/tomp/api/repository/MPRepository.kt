@@ -1,62 +1,57 @@
-package org.tomp.api.repository;
+package org.tomp.api.repository
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.springframework.stereotype.Component;
-import org.tomp.api.model.TransportOperator;
-import org.tomp.api.model.Trip;
-
-import io.swagger.model.Booking;
-import io.swagger.model.Leg;
+import io.swagger.model.Booking
+import io.swagger.model.Leg
+import org.springframework.stereotype.Component
+import org.tomp.api.model.TransportOperator
+import org.tomp.api.model.Trip
+import java.util.AbstractMap
 
 @Component
-public class MPRepository {
+class MPRepository {
+    fun saveBooking(booking: Booking, trip: Trip) {
+        options[booking.id] = trip
+    }
 
-	private static final Map<String, Trip> options = new HashMap<>();
-	private static final Map<Booking, ArrayList<SimpleEntry<Booking, TransportOperator>>> bookings = new HashMap<>();
-	private static final Map<String, Leg> legs = new HashMap<>();
+    fun getTrip(id: String?): Trip? {
+        return options[id]
+    }
 
-	public void saveBooking(Booking booking, Trip trip) {
-		options.put(booking.getId(), trip);
-	}
+    fun addClientBooking(booking: Booking, operator: TransportOperator?, clientBooking: Booking) {
+        var clientBookings = bookings[booking]
+        if (clientBookings == null) {
+            clientBookings = ArrayList()
+        }
+        clientBookings.add(AbstractMap.SimpleEntry(clientBooking, operator))
+        bookings[booking] = clientBookings
+    }
 
-	public Trip getTrip(String id) {
-		return options.get(id);
-	}
+    fun getClientBooking(id: String): Booking? {
+        for ((_, value) in bookings) {
+            for ((key) in value) {
+                if (key.id == id) {
+                    return key
+                }
+            }
+        }
+        return null
+    }
 
-	public void addClientBooking(Booking booking, TransportOperator operator, Booking clientBooking) {
-		ArrayList<SimpleEntry<Booking, TransportOperator>> clientBookings = bookings.get(booking);
-		if (clientBookings == null) {
-			clientBookings = new ArrayList<>();
-		}
-		clientBookings.add(new SimpleEntry<Booking, TransportOperator>(clientBooking, operator));
-		bookings.put(booking, clientBookings);
-	}
+    fun getClientBookings(maasBooking: Booking): ArrayList<AbstractMap.SimpleEntry<Booking, TransportOperator?>> {
+        return bookings[maasBooking]!!
+    }
 
-	public Booking getClientBooking(String id) {
-		for (Entry<Booking, ArrayList<SimpleEntry<Booking, TransportOperator>>> entry : bookings.entrySet()) {
-			for (SimpleEntry<Booking, TransportOperator> clientBooking : entry.getValue()) {
-				if (clientBooking.getKey().getId().equals(id)) {
-					return clientBooking.getKey();
-				}
-			}
-		}
-		return null;
-	}
+    fun saveLeg(id: String, leg: Leg) {
+        legs[id] = leg
+    }
 
-	public ArrayList<SimpleEntry<Booking, TransportOperator>> getClientBookings(Booking maasBooking) {
-		return bookings.get(maasBooking);
-	}
+    fun getLeg(id: String): Leg? {
+        return legs[id]
+    }
 
-	public void saveLeg(String id, Leg leg) {
-		legs.put(id, leg);
-	}
-
-	public Leg getLeg(String id) {
-		return legs.get(id);
-	}
+    companion object {
+        private val options: MutableMap<String?, Trip> = HashMap()
+        private val bookings: MutableMap<Booking, ArrayList<AbstractMap.SimpleEntry<Booking, TransportOperator?>>> = HashMap()
+        private val legs: MutableMap<String, Leg> = HashMap()
+    }
 }

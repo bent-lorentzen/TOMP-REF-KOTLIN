@@ -1,206 +1,177 @@
-package org.tomp.api.tripexecution;
+package org.tomp.api.tripexecution
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.repository.DefaultRepository;
-
-import io.swagger.model.Asset;
-import io.swagger.model.Coordinates;
-import io.swagger.model.Fare;
-import io.swagger.model.FarePart;
-import io.swagger.model.JournalEntry;
-import io.swagger.model.JournalState;
-import io.swagger.model.Leg;
-import io.swagger.model.LegEvent;
-import io.swagger.model.LegState;
-import io.swagger.model.Suboperator;
-import io.swagger.model.Token;
-import io.swagger.model.TokenDefault;
+import io.swagger.model.Asset
+import io.swagger.model.FarePart
+import io.swagger.model.FarePart.UnitTypeEnum
+import io.swagger.model.JournalEntry
+import io.swagger.model.JournalState
+import io.swagger.model.Leg
+import io.swagger.model.LegEvent
+import io.swagger.model.LegState
+import io.swagger.model.Suboperator
+import io.swagger.model.Token
+import io.swagger.model.TokenDefault
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.threeten.bp.OffsetDateTime
+import org.threeten.bp.temporal.ChronoUnit
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.repository.DefaultRepository
+import java.util.UUID
+import kotlin.math.abs
+import kotlin.math.sqrt
 
 @Component
-@ConditionalOnProperty(value = "tomp.providers.tripexecution", havingValue = "generic", matchIfMissing = true)
-public class GenericTripExecutionProvider implements TripExecutionProvider {
+@ConditionalOnProperty(value = ["tomp.providers.tripexecution"], havingValue = "generic", matchIfMissing = true)
+class GenericTripExecutionProvider : TripExecutionProvider {
+    @Autowired
+    var repository: DefaultRepository? = null
 
-	@Autowired
-	DefaultRepository repository;
+    @Autowired
+    var configuration: ExternalConfiguration? = null
+    override fun prepare(body: LegEvent?, acceptLanguage: String?, id: String?, maasId: String?): Leg? {
+        val leg = repository!!.getLeg(id)
+        leg!!.assetAccessData = constructTokenToOpenAsset(body, leg)
+        leg.state = LegState.PREPARING
+        repository!!.saveLegEvent(id, body)
+        return leg
+    }
 
-	@Autowired
-	ExternalConfiguration configuration;
+    private fun constructTokenToOpenAsset(body: LegEvent?, planning: Leg?): Token {
+        val token = Token()
+        token.validFrom = body!!.time
+        token.validUntil = ChronoUnit.SECONDS.addTo(planning!!.departureTime, -3600)
+        val tokenData = TokenDefault()
+        tokenData["code"] = UUID.randomUUID()
+        token.tokenData = tokenData
+        return token
+    }
 
-	@Override
-	public Leg prepare(LegEvent body, String acceptLanguage, String id, String maasId) {
-		Leg leg = repository.getLeg(id);
-		leg.setAssetAccessData(constructTokenToOpenAsset(body, leg));
-		leg.setState(LegState.PREPARING);
-		repository.saveLegEvent(id, body);
-		return leg;
-	}
+    override fun assignAsset(body: LegEvent?, acceptLanguage: String?, id: String?, maasId: String?): Leg? {
+        val leg = repository!!.getLeg(id)
+        val asset = Asset()
+        asset.id = id
+        leg!!.asset = asset
+        repository!!.saveLegEvent(id, body)
+        return leg
+    }
 
-	private Token constructTokenToOpenAsset(LegEvent body, Leg planning) {
-		Token token = new Token();
-		token.setValidFrom(body.getTime());
-		token.setValidUntil(ChronoUnit.SECONDS.addTo(planning.getDepartureTime(), -3600));
-		TokenDefault tokenData = new TokenDefault();
-		((TokenDefault) tokenData).put("code", UUID.randomUUID());
-		token.setTokenData(tokenData);
-		return token;
-	}
+    override fun reserve(body: LegEvent?, acceptLanguage: String?, id: String?, maasId: String?): Leg? {
+        val leg = repository!!.getLeg(id)
+        val asset = Asset()
+        asset.id = id
+        leg!!.asset = asset
+        repository!!.saveLegEvent(id, body)
+        return leg
+    }
 
-	@Override
-	public Leg assignAsset(LegEvent body, String acceptLanguage, String id, String maasId) {
-		Leg leg = repository.getLeg(id);
-		Asset asset = new Asset();
-		asset.setId(id);
-		leg.setAsset(asset);
-		repository.saveLegEvent(id, body);
-		return leg;
-	}
+    override fun setInUse(body: LegEvent?, acceptLanguage: String?, id: String?, maasId: String?): Leg? {
+        val execution = repository!!.getLeg(id)
+        val suboperator = Suboperator()
+        suboperator.maasId = maasId
+        execution!!.suboperator = suboperator
+        if (execution.asset == null && body!!.asset != null) {
+            execution.asset = body.asset
+        }
+        execution.from = body!!.asset!!.overriddenProperties!!.location
+        execution.departureTime = body.time
+        repository!!.saveLegEvent(id, body)
+        execution.state = LegState.IN_USE
+        createJournalItem(id, execution, body, maasId)
+        return execution
+    }
 
-	@Override
-	public Leg reserve(LegEvent body, String acceptLanguage, String id, String maasId) {
-		Leg leg = repository.getLeg(id);
-		Asset asset = new Asset();
-		asset.setId(id);
-		leg.setAsset(asset);
-		repository.saveLegEvent(id, body);
-		return leg;
-	}
+    override fun pause(body: LegEvent?, acceptLanguage: String?, id: String?, maasId: String?): Leg? {
+        val leg = repository!!.getLeg(id)
+        leg!!.state = LegState.PAUSED
+        repository!!.saveLegEvent(id, body)
+        return leg
+    }
 
-	@Override
-	public Leg setInUse(LegEvent body, String acceptLanguage, String id, String maasId) {
-		Leg execution = repository.getLeg(id);
-		Suboperator suboperator = new Suboperator();
-		suboperator.setMaasId(maasId);
-		execution.setSuboperator(suboperator);
-		if (execution.getAsset() == null && body.getAsset() != null) {
-			execution.setAsset(body.getAsset());
-		}
-		execution.setFrom(body.getAsset().getOverriddenProperties().getLocation());
-		execution.setDepartureTime(body.getTime());
-		repository.saveLegEvent(id, body);
-		execution.setState(LegState.IN_USE);
-		createJournalItem(id, execution, body, maasId);
-		return execution;
-	}
+    override fun startFinishing(body: LegEvent?, acceptLanguage: String?, id: String?, maasId: String?): Leg? {
+        val leg = repository!!.getLeg(id)
+        leg!!.state = LegState.FINISHING
+        repository!!.saveLegEvent(id, body)
+        return leg
+    }
 
-	@Override
-	public Leg pause(LegEvent body, String acceptLanguage, String id, String maasId) {
-		Leg leg = repository.getLeg(id);
-		leg.setState(LegState.PAUSED);
-		repository.saveLegEvent(id, body);
-		return leg;
-	}
+    override fun finish(body: LegEvent?, acceptLanguage: String?, id: String?, maasId: String?): Leg? {
+        val leg = repository!!.getLeg(id)
+        leg!!.state = LegState.FINISHED
+        leg.to = body!!.asset!!.overriddenProperties!!.location
+        leg.arrivalTime = body.time
+        leg.pricing = leg.pricing
+        leg.pricing!!.isEstimated = false
+        finaliseJournalItem(id, leg, body, maasId)
+        repository!!.saveLegEvent(id, body)
+        return leg
+    }
 
-	@Override
-	public Leg startFinishing(LegEvent body, String acceptLanguage, String id, String maasId) {
-		Leg leg = repository.getLeg(id);
-		leg.setState(LegState.FINISHING);
-		repository.saveLegEvent(id, body);
-		return leg;
-	}
+    private fun createJournalItem(id: String?, execution: Leg?, body: LegEvent?, maasId: String?) {
+        val entry = JournalEntry()
+        entry.journalId = id
+        entry.state = null
+        repository!!.saveJournalEntry(entry, maasId)
+    }
 
-	@Override
-	public Leg finish(LegEvent body, String acceptLanguage, String id, String maasId) {
-		Leg leg = repository.getLeg(id);
-		leg.setState(LegState.FINISHED);
-		leg.setTo(body.getAsset().getOverriddenProperties().getLocation());
-		leg.setArrivalTime(body.getTime());
-		leg.setPricing(leg.getPricing());
-		leg.getPricing().setEstimated(false);
-		finaliseJournalItem(id, leg, body, maasId);
-		repository.saveLegEvent(id, body);
-		return leg;
-	}
+    private fun calculateFare(execution: Leg?): Float {
+        var amount = 0.0
+        val fare = execution!!.pricing
+        for (part in fare!!.getParts()!!) {
+            when (part.type) {
+                FarePart.TypeEnum.FIXED -> amount += part.amount!!.toDouble()
+                FarePart.TypeEnum.FLEX -> amount += calculateFlexPart(part, execution)
+                FarePart.TypeEnum.MAX -> if (amount > part.amount!!.toDouble()) {
+                    amount = part.amount!!.toDouble()
+                    break
+                }
 
-	private void createJournalItem(String id, Leg execution, LegEvent body, String maasId) {
-		JournalEntry entry = new JournalEntry();
-		entry.setJournalId(id);
-		entry.setState(null);
-		repository.saveJournalEntry(entry, maasId);
-	}
+                else -> {}
+            }
+        }
+        return amount.toFloat()
+    }
 
-	private Float calculateFare(Leg execution) {
-		double amount = 0;
-		Fare fare = execution.getPricing();
+    private fun calculateFlexPart(part: FarePart, execution: Leg?): Double {
+        val amount = part.amount!!.toDouble()
+        when (part.unitType) {
+            UnitTypeEnum.HOUR -> return ChronoUnit.HOURS.between(execution!!.departureTime, execution.arrivalTime)
+                .toDouble()
 
-		for (FarePart part : fare.getParts()) {
-			switch (part.getType()) {
-			case FIXED:
-				amount += part.getAmount().doubleValue();
-				break;
-			case FLEX:
-				amount += calculateFlexPart(part, execution);
-				break;
-			case MAX:
-				if (amount > part.getAmount().doubleValue()) {
-					amount = part.getAmount().doubleValue();
-					break;
-				}
-				break;
-			default:
-				break;
-			}
-		}
+            UnitTypeEnum.KM -> return amount * (execution!!.distance!!.toDouble() / 1000)
+            UnitTypeEnum.MILE -> return amount * (execution!!.distance!!.toDouble() / 1609)
+            UnitTypeEnum.MINUTE -> return ChronoUnit.MINUTES.between(execution!!.departureTime, execution.arrivalTime).toDouble()
+            UnitTypeEnum.PERCENTAGE -> {}
+            UnitTypeEnum.SECOND -> return ChronoUnit.SECONDS.between(execution!!.departureTime, execution.arrivalTime).toDouble()
+            else -> {}
+        }
+        return 0
+    }
 
-		return (float) amount;
-	}
+    private fun finaliseJournalItem(id: String?, execution: Leg?, legEvent: LegEvent?, maasId: String?) {
+        val entry = repository!!.getLastStartJournalEntry(maasId, id)
+        entry!!.usedTime = ChronoUnit.SECONDS.between(execution!!.departureTime, execution.arrivalTime).toInt()
+        entry.distance = calculateDistance(entry, legEvent).toFloat()
+        val amount = calculateFare(execution)
+        entry.amount = amount
+        entry.currencyCode = configuration.getCurrencyCode()
+        val vatRate = configuration.getVatRate()
+        entry.vatRate = vatRate.toFloat()
+        entry.amountExVat = (amount.toDouble() * ((100.0 - vatRate) / 100.0)).toFloat()
+        entry.vatCountryCode = configuration.getCurrencyCode()
+        entry.expirationDate = ChronoUnit.DAYS.addTo(OffsetDateTime.now(), configuration.getExpirationDays().toLong())
+        entry.state = JournalState.TO_INVOICE
+    }
 
-	private double calculateFlexPart(FarePart part, Leg execution) {
-		double amount = part.getAmount().doubleValue();
-		switch (part.getUnitType()) {
-		case HOUR:
-			return ChronoUnit.HOURS.between(execution.getDepartureTime(), execution.getArrivalTime());
-		case KM:
-			return amount * (execution.getDistance().doubleValue() / 1000);
-		case MILE:
-			return amount * (execution.getDistance().doubleValue() / 1609);
-		case MINUTE:
-			return ChronoUnit.MINUTES.between(execution.getDepartureTime(), execution.getArrivalTime());
-		case PERCENTAGE:
-			break;
-		case SECOND:
-			return ChronoUnit.SECONDS.between(execution.getDepartureTime(), execution.getArrivalTime());
-		default:
-			break;
-		}
-		return 0;
-	}
-
-	private void finaliseJournalItem(String id, Leg execution, LegEvent legEvent, String maasId) {
-		JournalEntry entry = repository.getLastStartJournalEntry(maasId, id);
-		entry.setUsedTime((int) ChronoUnit.SECONDS.between(execution.getDepartureTime(), execution.getArrivalTime()));
-		entry.setDistance((float)calculateDistance(entry, legEvent));
-		Float amount = calculateFare(execution);
-		entry.setAmount(amount);
-		entry.setCurrencyCode(configuration.getCurrencyCode());
-		long vatRate = configuration.getVatRate();
-		entry.setVatRate((float)vatRate);
-		entry.setAmountExVat((float)(amount.doubleValue() * ((100.0 - vatRate) / 100.0)));
-		entry.setVatCountryCode(configuration.getCurrencyCode());
-		entry.setExpirationDate(ChronoUnit.DAYS.addTo(OffsetDateTime.now(), configuration.getExpirationDays()));
-		entry.setState(JournalState.TO_INVOICE);
-	}
-
-	private int calculateDistance(JournalEntry entry, LegEvent legEvent) {
-		List<LegEvent> legEvents = repository.getLegEvents(entry.getJournalId());
-		Coordinates coordinates = legEvents.get(0).getAsset().getOverriddenProperties().getLocation().getCoordinates();
-		Coordinates coordinates2 = legEvent.getAsset().getOverriddenProperties().getLocation().getCoordinates();
-
-		Float lat = coordinates.getLat() - Math.abs(coordinates2.getLat());
-		Float lon = coordinates.getLng() - Math.abs(coordinates2.getLng());
-
-		lat = lat * lat;
-		lon = lon * lon;
-
-		return (int) (Math.sqrt(lat.doubleValue() + lon.doubleValue()));
-	}
-
+    private fun calculateDistance(entry: JournalEntry?, legEvent: LegEvent?): Int {
+        val legEvents = repository!!.getLegEvents(entry!!.journalId)
+        val coordinates = legEvents!![0]!!.asset!!.overriddenProperties!!.location!!.coordinates
+        val coordinates2 = legEvent!!.asset!!.overriddenProperties!!.location!!.coordinates
+        var lat = (coordinates!!.lat!! - abs(coordinates2!!.lat!!.toDouble())).toFloat()
+        var lon = (coordinates.lng!! - abs(coordinates2.lng!!.toDouble())).toFloat()
+        lat = lat * lat
+        lon = lon * lon
+        return sqrt(lat.toDouble() + lon.toDouble()).toInt()
+    }
 }

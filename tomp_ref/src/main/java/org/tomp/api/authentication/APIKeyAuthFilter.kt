@@ -1,25 +1,14 @@
-package org.tomp.api.authentication;
+package org.tomp.api.authentication
 
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter
+import javax.servlet.http.HttpServletRequest
 
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+class APIKeyAuthFilter(private val principalRequestHeader: String) : AbstractPreAuthenticatedProcessingFilter() {
+    override fun getPreAuthenticatedPrincipal(request: HttpServletRequest): Any {
+        return request.getHeader(principalRequestHeader)
+    }
 
-public class APIKeyAuthFilter extends AbstractPreAuthenticatedProcessingFilter {
-
-	private String principalRequestHeader;
-
-	public APIKeyAuthFilter(String principalRequestHeader) {
-		this.principalRequestHeader = principalRequestHeader;
-	}
-
-	@Override
-	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-		return request.getHeader(principalRequestHeader);
-	}
-
-	@Override
-	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
-		return "N/A";
-	}
-
+    override fun getPreAuthenticatedCredentials(request: HttpServletRequest): Any {
+        return "N/A"
+    }
 }

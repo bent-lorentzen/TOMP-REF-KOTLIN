@@ -1,55 +1,41 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import io.swagger.model.Token;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * TokenArray
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-04-28T07:34:31.139Z[GMT]")
-
-
-public class TokenArray extends ArrayList<Token>  {
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2021-04-28T07:34:31.139Z[GMT]")
+class TokenArray : ArrayList<Token?>() {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        return if (o == null || javaClass != o.javaClass) {
+            false
+        } else true
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    override fun hashCode(): Int {
+        return Objects.hash(super.hashCode())
     }
-    return true;
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode());
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class TokenArray {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class TokenArray {\n")
+        sb.append("    ").append(toIndentedString(super.toString())).append("\n")
+        sb.append("}")
+        return sb.toString()
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

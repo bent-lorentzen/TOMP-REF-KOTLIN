@@ -1,33 +1,27 @@
-package org.tomp.api.providers.regions;
+package org.tomp.api.providers.regions
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.tomp.api.configuration.ExternalConfiguration;
-import org.tomp.api.utils.ObjectFromFileProvider;
-
-import io.swagger.model.SystemRegion;
+import io.swagger.model.SystemRegion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
+import org.tomp.api.configuration.ExternalConfiguration
+import org.tomp.api.utils.ObjectFromFileProvider
 
 @Component
-@ConditionalOnProperty(value = "tomp.region-file", matchIfMissing = false)
-public class FileBasedRegionProvider implements RegionProvider {
-
-	@Autowired
-	ExternalConfiguration configuration;
-
-	@Override
-	public List<SystemRegion> getRegions(String acceptLanguage) {
-		ObjectFromFileProvider<SystemRegion[]> provider = new ObjectFromFileProvider<>();
-		SystemRegion[] regionArray = provider.getObject(acceptLanguage, SystemRegion[].class,
-				configuration.getRegionsFile());
-		List<SystemRegion> regions = new ArrayList<>();
-		for (int i = 0; i < regionArray.length; i++) {
-			regions.add(regionArray[i]);
-		}
-		return regions;
-	}
-
+@ConditionalOnProperty(value = ["tomp.region-file"], matchIfMissing = false)
+class FileBasedRegionProvider : RegionProvider {
+    @Autowired
+    var configuration: ExternalConfiguration? = null
+    override fun getRegions(acceptLanguage: String?): MutableList<SystemRegion> {
+        val provider = ObjectFromFileProvider<Array<SystemRegion>>()
+        val regionArray = provider.getObject(
+            acceptLanguage, Array<SystemRegion>::class.java,
+            configuration.getRegionsFile()
+        )!!
+        val regions: MutableList<SystemRegion> = ArrayList()
+        for (i in regionArray.indices) {
+            regions.add(regionArray[i])
+        }
+        return regions
+    }
 }

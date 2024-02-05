@@ -1,151 +1,99 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
 
 /**
  * BankAccount
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class BankAccount {
+    /**
+     * account name
+     * @return name
+     */
+    @get:Schema(description = "account name")
+    @JsonProperty("name")
+    var name: String? = null
 
+    /**
+     * account number
+     * @return number
+     */
+    @get:Schema(description = "account number")
+    @JsonProperty("number")
+    var number: String? = null
 
-public class BankAccount   {
-  @JsonProperty("name")
-  private String name = null;
+    /**
+     * two-letter country codes according to ISO 3166-1
+     * @return country
+     */
+    @get:Schema(example = "NL", description = "two-letter country codes according to ISO 3166-1")
+    @JsonProperty("country")
+    var country: String? = null
 
-  @JsonProperty("number")
-  private String number = null;
-
-  @JsonProperty("country")
-  private String country = null;
-
-  @JsonProperty("bankIdentification")
-  private String bankIdentification = null;
-
-  public BankAccount name(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * account name
-   * @return name
-   **/
-  @Schema(description = "account name")
-  
-    public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public BankAccount number(String number) {
-    this.number = number;
-    return this;
-  }
-
-  /**
-   * account number
-   * @return number
-   **/
-  @Schema(description = "account number")
-  
-    public String getNumber() {
-    return number;
-  }
-
-  public void setNumber(String number) {
-    this.number = number;
-  }
-
-  public BankAccount country(String country) {
-    this.country = country;
-    return this;
-  }
-
-  /**
-   * two-letter country codes according to ISO 3166-1
-   * @return country
-   **/
-  @Schema(example = "NL", description = "two-letter country codes according to ISO 3166-1")
-  
-  @Size(min=2,max=2)   public String getCountry() {
-    return country;
-  }
-
-  public void setCountry(String country) {
-    this.country = country;
-  }
-
-  public BankAccount bankIdentification(String bankIdentification) {
-    this.bankIdentification = bankIdentification;
-    return this;
-  }
-
-  /**
-   * bank identification, like BIC code
-   * @return bankIdentification
-   **/
-  @Schema(description = "bank identification, like BIC code")
-  
-    public String getBankIdentification() {
-    return bankIdentification;
-  }
-
-  public void setBankIdentification(String bankIdentification) {
-    this.bankIdentification = bankIdentification;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * bank identification, like BIC code
+     * @return bankIdentification
+     */
+    @get:Schema(description = "bank identification, like BIC code")
+    @JsonProperty("bankIdentification")
+    var bankIdentification: String? = null
+    fun name(name: String?): BankAccount {
+        this.name = name
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun number(number: String?): BankAccount {
+        this.number = number
+        return this
     }
-    BankAccount bankAccount = (BankAccount) o;
-    return Objects.equals(this.name, bankAccount.name) &&
-        Objects.equals(this.number, bankAccount.number) &&
-        Objects.equals(this.country, bankAccount.country) &&
-        Objects.equals(this.bankIdentification, bankAccount.bankIdentification);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(name, number, country, bankIdentification);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class BankAccount {\n");
-    
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    number: ").append(toIndentedString(number)).append("\n");
-    sb.append("    country: ").append(toIndentedString(country)).append("\n");
-    sb.append("    bankIdentification: ").append(toIndentedString(bankIdentification)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun country(country: String?): BankAccount {
+        this.country = country
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun bankIdentification(bankIdentification: String?): BankAccount {
+        this.bankIdentification = bankIdentification
+        return this
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val bankAccount = o as BankAccount
+        return name == bankAccount.name && number == bankAccount.number && country == bankAccount.country && bankIdentification == bankAccount.bankIdentification
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(name, number, country, bankIdentification)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class BankAccount {\n")
+        sb.append("    name: ").append(toIndentedString(name)).append("\n")
+        sb.append("    number: ").append(toIndentedString(number)).append("\n")
+        sb.append("    country: ").append(toIndentedString(country)).append("\n")
+        sb.append("    bankIdentification: ").append(toIndentedString(bankIdentification)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

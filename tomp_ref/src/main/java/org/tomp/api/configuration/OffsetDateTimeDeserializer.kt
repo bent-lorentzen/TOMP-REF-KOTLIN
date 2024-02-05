@@ -1,33 +1,23 @@
-package org.tomp.api.configuration;
+package org.tomp.api.configuration
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import org.threeten.bp.OffsetDateTime
+import java.io.IOException
 
-import org.threeten.bp.OffsetDateTime;
+class OffsetDateTimeDeserializer protected constructor(vc: Class<*>?) : StdDeserializer<OffsetDateTime>(vc) {
+    constructor() : this(null)
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+    @Throws(IOException::class, JsonProcessingException::class)
+    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): OffsetDateTime {
+        val node = jp.codec.readTree<JsonNode>(jp)
+        return OffsetDateTime.parse(node.textValue())
+    }
 
-public class OffsetDateTimeDeserializer extends StdDeserializer<OffsetDateTime> {
-
-	private static final long serialVersionUID = 8908258441798461284L;
-
-	public OffsetDateTimeDeserializer() {
-		this(null);
-	}
-
-	protected OffsetDateTimeDeserializer(Class<?> vc) {
-		super(vc);
-	}
-
-	@Override
-	public OffsetDateTime deserialize(JsonParser jp, DeserializationContext ctxt)
-			throws IOException, JsonProcessingException {
-		JsonNode node = jp.getCodec().readTree(jp);
-
-		return OffsetDateTime.parse(node.textValue());
-	}
-
+    companion object {
+        private const val serialVersionUID = 8908258441798461284L
+    }
 }

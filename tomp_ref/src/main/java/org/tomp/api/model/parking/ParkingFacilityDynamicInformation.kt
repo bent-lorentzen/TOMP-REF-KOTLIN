@@ -1,46 +1,17 @@
-package org.tomp.api.model.parking;
+package org.tomp.api.model.parking
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public class ParkingFacilityDynamicInformation {
-	@JsonProperty("description")
-	private String description;
-	@JsonProperty("identifier")
-	private String identifier;
-	@JsonProperty("name")
-	private String name;
-	@JsonProperty("facilityActualStatus")
-	private FacilityActualStatus facilityActualStatus;
+class ParkingFacilityDynamicInformation {
+    @JsonProperty("description")
+    var description: String? = null
 
-	public String getDescription() {
-		return description;
-	}
+    @JsonProperty("identifier")
+    var identifier: String? = null
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    @JsonProperty("name")
+    var name: String? = null
 
-	public String getIdentifier() {
-		return identifier;
-	}
-
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public FacilityActualStatus getFacilityActualStatus() {
-		return facilityActualStatus;
-	}
-
-	public void setFacilityActualStatus(FacilityActualStatus facilityActualStatus) {
-		this.facilityActualStatus = facilityActualStatus;
-	}
+    @JsonProperty("facilityActualStatus")
+    var facilityActualStatus: FacilityActualStatus? = null
 }

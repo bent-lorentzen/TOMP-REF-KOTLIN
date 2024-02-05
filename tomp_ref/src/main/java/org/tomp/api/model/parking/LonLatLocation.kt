@@ -1,29 +1,11 @@
-package org.tomp.api.model.parking;
+package org.tomp.api.model.parking
 
-import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+class LonLatLocation {
+    @JsonProperty("latitude")
+    var latitude: Float? = null
 
-public class LonLatLocation {
-
-	@JsonProperty("latitude")
-	private Float latitude;
-	@JsonProperty("longitude")
-	private Float longitude;
-
-	public Float getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(Float latitude) {
-		this.latitude = latitude;
-	}
-
-	public Float getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(Float longitude) {
-		this.longitude = longitude;
-	}
+    @JsonProperty("longitude")
+    var longitude: Float? = null
 }

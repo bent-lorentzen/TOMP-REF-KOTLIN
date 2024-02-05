@@ -1,274 +1,234 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 /**
  * ProcessIdentifiers
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+class ProcessIdentifiers {
+    @JsonProperty("operatorInformation")
+    private var operatorInformation: @Valid MutableList<String>? = ArrayList()
 
+    @JsonProperty("planning")
+    private var planning: @Valid MutableList<String>? = ArrayList()
 
-public class ProcessIdentifiers   {
-  @JsonProperty("operatorInformation")
-  @Valid
-  private List<String> operatorInformation = new ArrayList<String>();
+    @JsonProperty("booking")
+    private var booking: @Valid MutableList<String>? = ArrayList()
 
-  @JsonProperty("planning")
-  @Valid
-  private List<String> planning = new ArrayList<String>();
+    @JsonProperty("tripExecution")
+    private var tripExecution: @Valid MutableList<String>? = ArrayList()
 
-  @JsonProperty("booking")
-  @Valid
-  private List<String> booking = new ArrayList<String>();
+    @JsonProperty("support")
+    private var support: @Valid MutableList<String>? = ArrayList()
 
-  @JsonProperty("tripExecution")
-  @Valid
-  private List<String> tripExecution = new ArrayList<String>();
+    @JsonProperty("payment")
+    private var payment: @Valid MutableList<String>? = ArrayList()
 
-  @JsonProperty("support")
-  @Valid
-  private List<String> support = new ArrayList<String>();
-
-  @JsonProperty("payment")
-  @Valid
-  private List<String> payment = new ArrayList<String>();
-
-  @JsonProperty("general")
-  @Valid
-  private List<String> general = new ArrayList<String>();
-
-  public ProcessIdentifiers operatorInformation(List<String> operatorInformation) {
-    this.operatorInformation = operatorInformation;
-    return this;
-  }
-
-  public ProcessIdentifiers addOperatorInformationItem(String operatorInformationItem) {
-    this.operatorInformation.add(operatorInformationItem);
-    return this;
-  }
-
-  /**
-   * Get operatorInformation
-   * @return operatorInformation
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public List<String> getOperatorInformation() {
-    return operatorInformation;
-  }
-
-  public void setOperatorInformation(List<String> operatorInformation) {
-    this.operatorInformation = operatorInformation;
-  }
-
-  public ProcessIdentifiers planning(List<String> planning) {
-    this.planning = planning;
-    return this;
-  }
-
-  public ProcessIdentifiers addPlanningItem(String planningItem) {
-    this.planning.add(planningItem);
-    return this;
-  }
-
-  /**
-   * Get planning
-   * @return planning
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public List<String> getPlanning() {
-    return planning;
-  }
-
-  public void setPlanning(List<String> planning) {
-    this.planning = planning;
-  }
-
-  public ProcessIdentifiers booking(List<String> booking) {
-    this.booking = booking;
-    return this;
-  }
-
-  public ProcessIdentifiers addBookingItem(String bookingItem) {
-    this.booking.add(bookingItem);
-    return this;
-  }
-
-  /**
-   * Get booking
-   * @return booking
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public List<String> getBooking() {
-    return booking;
-  }
-
-  public void setBooking(List<String> booking) {
-    this.booking = booking;
-  }
-
-  public ProcessIdentifiers tripExecution(List<String> tripExecution) {
-    this.tripExecution = tripExecution;
-    return this;
-  }
-
-  public ProcessIdentifiers addTripExecutionItem(String tripExecutionItem) {
-    this.tripExecution.add(tripExecutionItem);
-    return this;
-  }
-
-  /**
-   * Get tripExecution
-   * @return tripExecution
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public List<String> getTripExecution() {
-    return tripExecution;
-  }
-
-  public void setTripExecution(List<String> tripExecution) {
-    this.tripExecution = tripExecution;
-  }
-
-  public ProcessIdentifiers support(List<String> support) {
-    this.support = support;
-    return this;
-  }
-
-  public ProcessIdentifiers addSupportItem(String supportItem) {
-    this.support.add(supportItem);
-    return this;
-  }
-
-  /**
-   * Get support
-   * @return support
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public List<String> getSupport() {
-    return support;
-  }
-
-  public void setSupport(List<String> support) {
-    this.support = support;
-  }
-
-  public ProcessIdentifiers payment(List<String> payment) {
-    this.payment = payment;
-    return this;
-  }
-
-  public ProcessIdentifiers addPaymentItem(String paymentItem) {
-    this.payment.add(paymentItem);
-    return this;
-  }
-
-  /**
-   * Get payment
-   * @return payment
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public List<String> getPayment() {
-    return payment;
-  }
-
-  public void setPayment(List<String> payment) {
-    this.payment = payment;
-  }
-
-  public ProcessIdentifiers general(List<String> general) {
-    this.general = general;
-    return this;
-  }
-
-  public ProcessIdentifiers addGeneralItem(String generalItem) {
-    this.general.add(generalItem);
-    return this;
-  }
-
-  /**
-   * Get general
-   * @return general
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public List<String> getGeneral() {
-    return general;
-  }
-
-  public void setGeneral(List<String> general) {
-    this.general = general;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    @JsonProperty("general")
+    private var general: @Valid MutableList<String>? = ArrayList()
+    fun operatorInformation(operatorInformation: List<String>?): ProcessIdentifiers {
+        this.operatorInformation = operatorInformation
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun addOperatorInformationItem(operatorInformationItem: String): ProcessIdentifiers {
+        operatorInformation!!.add(operatorInformationItem)
+        return this
     }
-    ProcessIdentifiers processIdentifiers = (ProcessIdentifiers) o;
-    return Objects.equals(this.operatorInformation, processIdentifiers.operatorInformation) &&
-        Objects.equals(this.planning, processIdentifiers.planning) &&
-        Objects.equals(this.booking, processIdentifiers.booking) &&
-        Objects.equals(this.tripExecution, processIdentifiers.tripExecution) &&
-        Objects.equals(this.support, processIdentifiers.support) &&
-        Objects.equals(this.payment, processIdentifiers.payment) &&
-        Objects.equals(this.general, processIdentifiers.general);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(operatorInformation, planning, booking, tripExecution, support, payment, general);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class ProcessIdentifiers {\n");
-    
-    sb.append("    operatorInformation: ").append(toIndentedString(operatorInformation)).append("\n");
-    sb.append("    planning: ").append(toIndentedString(planning)).append("\n");
-    sb.append("    booking: ").append(toIndentedString(booking)).append("\n");
-    sb.append("    tripExecution: ").append(toIndentedString(tripExecution)).append("\n");
-    sb.append("    support: ").append(toIndentedString(support)).append("\n");
-    sb.append("    payment: ").append(toIndentedString(payment)).append("\n");
-    sb.append("    general: ").append(toIndentedString(general)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    /**
+     * Get operatorInformation
+     * @return operatorInformation
+     */
+    @Schema(required = true, description = "")
+    fun getOperatorInformation(): @NotNull MutableList<String>? {
+        return operatorInformation
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun setOperatorInformation(operatorInformation: List<String>?) {
+        this.operatorInformation = operatorInformation
+    }
+
+    fun planning(planning: List<String>?): ProcessIdentifiers {
+        this.planning = planning
+        return this
+    }
+
+    fun addPlanningItem(planningItem: String): ProcessIdentifiers {
+        planning!!.add(planningItem)
+        return this
+    }
+
+    /**
+     * Get planning
+     * @return planning
+     */
+    @Schema(required = true, description = "")
+    fun getPlanning(): @NotNull MutableList<String>? {
+        return planning
+    }
+
+    fun setPlanning(planning: List<String>?) {
+        this.planning = planning
+    }
+
+    fun booking(booking: List<String>?): ProcessIdentifiers {
+        this.booking = booking
+        return this
+    }
+
+    fun addBookingItem(bookingItem: String): ProcessIdentifiers {
+        booking!!.add(bookingItem)
+        return this
+    }
+
+    /**
+     * Get booking
+     * @return booking
+     */
+    @Schema(required = true, description = "")
+    fun getBooking(): @NotNull MutableList<String>? {
+        return booking
+    }
+
+    fun setBooking(booking: List<String>?) {
+        this.booking = booking
+    }
+
+    fun tripExecution(tripExecution: List<String>?): ProcessIdentifiers {
+        this.tripExecution = tripExecution
+        return this
+    }
+
+    fun addTripExecutionItem(tripExecutionItem: String): ProcessIdentifiers {
+        tripExecution!!.add(tripExecutionItem)
+        return this
+    }
+
+    /**
+     * Get tripExecution
+     * @return tripExecution
+     */
+    @Schema(required = true, description = "")
+    fun getTripExecution(): @NotNull MutableList<String>? {
+        return tripExecution
+    }
+
+    fun setTripExecution(tripExecution: List<String>?) {
+        this.tripExecution = tripExecution
+    }
+
+    fun support(support: List<String>?): ProcessIdentifiers {
+        this.support = support
+        return this
+    }
+
+    fun addSupportItem(supportItem: String): ProcessIdentifiers {
+        support!!.add(supportItem)
+        return this
+    }
+
+    /**
+     * Get support
+     * @return support
+     */
+    @Schema(required = true, description = "")
+    fun getSupport(): @NotNull MutableList<String>? {
+        return support
+    }
+
+    fun setSupport(support: List<String>?) {
+        this.support = support
+    }
+
+    fun payment(payment: List<String>?): ProcessIdentifiers {
+        this.payment = payment
+        return this
+    }
+
+    fun addPaymentItem(paymentItem: String): ProcessIdentifiers {
+        payment!!.add(paymentItem)
+        return this
+    }
+
+    /**
+     * Get payment
+     * @return payment
+     */
+    @Schema(required = true, description = "")
+    fun getPayment(): @NotNull MutableList<String>? {
+        return payment
+    }
+
+    fun setPayment(payment: List<String>?) {
+        this.payment = payment
+    }
+
+    fun general(general: List<String>?): ProcessIdentifiers {
+        this.general = general
+        return this
+    }
+
+    fun addGeneralItem(generalItem: String): ProcessIdentifiers {
+        general!!.add(generalItem)
+        return this
+    }
+
+    /**
+     * Get general
+     * @return general
+     */
+    @Schema(required = true, description = "")
+    fun getGeneral(): @NotNull MutableList<String>? {
+        return general
+    }
+
+    fun setGeneral(general: List<String>?) {
+        this.general = general
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val processIdentifiers = o as ProcessIdentifiers
+        return operatorInformation == processIdentifiers.operatorInformation && planning == processIdentifiers.planning && booking == processIdentifiers.booking && tripExecution == processIdentifiers.tripExecution && support == processIdentifiers.support && payment == processIdentifiers.payment && general == processIdentifiers.general
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(operatorInformation, planning, booking, tripExecution, support, payment, general)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class ProcessIdentifiers {\n")
+        sb.append("    operatorInformation: ").append(toIndentedString(operatorInformation)).append("\n")
+        sb.append("    planning: ").append(toIndentedString(planning)).append("\n")
+        sb.append("    booking: ").append(toIndentedString(booking)).append("\n")
+        sb.append("    tripExecution: ").append(toIndentedString(tripExecution)).append("\n")
+        sb.append("    support: ").append(toIndentedString(support)).append("\n")
+        sb.append("    payment: ").append(toIndentedString(payment)).append("\n")
+        sb.append("    general: ").append(toIndentedString(general)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

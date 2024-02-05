@@ -1,207 +1,150 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.model.AssetClass;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.validation.annotation.Validated
+import java.util.Objects
+import javax.annotation.Generated
+import javax.validation.Valid
 
 /**
  * A generic description of a card, asset class and acceptors is only allowed for DISCOUNT/TRAVEL/OTHER cards
  */
 @Schema(description = "A generic description of a card, asset class and acceptors is only allowed for DISCOUNT/TRAVEL/OTHER cards")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-12-02T11:35:19.171Z[GMT]")
+@Generated(value = ["io.swagger.codegen.v3.generators.java.SpringCodegen"], date = "2020-12-02T11:35:19.171Z[GMT]")
+open class CardType {
+    /**
+     * The broad category of card
+     */
+    enum class TypeEnum(private val value: String) {
+        ID("ID"),
+        DISCOUNT("DISCOUNT"),
+        TRAVEL("TRAVEL"),
+        BANK("BANK"),
+        CREDIT("CREDIT"),
+        PASSPORT("PASSPORT"),
+        OTHER("OTHER");
 
-
-public class CardType   {
-  /**
-   * The broad category of card
-   */
-  public enum TypeEnum {
-    ID("ID"),
-    
-    DISCOUNT("DISCOUNT"),
-    
-    TRAVEL("TRAVEL"),
-    
-    BANK("BANK"),
-    
-    CREDIT("CREDIT"),
-    
-    PASSPORT("PASSPORT"),
-    
-    OTHER("OTHER");
-
-    private String value;
-
-    TypeEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static TypeEnum fromValue(String text) {
-      for (TypeEnum b : TypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
+        @JsonValue
+        override fun toString(): String {
+            return value.toString()
         }
-      }
-      return null;
+
+        companion object {
+            @JsonCreator
+            fun fromValue(text: String): TypeEnum? {
+                for (b in entries) {
+                    if (b.value.toString() == text) {
+                        return b
+                    }
+                }
+                return null
+            }
+        }
     }
-  }
-  @JsonProperty("type")
-  private TypeEnum type = null;
 
-  @JsonProperty("subType")
-  private String subType = null;
+    /**
+     * The broad category of card
+     * @return type
+     */
+    @JvmField
+    @get:Schema(required = true, description = "The broad category of card")
+    @JsonProperty("type")
+    var type: TypeEnum? = null
 
-  @JsonProperty("assetClass")
-  private AssetClass assetClass = null;
+    /**
+     * For use in case of OTHER. Can be used in bilateral agreements.
+     * @return subType
+     */
+    @get:Schema(description = "For use in case of OTHER. Can be used in bilateral agreements.")
+    @JsonProperty("subType")
+    var subType: String? = null
 
-  @JsonProperty("acceptors")
-  @Valid
-  private List<String> acceptors = null;
+    /**
+     * Get assetClass
+     * @return assetClass
+     */
+    @get:Schema(description = "")
+    @JsonProperty("assetClass")
+    var assetClass: AssetClass? = null
 
-  public CardType type(TypeEnum type) {
-    this.type = type;
-    return this;
-  }
-
-  /**
-   * The broad category of card
-   * @return type
-   **/
-  @Schema(required = true, description = "The broad category of card")
-      @NotNull
-
-    public TypeEnum getType() {
-    return type;
-  }
-
-  public void setType(TypeEnum type) {
-    this.type = type;
-  }
-
-  public CardType subType(String subType) {
-    this.subType = subType;
-    return this;
-  }
-
-  /**
-   * For use in case of OTHER. Can be used in bilateral agreements.
-   * @return subType
-   **/
-  @Schema(description = "For use in case of OTHER. Can be used in bilateral agreements.")
-  
-    public String getSubType() {
-    return subType;
-  }
-
-  public void setSubType(String subType) {
-    this.subType = subType;
-  }
-
-  public CardType assetClass(AssetClass assetClass) {
-    this.assetClass = assetClass;
-    return this;
-  }
-
-  /**
-   * Get assetClass
-   * @return assetClass
-   **/
-  @Schema(description = "")
-  
-    @Valid
-    public AssetClass getAssetClass() {
-    return assetClass;
-  }
-
-  public void setAssetClass(AssetClass assetClass) {
-    this.assetClass = assetClass;
-  }
-
-  public CardType acceptors(List<String> acceptors) {
-    this.acceptors = acceptors;
-    return this;
-  }
-
-  public CardType addAcceptorsItem(String acceptorsItem) {
-    if (this.acceptors == null) {
-      this.acceptors = new ArrayList<String>();
+    @JsonProperty("acceptors")
+    private var acceptors: @Valid MutableList<String>? = null
+    fun type(type: TypeEnum?): CardType {
+        this.type = type
+        return this
     }
-    this.acceptors.add(acceptorsItem);
-    return this;
-  }
 
-  /**
-   * references to accepting parties, only if applicable
-   * @return acceptors
-   **/
-  @Schema(description = "references to accepting parties, only if applicable")
-  
-    public List<String> getAcceptors() {
-    return acceptors;
-  }
-
-  public void setAcceptors(List<String> acceptors) {
-    this.acceptors = acceptors;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    fun subType(subType: String?): CardType {
+        this.subType = subType
+        return this
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    fun assetClass(assetClass: AssetClass?): CardType {
+        this.assetClass = assetClass
+        return this
     }
-    CardType cardType = (CardType) o;
-    return Objects.equals(this.type, cardType.type) &&
-        Objects.equals(this.subType, cardType.subType) &&
-        Objects.equals(this.assetClass, cardType.assetClass) &&
-        Objects.equals(this.acceptors, cardType.acceptors);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(type, subType, assetClass, acceptors);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class CardType {\n");
-    
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    subType: ").append(toIndentedString(subType)).append("\n");
-    sb.append("    assetClass: ").append(toIndentedString(assetClass)).append("\n");
-    sb.append("    acceptors: ").append(toIndentedString(acceptors)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    fun acceptors(acceptors: List<String>?): CardType {
+        this.acceptors = acceptors
+        return this
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    fun addAcceptorsItem(acceptorsItem: String): CardType {
+        if (acceptors == null) {
+            acceptors = ArrayList()
+        }
+        acceptors!!.add(acceptorsItem)
+        return this
+    }
+
+    /**
+     * references to accepting parties, only if applicable
+     * @return acceptors
+     */
+    @Schema(description = "references to accepting parties, only if applicable")
+    fun getAcceptors(): List<String>? {
+        return acceptors
+    }
+
+    fun setAcceptors(acceptors: List<String>?) {
+        this.acceptors = acceptors
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
+        }
+        if (o == null || javaClass != o.javaClass) {
+            return false
+        }
+        val cardType = o as CardType
+        return type == cardType.type && subType == cardType.subType && assetClass == cardType.assetClass && acceptors == cardType.acceptors
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(type, subType, assetClass, acceptors)
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("class CardType {\n")
+        sb.append("    type: ").append(toIndentedString(type)).append("\n")
+        sb.append("    subType: ").append(toIndentedString(subType)).append("\n")
+        sb.append("    assetClass: ").append(toIndentedString(assetClass)).append("\n")
+        sb.append("    acceptors: ").append(toIndentedString(acceptors)).append("\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private fun toIndentedString(o: Any?): String {
+        return o?.toString()?.replace("\n", "\n    ") ?: "null"
+    }
 }

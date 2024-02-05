@@ -1,18 +1,13 @@
-package io.swagger.model;
+package io.swagger.model
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonValue;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 
 /**
  * Gets or Sets day
  */
-public enum Day {
-  MON("MON"),
+enum class Day(private val value: String) {
+    MON("MON"),
     TUE("TUE"),
     WED("WED"),
     THU("THU"),
@@ -20,25 +15,21 @@ public enum Day {
     SAT("SAT"),
     SUN("SUN");
 
-  private String value;
-
-  Day(String value) {
-    this.value = value;
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return String.valueOf(value);
-  }
-
-  @JsonCreator
-  public static Day fromValue(String text) {
-    for (Day b : Day.values()) {
-      if (String.valueOf(b.value).equals(text)) {
-        return b;
-      }
+    @JsonValue
+    override fun toString(): String {
+        return value.toString()
     }
-    return null;
-  }
+
+    companion object {
+        @JvmStatic
+        @JsonCreator
+        fun fromValue(text: String): Day? {
+            for (b in entries) {
+                if (b.value.toString() == text) {
+                    return b
+                }
+            }
+            return null
+        }
+    }
 }

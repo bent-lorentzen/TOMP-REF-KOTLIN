@@ -1,158 +1,143 @@
-package org.tomp.api.repository;
+package org.tomp.api.repository
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.threeten.bp.OffsetDateTime;
-import org.tomp.api.configuration.ExternalConfiguration;
-
-import io.swagger.model.Booking;
-import io.swagger.model.ExtraCosts;
-import io.swagger.model.JournalEntry;
-import io.swagger.model.JournalState;
-import io.swagger.model.Leg;
-import io.swagger.model.LegEvent;
-import io.swagger.model.Planning;
+import io.swagger.model.Booking
+import io.swagger.model.ExtraCosts
+import io.swagger.model.JournalEntry
+import io.swagger.model.JournalState
+import io.swagger.model.Leg
+import io.swagger.model.LegEvent
+import io.swagger.model.Planning
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import org.threeten.bp.OffsetDateTime
+import org.tomp.api.configuration.ExternalConfiguration
+import java.util.function.Predicate
+import java.util.stream.Stream
 
 @Component
-public class DefaultRepository {
+class DefaultRepository {
+    @Autowired
+    var configuration: ExternalConfiguration? = null
+    private val bookings: MutableMap<String?, Booking?> = HashMap()
+    private val journalEntries: MutableMap<String?, MutableMap<String?, MutableList<JournalEntry>>> = HashMap()
+    private val legEvents: MutableMap<String?, MutableList<LegEvent?>> = HashMap()
+    fun saveBookingOption(optionsToSave: Planning?) {
+        if (optionsToSave == null) {
+            return
+        }
+        for (booking in optionsToSave.getOptions()!!) {
+            log.info("Saved booking: {}", booking.id)
+            bookings[booking.id] = booking
+        }
+    }
 
-	private static final Logger log = LoggerFactory.getLogger(DefaultRepository.class);
+    fun getSavedOption(id: String?): Booking? {
+        return bookings[id]
+    }
 
-	@Autowired
-	ExternalConfiguration configuration;
+    fun saveBooking(booking: Booking?) {
+        bookings[booking!!.id] = booking
+    }
 
-	private Map<String, Booking> bookings = new HashMap<>();
-	private Map<String, Map<String, List<JournalEntry>>> journalEntries = new HashMap<>();
-	private Map<String, List<LegEvent>> legEvents = new HashMap<>();
+    fun getBooking(id: String?): Booking? {
+        return bookings[id]
+    }
 
-	public void saveBookingOption(Planning optionsToSave) {
-		if (optionsToSave == null) {
-			return;
-		}
-		for (Booking booking : optionsToSave.getOptions()) {
-			log.info("Saved booking: {}", booking.getId());
-			bookings.put(booking.getId(), booking);
-		}
-	}
+    fun getBookings(predicate: Predicate<in Booking?>?): Stream<Booking?> {
+        return bookings.values.stream().filter(predicate)
+    }
 
-	public Booking getSavedOption(String id) {
-		return bookings.get(id);
-	}
+    fun getLeg(id: String?): Leg? {
+        for (b in bookings.values) {
+            for (leg in b!!.getLegs()!!) {
+                if (leg.id == id) {
+                    return leg
+                }
+            }
+        }
+        return null
+    }
 
-	public void saveBooking(Booking booking) {
-		bookings.put(booking.getId(), booking);
-	}
+    fun saveLegEvent(id: String?, body: LegEvent?) {
+        if (!legEvents.containsKey(id)) {
+            legEvents[id] = ArrayList()
+        }
+        legEvents[id]!!.add(body)
+    }
 
-	public Booking getBooking(String id) {
-		return bookings.get(id);
-	}
+    fun getLegEvents(id: String?): List<LegEvent?> {
+        return legEvents[id]!!
+    }
 
-	public Stream<Booking> getBookings(Predicate<? super Booking> predicate) {
-		return bookings.values().stream().filter(predicate);
-	}
+    fun saveJournalEntry(entry: JournalEntry, maasId: String?) {
+        val journalId = entry.journalId
+        if (!journalEntries.containsKey(maasId)) {
+            journalEntries[maasId] = HashMap()
+        }
+        val journalItemsPerMP = journalEntries[maasId]!!
+        calculateSequenceId(journalItemsPerMP, entry)
+        if (!journalItemsPerMP.containsKey(journalId)) {
+            journalItemsPerMP[journalId] = ArrayList()
+        }
+        journalItemsPerMP[journalId]!!.add(entry)
+    }
 
-	public Leg getLeg(String id) {
-		for (Booking b : bookings.values()) {
-			for (Leg leg : b.getLegs()) {
-				if (leg.getId().equals(id)) {
-					return leg;
-				}
-			}
-		}
-		return null;
-	}
+    private fun calculateSequenceId(journalItemsPerTO: Map<String?, MutableList<JournalEntry>>, entry: JournalEntry) {
+        val journal: List<JournalEntry>? = journalItemsPerTO[entry.journalId]
+        if (journal == null) entry.journalSequenceId = "0" else {
+            entry.journalSequenceId = journalItemsPerTO.size.toString()
+        }
+    }
 
-	public void saveLegEvent(String id, LegEvent body) {
-		if (!legEvents.containsKey(id)) {
-			legEvents.put(id, new ArrayList<>());
-		}
+    fun getLastStartJournalEntry(maasId: String?, id: String?): JournalEntry {
+        val list: List<JournalEntry> = journalEntries[maasId]!![id]!!
+        for (i in list.indices.reversed()) {
+            val journalEntry = list[i]
+            if (journalEntry.state == null) {
+                return journalEntry
+            }
+        }
+        return list[0]
+    }
 
-		legEvents.get(id).add(body);
-	}
+    fun getJournalEntries(
+        acceptLanguage: String?, from: OffsetDateTime?, to: OffsetDateTime?,
+        state: JournalState?, category: String?, id: String?, maasId: String?
+    ): List<JournalEntry> {
+        val entries = ArrayList<JournalEntry>()
+        val map: Map<String?, MutableList<JournalEntry>>? = journalEntries[maasId]
+        if (map != null) {
+            for (journal in map.values) {
+                for (entry in journal) {
+                    if (conditionsMet(entry, from, to, state, category, id)) {
+                        entries.add(entry)
+                    }
+                }
+            }
+        }
+        return entries
+    }
 
-	public List<LegEvent> getLegEvents(String id) {
-		return legEvents.get(id);
-	}
+    private fun conditionsMet(
+        entry: JournalEntry?, from: OffsetDateTime?, to: OffsetDateTime?, state: JournalState?,
+        category: String?, id: String?
+    ): Boolean {
+        if (id != null && entry!!.journalId == id) {
+            return true
+        }
+        if (entry == null || entry.expirationDate == null || entry.state == null) return false
+        if (to != null && entry.expirationDate!!.isAfter(to)) return false
+        if (from != null && entry.expirationDate!!.isBefore(from)) return false
+        if (state != null && entry.state !== state) return false
+        if (category != null && entry.details != null && entry.details is ExtraCosts) {
+            val c = entry.details as ExtraCosts?
+            return c!!.category.toString() == category
+        }
+        return true
+    }
 
-	public void saveJournalEntry(JournalEntry entry, String maasId) {
-		String journalId = entry.getJournalId();
-
-		if (!journalEntries.containsKey(maasId)) {
-			journalEntries.put(maasId, new HashMap<>());
-		}
-
-		Map<String, List<JournalEntry>> journalItemsPerMP = journalEntries.get(maasId);
-		calculateSequenceId(journalItemsPerMP, entry);
-
-		if (!journalItemsPerMP.containsKey(journalId)) {
-			journalItemsPerMP.put(journalId, new ArrayList<>());
-		}
-		journalItemsPerMP.get(journalId).add(entry);
-	}
-
-	private void calculateSequenceId(Map<String, List<JournalEntry>> journalItemsPerTO, JournalEntry entry) {
-		List<JournalEntry> journal = journalItemsPerTO.get(entry.getJournalId());
-		if (journal == null)
-			entry.setJournalSequenceId("0");
-		else {
-			entry.setJournalSequenceId(String.valueOf(journalItemsPerTO.size()));
-		}
-	}
-
-	public JournalEntry getLastStartJournalEntry(String maasId, String id) {
-		List<JournalEntry> list = journalEntries.get(maasId).get(id);
-		for (int i = list.size() - 1; i >= 0; i--) {
-			JournalEntry journalEntry = list.get(i);
-			if (journalEntry.getState() == null) {
-				return journalEntry;
-			}
-		}
-		return list.get(0);
-	}
-
-	public List<JournalEntry> getJournalEntries(String acceptLanguage, OffsetDateTime from, OffsetDateTime to,
-			JournalState state, String category, String id, String maasId) {
-		ArrayList<JournalEntry> entries = new ArrayList<>();
-		Map<String, List<JournalEntry>> map = journalEntries.get(maasId);
-		if (map != null) {
-			for (List<JournalEntry> journal : map.values()) {
-				for (JournalEntry entry : journal) {
-					if (conditionsMet(entry, from, to, state, category, id)) {
-						entries.add(entry);
-					}
-				}
-			}
-		}
-		return entries;
-	}
-
-	private boolean conditionsMet(JournalEntry entry, OffsetDateTime from, OffsetDateTime to, JournalState state,
-			String category, String id) {
-		if (id != null && entry.getJournalId().equals(id)) {
-			return true;
-		}
-		if (entry == null || entry.getExpirationDate() == null || entry.getState() == null)
-			return false;
-		if (to != null && entry.getExpirationDate().isAfter(to))
-			return false;
-		if (from != null && entry.getExpirationDate().isBefore(from))
-			return false;
-		if (state != null && entry.getState() != state)
-			return false;
-		if (category != null && entry.getDetails() != null && entry.getDetails() instanceof ExtraCosts) {
-			ExtraCosts c = (ExtraCosts) entry.getDetails();
-			return c.getCategory().toString().equals(category);
-		}
-
-		return true;
-	}
+    companion object {
+        private val log = LoggerFactory.getLogger(DefaultRepository::class.java)
+    }
 }
